@@ -1,0 +1,17 @@
+/Users/zlh/Documents/Git/postgres-v7/build/CMakeFiles/edit_cache.dir
+/Users/zlh/Documents/Git/postgres-v7/build/CMakeFiles/rebuild_cache.dir
+/Users/zlh/Documents/Git/postgres-v7/build/src/CMakeFiles/edit_cache.dir
+/Users/zlh/Documents/Git/postgres-v7/build/src/CMakeFiles/rebuild_cache.dir
+/Users/zlh/Documents/Git/postgres-v7/build/src/backend/CMakeFiles/edit_cache.dir
+/Users/zlh/Documents/Git/postgres-v7/build/src/backend/CMakeFiles/rebuild_cache.dir
+/Users/zlh/Documents/Git/postgres-v7/build/src/backend/utils/CMakeFiles/edit_cache.dir
+/Users/zlh/Documents/Git/postgres-v7/build/src/backend/utils/CMakeFiles/rebuild_cache.dir
+/Users/zlh/Documents/Git/postgres-v7/build/src/backend/utils/misc/CMakeFiles/fstack.dir
+/Users/zlh/Documents/Git/postgres-v7/build/src/backend/utils/misc/CMakeFiles/utils.dir
+/Users/zlh/Documents/Git/postgres-v7/build/src/backend/utils/misc/CMakeFiles/edit_cache.dir
+/Users/zlh/Documents/Git/postgres-v7/build/src/backend/utils/misc/CMakeFiles/rebuild_cache.dir
+/Users/zlh/Documents/Git/postgres-v7/build/test/CMakeFiles/edit_cache.dir
+/Users/zlh/Documents/Git/postgres-v7/build/test/CMakeFiles/rebuild_cache.dir
+/Users/zlh/Documents/Git/postgres-v7/build/test/utils/CMakeFiles/fstack_test.dir
+/Users/zlh/Documents/Git/postgres-v7/build/test/utils/CMakeFiles/edit_cache.dir
+/Users/zlh/Documents/Git/postgres-v7/build/test/utils/CMakeFiles/rebuild_cache.dir

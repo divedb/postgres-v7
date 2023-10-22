@@ -1,0 +1,2 @@
+/Library/Developer/CommandLineTools/usr/bin/ar qc libfstack.a CMakeFiles/fstack.dir/fstack.c.o
+/Library/Developer/CommandLineTools/usr/bin/ranlib libfstack.a
