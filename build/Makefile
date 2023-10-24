@@ -117,6 +117,19 @@ depend:
 .PHONY : depend
 
 #=============================================================================
+# Target rules for targets named buffer
+
+# Build rule for target.
+buffer: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 buffer
+.PHONY : buffer
+
+# fast build rule for target.
+buffer/fast:
+	$(MAKE) $(MAKESILENT) -f src/backend/storage/buffer/CMakeFiles/buffer.dir/build.make src/backend/storage/buffer/CMakeFiles/buffer.dir/build
+.PHONY : buffer/fast
+
+#=============================================================================
 # Target rules for targets named fstack
 
 # Build rule for target.
@@ -143,6 +156,19 @@ utils/fast:
 .PHONY : utils/fast
 
 #=============================================================================
+# Target rules for targets named slock_test
+
+# Build rule for target.
+slock_test: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 slock_test
+.PHONY : slock_test
+
+# fast build rule for target.
+slock_test/fast:
+	$(MAKE) $(MAKESILENT) -f test/storage/CMakeFiles/slock_test.dir/build.make test/storage/CMakeFiles/slock_test.dir/build
+.PHONY : slock_test/fast
+
+#=============================================================================
 # Target rules for targets named fstack_test
 
 # Build rule for target.
@@ -163,8 +189,10 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
+	@echo "... buffer"
 	@echo "... fstack"
 	@echo "... fstack_test"
+	@echo "... slock_test"
 	@echo "... utils"
 .PHONY : help
 

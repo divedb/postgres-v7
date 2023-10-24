@@ -1,0 +1,1 @@
+add_library(buffer s_lock.c)

@@ -13,9 +13,12 @@ set(CMAKE_MAKEFILE_DEPENDS
   "/Users/zlh/Documents/Git/postgres-v7/cmake/ClangTidy.cmake"
   "/Users/zlh/Documents/Git/postgres-v7/src/CMakeLists.txt"
   "/Users/zlh/Documents/Git/postgres-v7/src/backend/CMakeLists.txt"
+  "/Users/zlh/Documents/Git/postgres-v7/src/backend/storage/CMakeLists.txt"
+  "/Users/zlh/Documents/Git/postgres-v7/src/backend/storage/buffer/CMakeLists.txt"
   "/Users/zlh/Documents/Git/postgres-v7/src/backend/utils/CMakeLists.txt"
   "/Users/zlh/Documents/Git/postgres-v7/src/backend/utils/misc/CMakeLists.txt"
   "/Users/zlh/Documents/Git/postgres-v7/test/CMakeLists.txt"
+  "/Users/zlh/Documents/Git/postgres-v7/test/storage/CMakeLists.txt"
   "/Users/zlh/Documents/Git/postgres-v7/test/utils/CMakeLists.txt"
   "/usr/local/Cellar/cmake/3.27.4/share/cmake/Modules/CMakeCInformation.cmake"
   "/usr/local/Cellar/cmake/3.27.4/share/cmake/Modules/CMakeCommonLanguageInclude.cmake"
@@ -47,15 +50,20 @@ set(CMAKE_MAKEFILE_PRODUCTS
   "CMakeFiles/CMakeDirectoryInformation.cmake"
   "src/CMakeFiles/CMakeDirectoryInformation.cmake"
   "src/backend/CMakeFiles/CMakeDirectoryInformation.cmake"
+  "src/backend/storage/CMakeFiles/CMakeDirectoryInformation.cmake"
+  "src/backend/storage/buffer/CMakeFiles/CMakeDirectoryInformation.cmake"
   "src/backend/utils/CMakeFiles/CMakeDirectoryInformation.cmake"
   "src/backend/utils/misc/CMakeFiles/CMakeDirectoryInformation.cmake"
   "test/CMakeFiles/CMakeDirectoryInformation.cmake"
+  "test/storage/CMakeFiles/CMakeDirectoryInformation.cmake"
   "test/utils/CMakeFiles/CMakeDirectoryInformation.cmake"
   )
 
 # Dependency information for all targets:
 set(CMAKE_DEPEND_INFO_FILES
+  "src/backend/storage/buffer/CMakeFiles/buffer.dir/DependInfo.cmake"
   "src/backend/utils/misc/CMakeFiles/fstack.dir/DependInfo.cmake"
   "src/backend/utils/misc/CMakeFiles/utils.dir/DependInfo.cmake"
+  "test/storage/CMakeFiles/slock_test.dir/DependInfo.cmake"
   "test/utils/CMakeFiles/fstack_test.dir/DependInfo.cmake"
   )

@@ -228,9 +228,39 @@ typedef Datum* DatumPtr;
 #endif
 
 // Number of elements in an array.
-#define lengthof(array) (sizeof(array) / sizeof((array)[0]))
+#define LengthOf(array) (sizeof(array) / sizeof((array)[0]))
 
 // Address of the element one past the last in an array.
-#define endof(array) (&array[lengthof(array)])
+#define EndOf(array) (&array[LengthOf(array)])
+
+// Get a bit mask of the bits set in non-int32 aligned addresses.
+#define INT_ALIGN_MASK (sizeof(int32) - 1)
+
+// MemSet
+//   Exactly the same as standard library function memset(), but considerably
+//   faster for zeroing small word-aligned structures (such as parsetree nodes).
+//   This has to be a macro because the main point is to avoid function-call
+//   overhead.
+//
+// We got the 64 number by testing this against the stock memset() on
+// BSD/OS 3.0. Larger values were slower. bjm 1997/09/11
+//
+// I think the crossover point could be a good deal higher for
+// most platforms, actually.  tgl 2000-03-19
+#define MemSet(start, val, len)                                                                \
+  do {                                                                                         \
+    int32* _start = (int32*)(start);                                                           \
+    int _val = (val);                                                                          \
+    Size _len = (len);                                                                         \
+                                                                                               \
+    if ((((long)_start) & INT_ALIGN_MASK) == 0 && (_len & INT_ALIGN_MASK) == 0 && _val == 0 && \
+        _len <= MEMSET_LOOP_LIMIT) {                                                           \
+      int32* _stop = (int32*)((char*)_start + _len);                                           \
+      while (_start < _stop) *_start++ = 0;                                                    \
+    } else                                                                                     \
+      memset((char*)_start, _val, _len);                                                       \
+  } while (0)
+
+#define MEMSET_LOOP_LIMIT 64
 
 #endif  // RDBMS_C_H_

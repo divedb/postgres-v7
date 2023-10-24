@@ -1,0 +1,2 @@
+/Library/Developer/CommandLineTools/usr/bin/ar qc libbuffer.a CMakeFiles/buffer.dir/s_lock.c.o
+/Library/Developer/CommandLineTools/usr/bin/ranlib libbuffer.a

@@ -96,16 +96,49 @@ src/clean: src/backend/clean
 # Directory level rules for directory src/backend
 
 # Recursive "all" directory target.
+src/backend/all: src/backend/storage/all
 src/backend/all: src/backend/utils/all
 .PHONY : src/backend/all
 
 # Recursive "preinstall" directory target.
+src/backend/preinstall: src/backend/storage/preinstall
 src/backend/preinstall: src/backend/utils/preinstall
 .PHONY : src/backend/preinstall
 
 # Recursive "clean" directory target.
+src/backend/clean: src/backend/storage/clean
 src/backend/clean: src/backend/utils/clean
 .PHONY : src/backend/clean
+
+#=============================================================================
+# Directory level rules for directory src/backend/storage
+
+# Recursive "all" directory target.
+src/backend/storage/all: src/backend/storage/buffer/all
+.PHONY : src/backend/storage/all
+
+# Recursive "preinstall" directory target.
+src/backend/storage/preinstall: src/backend/storage/buffer/preinstall
+.PHONY : src/backend/storage/preinstall
+
+# Recursive "clean" directory target.
+src/backend/storage/clean: src/backend/storage/buffer/clean
+.PHONY : src/backend/storage/clean
+
+#=============================================================================
+# Directory level rules for directory src/backend/storage/buffer
+
+# Recursive "all" directory target.
+src/backend/storage/buffer/all: src/backend/storage/buffer/CMakeFiles/buffer.dir/all
+.PHONY : src/backend/storage/buffer/all
+
+# Recursive "preinstall" directory target.
+src/backend/storage/buffer/preinstall:
+.PHONY : src/backend/storage/buffer/preinstall
+
+# Recursive "clean" directory target.
+src/backend/storage/buffer/clean: src/backend/storage/buffer/CMakeFiles/buffer.dir/clean
+.PHONY : src/backend/storage/buffer/clean
 
 #=============================================================================
 # Directory level rules for directory src/backend/utils
@@ -143,16 +176,34 @@ src/backend/utils/misc/clean: src/backend/utils/misc/CMakeFiles/utils.dir/clean
 # Directory level rules for directory test
 
 # Recursive "all" directory target.
+test/all: test/storage/all
 test/all: test/utils/all
 .PHONY : test/all
 
 # Recursive "preinstall" directory target.
+test/preinstall: test/storage/preinstall
 test/preinstall: test/utils/preinstall
 .PHONY : test/preinstall
 
 # Recursive "clean" directory target.
+test/clean: test/storage/clean
 test/clean: test/utils/clean
 .PHONY : test/clean
+
+#=============================================================================
+# Directory level rules for directory test/storage
+
+# Recursive "all" directory target.
+test/storage/all: test/storage/CMakeFiles/slock_test.dir/all
+.PHONY : test/storage/all
+
+# Recursive "preinstall" directory target.
+test/storage/preinstall:
+.PHONY : test/storage/preinstall
+
+# Recursive "clean" directory target.
+test/storage/clean: test/storage/CMakeFiles/slock_test.dir/clean
+.PHONY : test/storage/clean
 
 #=============================================================================
 # Directory level rules for directory test/utils
@@ -170,13 +221,39 @@ test/utils/clean: test/utils/CMakeFiles/fstack_test.dir/clean
 .PHONY : test/utils/clean
 
 #=============================================================================
+# Target rules for target src/backend/storage/buffer/CMakeFiles/buffer.dir
+
+# All Build rule for target.
+src/backend/storage/buffer/CMakeFiles/buffer.dir/all:
+	$(MAKE) $(MAKESILENT) -f src/backend/storage/buffer/CMakeFiles/buffer.dir/build.make src/backend/storage/buffer/CMakeFiles/buffer.dir/depend
+	$(MAKE) $(MAKESILENT) -f src/backend/storage/buffer/CMakeFiles/buffer.dir/build.make src/backend/storage/buffer/CMakeFiles/buffer.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/zlh/Documents/Git/postgres-v7/build/CMakeFiles --progress-num=1,2 "Built target buffer"
+.PHONY : src/backend/storage/buffer/CMakeFiles/buffer.dir/all
+
+# Build rule for subdir invocation for target.
+src/backend/storage/buffer/CMakeFiles/buffer.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/zlh/Documents/Git/postgres-v7/build/CMakeFiles 2
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 src/backend/storage/buffer/CMakeFiles/buffer.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/zlh/Documents/Git/postgres-v7/build/CMakeFiles 0
+.PHONY : src/backend/storage/buffer/CMakeFiles/buffer.dir/rule
+
+# Convenience name for target.
+buffer: src/backend/storage/buffer/CMakeFiles/buffer.dir/rule
+.PHONY : buffer
+
+# clean rule for target.
+src/backend/storage/buffer/CMakeFiles/buffer.dir/clean:
+	$(MAKE) $(MAKESILENT) -f src/backend/storage/buffer/CMakeFiles/buffer.dir/build.make src/backend/storage/buffer/CMakeFiles/buffer.dir/clean
+.PHONY : src/backend/storage/buffer/CMakeFiles/buffer.dir/clean
+
+#=============================================================================
 # Target rules for target src/backend/utils/misc/CMakeFiles/fstack.dir
 
 # All Build rule for target.
 src/backend/utils/misc/CMakeFiles/fstack.dir/all:
 	$(MAKE) $(MAKESILENT) -f src/backend/utils/misc/CMakeFiles/fstack.dir/build.make src/backend/utils/misc/CMakeFiles/fstack.dir/depend
 	$(MAKE) $(MAKESILENT) -f src/backend/utils/misc/CMakeFiles/fstack.dir/build.make src/backend/utils/misc/CMakeFiles/fstack.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/zlh/Documents/Git/postgres-v7/build/CMakeFiles --progress-num=1,2 "Built target fstack"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/zlh/Documents/Git/postgres-v7/build/CMakeFiles --progress-num=3,4 "Built target fstack"
 .PHONY : src/backend/utils/misc/CMakeFiles/fstack.dir/all
 
 # Build rule for subdir invocation for target.
@@ -202,7 +279,7 @@ src/backend/utils/misc/CMakeFiles/fstack.dir/clean:
 src/backend/utils/misc/CMakeFiles/utils.dir/all:
 	$(MAKE) $(MAKESILENT) -f src/backend/utils/misc/CMakeFiles/utils.dir/build.make src/backend/utils/misc/CMakeFiles/utils.dir/depend
 	$(MAKE) $(MAKESILENT) -f src/backend/utils/misc/CMakeFiles/utils.dir/build.make src/backend/utils/misc/CMakeFiles/utils.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/zlh/Documents/Git/postgres-v7/build/CMakeFiles --progress-num=5,6 "Built target utils"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/zlh/Documents/Git/postgres-v7/build/CMakeFiles --progress-num=9,10 "Built target utils"
 .PHONY : src/backend/utils/misc/CMakeFiles/utils.dir/all
 
 # Build rule for subdir invocation for target.
@@ -222,13 +299,39 @@ src/backend/utils/misc/CMakeFiles/utils.dir/clean:
 .PHONY : src/backend/utils/misc/CMakeFiles/utils.dir/clean
 
 #=============================================================================
+# Target rules for target test/storage/CMakeFiles/slock_test.dir
+
+# All Build rule for target.
+test/storage/CMakeFiles/slock_test.dir/all: src/backend/storage/buffer/CMakeFiles/buffer.dir/all
+	$(MAKE) $(MAKESILENT) -f test/storage/CMakeFiles/slock_test.dir/build.make test/storage/CMakeFiles/slock_test.dir/depend
+	$(MAKE) $(MAKESILENT) -f test/storage/CMakeFiles/slock_test.dir/build.make test/storage/CMakeFiles/slock_test.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/zlh/Documents/Git/postgres-v7/build/CMakeFiles --progress-num=7,8 "Built target slock_test"
+.PHONY : test/storage/CMakeFiles/slock_test.dir/all
+
+# Build rule for subdir invocation for target.
+test/storage/CMakeFiles/slock_test.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/zlh/Documents/Git/postgres-v7/build/CMakeFiles 4
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test/storage/CMakeFiles/slock_test.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/zlh/Documents/Git/postgres-v7/build/CMakeFiles 0
+.PHONY : test/storage/CMakeFiles/slock_test.dir/rule
+
+# Convenience name for target.
+slock_test: test/storage/CMakeFiles/slock_test.dir/rule
+.PHONY : slock_test
+
+# clean rule for target.
+test/storage/CMakeFiles/slock_test.dir/clean:
+	$(MAKE) $(MAKESILENT) -f test/storage/CMakeFiles/slock_test.dir/build.make test/storage/CMakeFiles/slock_test.dir/clean
+.PHONY : test/storage/CMakeFiles/slock_test.dir/clean
+
+#=============================================================================
 # Target rules for target test/utils/CMakeFiles/fstack_test.dir
 
 # All Build rule for target.
 test/utils/CMakeFiles/fstack_test.dir/all: src/backend/utils/misc/CMakeFiles/utils.dir/all
 	$(MAKE) $(MAKESILENT) -f test/utils/CMakeFiles/fstack_test.dir/build.make test/utils/CMakeFiles/fstack_test.dir/depend
 	$(MAKE) $(MAKESILENT) -f test/utils/CMakeFiles/fstack_test.dir/build.make test/utils/CMakeFiles/fstack_test.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/zlh/Documents/Git/postgres-v7/build/CMakeFiles --progress-num=3,4 "Built target fstack_test"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/zlh/Documents/Git/postgres-v7/build/CMakeFiles --progress-num=5,6 "Built target fstack_test"
 .PHONY : test/utils/CMakeFiles/fstack_test.dir/all
 
 # Build rule for subdir invocation for target.
