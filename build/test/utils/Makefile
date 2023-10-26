@@ -144,6 +144,44 @@ oset_test/fast:
 	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f test/utils/CMakeFiles/oset_test.dir/build.make test/utils/CMakeFiles/oset_test.dir/build
 .PHONY : oset_test/fast
 
+# Convenience name for target.
+test/utils/CMakeFiles/aset_test.dir/rule:
+	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test/utils/CMakeFiles/aset_test.dir/rule
+.PHONY : test/utils/CMakeFiles/aset_test.dir/rule
+
+# Convenience name for target.
+aset_test: test/utils/CMakeFiles/aset_test.dir/rule
+.PHONY : aset_test
+
+# fast build rule for target.
+aset_test/fast:
+	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f test/utils/CMakeFiles/aset_test.dir/build.make test/utils/CMakeFiles/aset_test.dir/build
+.PHONY : aset_test/fast
+
+aset_test.o: aset_test.c.o
+.PHONY : aset_test.o
+
+# target to build an object file
+aset_test.c.o:
+	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f test/utils/CMakeFiles/aset_test.dir/build.make test/utils/CMakeFiles/aset_test.dir/aset_test.c.o
+.PHONY : aset_test.c.o
+
+aset_test.i: aset_test.c.i
+.PHONY : aset_test.i
+
+# target to preprocess a source file
+aset_test.c.i:
+	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f test/utils/CMakeFiles/aset_test.dir/build.make test/utils/CMakeFiles/aset_test.dir/aset_test.c.i
+.PHONY : aset_test.c.i
+
+aset_test.s: aset_test.c.s
+.PHONY : aset_test.s
+
+# target to generate assembly for a file
+aset_test.c.s:
+	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f test/utils/CMakeFiles/aset_test.dir/build.make test/utils/CMakeFiles/aset_test.dir/aset_test.c.s
+.PHONY : aset_test.c.s
+
 fstack_test.o: fstack_test.c.o
 .PHONY : fstack_test.o
 
@@ -200,8 +238,12 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
+	@echo "... aset_test"
 	@echo "... fstack_test"
 	@echo "... oset_test"
+	@echo "... aset_test.o"
+	@echo "... aset_test.i"
+	@echo "... aset_test.s"
 	@echo "... fstack_test.o"
 	@echo "... fstack_test.i"
 	@echo "... fstack_test.s"

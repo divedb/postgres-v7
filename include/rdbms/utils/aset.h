@@ -54,12 +54,12 @@
 // Aligned pointer which may be a member of an allocation set.
 typedef Pointer AllocPointer;
 
-//     Mode of allocation for an allocation set.
+// Mode of allocation for an allocation set.
 typedef enum AllocMode {
-  DynamicAllocMode,  // Always dynamically allocate
-  StaticAllocMode,   // Always "statically" allocate
-  TunableAllocMode,  // Allocations are "tuned"
-  BoundedAllocMode   // Allocations bounded to fixed usage
+  DynamicAllocMode,  // Always dynamically allocate.
+  StaticAllocMode,   // Always "statically" allocate.
+  TunableAllocMode,  // Allocations are "tuned".
+  BoundedAllocMode   // Allocations bounded to fixed usage.
 } AllocMode;
 
 #define DefaultAllocMode DynamicAllocMode

@@ -156,6 +156,19 @@ oset/fast:
 .PHONY : oset/fast
 
 #=============================================================================
+# Target rules for targets named aset
+
+# Build rule for target.
+aset: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 aset
+.PHONY : aset
+
+# fast build rule for target.
+aset/fast:
+	$(MAKE) $(MAKESILENT) -f src/backend/utils/mmgr/CMakeFiles/aset.dir/build.make src/backend/utils/mmgr/CMakeFiles/aset.dir/build
+.PHONY : aset/fast
+
+#=============================================================================
 # Target rules for targets named slock_test
 
 # Build rule for target.
@@ -194,6 +207,19 @@ oset_test/fast:
 	$(MAKE) $(MAKESILENT) -f test/utils/CMakeFiles/oset_test.dir/build.make test/utils/CMakeFiles/oset_test.dir/build
 .PHONY : oset_test/fast
 
+#=============================================================================
+# Target rules for targets named aset_test
+
+# Build rule for target.
+aset_test: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 aset_test
+.PHONY : aset_test
+
+# fast build rule for target.
+aset_test/fast:
+	$(MAKE) $(MAKESILENT) -f test/utils/CMakeFiles/aset_test.dir/build.make test/utils/CMakeFiles/aset_test.dir/build
+.PHONY : aset_test/fast
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -202,6 +228,8 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
+	@echo "... aset"
+	@echo "... aset_test"
 	@echo "... buffer"
 	@echo "... fstack"
 	@echo "... fstack_test"
