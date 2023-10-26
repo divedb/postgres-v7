@@ -47,22 +47,22 @@ typedef struct MemoryContextData {
 typedef struct GlobalMemoryData {
   NodeTag type;
   MemoryContextMethods method;
-  AllocSetData setData;
+  AllocSetData set_data;
   char* name;
-  OrderedElemData elemData;
+  OrderedElemData elem_data;
 } GlobalMemoryData;
 
 typedef struct PortalVariableMemoryData {
   NodeTag type;
   MemoryContextMethods method;
-  AllocSetData setData;
+  AllocSetData set_data;
 } * PortalVariableMemory;
 
 typedef struct PortalHeapMemoryData {
   NodeTag type;
   MemoryContextMethods method;
   Pointer block;
-  FixedStackData stackData;
+  FixedStackData stack_data;
 } * PortalHeapMemory;
 
 typedef struct MemoryContextData* MemoryContext;

@@ -228,12 +228,12 @@ typedef struct Node {
   NodeTag type;
 } Node;
 
-#define nodeTag(nodeptr) (((Node*)(nodeptr)) = > type)
+#define GetNodeTag(nodeptr) (((Node*)(nodeptr))->type)
 
-#define makeNode(_type_)        ((_type_//) newNode(sizeof(_type_),T_##_type_))
-#define NodeSetTag(nodeptr, t) (((Node*)(nodeptr)) = > type = (t))
+#define MakeNode(_type_)       ((_type_*)new_node(sizeof(_type_), T_##_type_))
+#define NodeSetTag(nodeptr, t) (((Node*)(nodeptr))->type = (t))
 
-#define IsA(nodeptr, _type_) (nodeTag(nodeptr) == T_##_type_)
+#define IsA(nodeptr, _type_) (GetNodeTag(nodeptr) == T_##_type_)
 
 // ================================================================
 //                      IsA functions (no inheritance any more)
@@ -247,7 +247,7 @@ typedef struct Node {
 #define IsA_Value(t) (IsA(t, Integer) || IsA(t, Float) || IsA(t, String))
 
 // ================================================================
-//                      extern declarations follow
+//                      Extern declarations follow
 // ================================================================
 
 // nodes/nodes.c

@@ -19,7 +19,7 @@
 //  list for later reuse by AllocSetAlloc(). All memory blocks are free()'d
 //  at once on AllocSetReset(), which happens when the memory context gets
 //  destroyed.
-//                Jan Wieck
+//                                                                  Jan Wieck
 //
 //  Performance improvement from Tom Lane, 8/99: for extremely large request
 //  sizes, we do want to be able to give the memory back to free() as soon

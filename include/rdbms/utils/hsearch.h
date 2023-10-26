@@ -34,9 +34,6 @@
 #define DEF_DIRSIZE       256
 #define DEF_FFACTOR       1  // Default fill factor
 
-#define PRIME1 37  // For the hash function
-#define PRIME2 1048583
-
 // Hash bucket is actually bigger than this. Key field can have
 // variable length and a variable length data field follows it.
 typedef struct element {

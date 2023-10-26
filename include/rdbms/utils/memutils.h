@@ -31,10 +31,10 @@
 
 #define TYPEALIGN(ALIGNVAL, LEN) (((long)(LEN) + (ALIGNVAL - 1)) & ~(ALIGNVAL - 1))
 
-#define SHORTALIGN(LEN)  TYPEALIGN(alignof(short), LEN)
-#define INTALIGN(LEN)    TYPEALIGN(alignof(int), LEN)
-#define LONGALIGN(LEN)   TYPEALIGN(alignof(long), LEN)
-#define DOUBLEALIGN(LEN) TYPEALIGN(alignof(double), LEN)
-#define MAXALIGN(LEN)    TYPEALIGN(alignof(maxalign_t), LEN)
+#define SHORTALIGN(LEN)  TYPEALIGN(_Alignof(short), LEN)
+#define INTALIGN(LEN)    TYPEALIGN(_Alignof(int), LEN)
+#define LONGALIGN(LEN)   TYPEALIGN(_Alignof(long), LEN)
+#define DOUBLEALIGN(LEN) TYPEALIGN(_Alignof(double), LEN)
+#define MAXALIGN(LEN)    TYPEALIGN(_Alignof(max_align_t), LEN)
 
 #endif  // RDBMS_UTILS_MEMUTILS_H_
