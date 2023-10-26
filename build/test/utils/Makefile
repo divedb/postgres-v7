@@ -130,6 +130,20 @@ fstack_test/fast:
 	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f test/utils/CMakeFiles/fstack_test.dir/build.make test/utils/CMakeFiles/fstack_test.dir/build
 .PHONY : fstack_test/fast
 
+# Convenience name for target.
+test/utils/CMakeFiles/oset_test.dir/rule:
+	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test/utils/CMakeFiles/oset_test.dir/rule
+.PHONY : test/utils/CMakeFiles/oset_test.dir/rule
+
+# Convenience name for target.
+oset_test: test/utils/CMakeFiles/oset_test.dir/rule
+.PHONY : oset_test
+
+# fast build rule for target.
+oset_test/fast:
+	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f test/utils/CMakeFiles/oset_test.dir/build.make test/utils/CMakeFiles/oset_test.dir/build
+.PHONY : oset_test/fast
+
 fstack_test.o: fstack_test.c.o
 .PHONY : fstack_test.o
 
@@ -154,6 +168,30 @@ fstack_test.c.s:
 	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f test/utils/CMakeFiles/fstack_test.dir/build.make test/utils/CMakeFiles/fstack_test.dir/fstack_test.c.s
 .PHONY : fstack_test.c.s
 
+oset_test.o: oset_test.c.o
+.PHONY : oset_test.o
+
+# target to build an object file
+oset_test.c.o:
+	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f test/utils/CMakeFiles/oset_test.dir/build.make test/utils/CMakeFiles/oset_test.dir/oset_test.c.o
+.PHONY : oset_test.c.o
+
+oset_test.i: oset_test.c.i
+.PHONY : oset_test.i
+
+# target to preprocess a source file
+oset_test.c.i:
+	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f test/utils/CMakeFiles/oset_test.dir/build.make test/utils/CMakeFiles/oset_test.dir/oset_test.c.i
+.PHONY : oset_test.c.i
+
+oset_test.s: oset_test.c.s
+.PHONY : oset_test.s
+
+# target to generate assembly for a file
+oset_test.c.s:
+	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f test/utils/CMakeFiles/oset_test.dir/build.make test/utils/CMakeFiles/oset_test.dir/oset_test.c.s
+.PHONY : oset_test.c.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -163,9 +201,13 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... fstack_test"
+	@echo "... oset_test"
 	@echo "... fstack_test.o"
 	@echo "... fstack_test.i"
 	@echo "... fstack_test.s"
+	@echo "... oset_test.o"
+	@echo "... oset_test.i"
+	@echo "... oset_test.s"
 .PHONY : help
 
 

@@ -145,14 +145,17 @@ src/backend/storage/buffer/clean: src/backend/storage/buffer/CMakeFiles/buffer.d
 
 # Recursive "all" directory target.
 src/backend/utils/all: src/backend/utils/misc/all
+src/backend/utils/all: src/backend/utils/mmgr/all
 .PHONY : src/backend/utils/all
 
 # Recursive "preinstall" directory target.
 src/backend/utils/preinstall: src/backend/utils/misc/preinstall
+src/backend/utils/preinstall: src/backend/utils/mmgr/preinstall
 .PHONY : src/backend/utils/preinstall
 
 # Recursive "clean" directory target.
 src/backend/utils/clean: src/backend/utils/misc/clean
+src/backend/utils/clean: src/backend/utils/mmgr/clean
 .PHONY : src/backend/utils/clean
 
 #=============================================================================
@@ -160,7 +163,6 @@ src/backend/utils/clean: src/backend/utils/misc/clean
 
 # Recursive "all" directory target.
 src/backend/utils/misc/all: src/backend/utils/misc/CMakeFiles/fstack.dir/all
-src/backend/utils/misc/all: src/backend/utils/misc/CMakeFiles/utils.dir/all
 .PHONY : src/backend/utils/misc/all
 
 # Recursive "preinstall" directory target.
@@ -169,8 +171,22 @@ src/backend/utils/misc/preinstall:
 
 # Recursive "clean" directory target.
 src/backend/utils/misc/clean: src/backend/utils/misc/CMakeFiles/fstack.dir/clean
-src/backend/utils/misc/clean: src/backend/utils/misc/CMakeFiles/utils.dir/clean
 .PHONY : src/backend/utils/misc/clean
+
+#=============================================================================
+# Directory level rules for directory src/backend/utils/mmgr
+
+# Recursive "all" directory target.
+src/backend/utils/mmgr/all: src/backend/utils/mmgr/CMakeFiles/oset.dir/all
+.PHONY : src/backend/utils/mmgr/all
+
+# Recursive "preinstall" directory target.
+src/backend/utils/mmgr/preinstall:
+.PHONY : src/backend/utils/mmgr/preinstall
+
+# Recursive "clean" directory target.
+src/backend/utils/mmgr/clean: src/backend/utils/mmgr/CMakeFiles/oset.dir/clean
+.PHONY : src/backend/utils/mmgr/clean
 
 #=============================================================================
 # Directory level rules for directory test
@@ -210,6 +226,7 @@ test/storage/clean: test/storage/CMakeFiles/slock_test.dir/clean
 
 # Recursive "all" directory target.
 test/utils/all: test/utils/CMakeFiles/fstack_test.dir/all
+test/utils/all: test/utils/CMakeFiles/oset_test.dir/all
 .PHONY : test/utils/all
 
 # Recursive "preinstall" directory target.
@@ -218,6 +235,7 @@ test/utils/preinstall:
 
 # Recursive "clean" directory target.
 test/utils/clean: test/utils/CMakeFiles/fstack_test.dir/clean
+test/utils/clean: test/utils/CMakeFiles/oset_test.dir/clean
 .PHONY : test/utils/clean
 
 #=============================================================================
@@ -273,30 +291,30 @@ src/backend/utils/misc/CMakeFiles/fstack.dir/clean:
 .PHONY : src/backend/utils/misc/CMakeFiles/fstack.dir/clean
 
 #=============================================================================
-# Target rules for target src/backend/utils/misc/CMakeFiles/utils.dir
+# Target rules for target src/backend/utils/mmgr/CMakeFiles/oset.dir
 
 # All Build rule for target.
-src/backend/utils/misc/CMakeFiles/utils.dir/all:
-	$(MAKE) $(MAKESILENT) -f src/backend/utils/misc/CMakeFiles/utils.dir/build.make src/backend/utils/misc/CMakeFiles/utils.dir/depend
-	$(MAKE) $(MAKESILENT) -f src/backend/utils/misc/CMakeFiles/utils.dir/build.make src/backend/utils/misc/CMakeFiles/utils.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/zlh/Documents/Git/postgres-v7/build/CMakeFiles --progress-num=9,10 "Built target utils"
-.PHONY : src/backend/utils/misc/CMakeFiles/utils.dir/all
+src/backend/utils/mmgr/CMakeFiles/oset.dir/all:
+	$(MAKE) $(MAKESILENT) -f src/backend/utils/mmgr/CMakeFiles/oset.dir/build.make src/backend/utils/mmgr/CMakeFiles/oset.dir/depend
+	$(MAKE) $(MAKESILENT) -f src/backend/utils/mmgr/CMakeFiles/oset.dir/build.make src/backend/utils/mmgr/CMakeFiles/oset.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/zlh/Documents/Git/postgres-v7/build/CMakeFiles --progress-num=7,8 "Built target oset"
+.PHONY : src/backend/utils/mmgr/CMakeFiles/oset.dir/all
 
 # Build rule for subdir invocation for target.
-src/backend/utils/misc/CMakeFiles/utils.dir/rule: cmake_check_build_system
+src/backend/utils/mmgr/CMakeFiles/oset.dir/rule: cmake_check_build_system
 	$(CMAKE_COMMAND) -E cmake_progress_start /Users/zlh/Documents/Git/postgres-v7/build/CMakeFiles 2
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 src/backend/utils/misc/CMakeFiles/utils.dir/all
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 src/backend/utils/mmgr/CMakeFiles/oset.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /Users/zlh/Documents/Git/postgres-v7/build/CMakeFiles 0
-.PHONY : src/backend/utils/misc/CMakeFiles/utils.dir/rule
+.PHONY : src/backend/utils/mmgr/CMakeFiles/oset.dir/rule
 
 # Convenience name for target.
-utils: src/backend/utils/misc/CMakeFiles/utils.dir/rule
-.PHONY : utils
+oset: src/backend/utils/mmgr/CMakeFiles/oset.dir/rule
+.PHONY : oset
 
 # clean rule for target.
-src/backend/utils/misc/CMakeFiles/utils.dir/clean:
-	$(MAKE) $(MAKESILENT) -f src/backend/utils/misc/CMakeFiles/utils.dir/build.make src/backend/utils/misc/CMakeFiles/utils.dir/clean
-.PHONY : src/backend/utils/misc/CMakeFiles/utils.dir/clean
+src/backend/utils/mmgr/CMakeFiles/oset.dir/clean:
+	$(MAKE) $(MAKESILENT) -f src/backend/utils/mmgr/CMakeFiles/oset.dir/build.make src/backend/utils/mmgr/CMakeFiles/oset.dir/clean
+.PHONY : src/backend/utils/mmgr/CMakeFiles/oset.dir/clean
 
 #=============================================================================
 # Target rules for target test/storage/CMakeFiles/slock_test.dir
@@ -305,7 +323,7 @@ src/backend/utils/misc/CMakeFiles/utils.dir/clean:
 test/storage/CMakeFiles/slock_test.dir/all: src/backend/storage/buffer/CMakeFiles/buffer.dir/all
 	$(MAKE) $(MAKESILENT) -f test/storage/CMakeFiles/slock_test.dir/build.make test/storage/CMakeFiles/slock_test.dir/depend
 	$(MAKE) $(MAKESILENT) -f test/storage/CMakeFiles/slock_test.dir/build.make test/storage/CMakeFiles/slock_test.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/zlh/Documents/Git/postgres-v7/build/CMakeFiles --progress-num=7,8 "Built target slock_test"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/zlh/Documents/Git/postgres-v7/build/CMakeFiles --progress-num=11,12 "Built target slock_test"
 .PHONY : test/storage/CMakeFiles/slock_test.dir/all
 
 # Build rule for subdir invocation for target.
@@ -328,7 +346,8 @@ test/storage/CMakeFiles/slock_test.dir/clean:
 # Target rules for target test/utils/CMakeFiles/fstack_test.dir
 
 # All Build rule for target.
-test/utils/CMakeFiles/fstack_test.dir/all: src/backend/utils/misc/CMakeFiles/utils.dir/all
+test/utils/CMakeFiles/fstack_test.dir/all: src/backend/utils/misc/CMakeFiles/fstack.dir/all
+test/utils/CMakeFiles/fstack_test.dir/all: src/backend/utils/mmgr/CMakeFiles/oset.dir/all
 	$(MAKE) $(MAKESILENT) -f test/utils/CMakeFiles/fstack_test.dir/build.make test/utils/CMakeFiles/fstack_test.dir/depend
 	$(MAKE) $(MAKESILENT) -f test/utils/CMakeFiles/fstack_test.dir/build.make test/utils/CMakeFiles/fstack_test.dir/build
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/zlh/Documents/Git/postgres-v7/build/CMakeFiles --progress-num=5,6 "Built target fstack_test"
@@ -336,7 +355,7 @@ test/utils/CMakeFiles/fstack_test.dir/all: src/backend/utils/misc/CMakeFiles/uti
 
 # Build rule for subdir invocation for target.
 test/utils/CMakeFiles/fstack_test.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/zlh/Documents/Git/postgres-v7/build/CMakeFiles 4
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/zlh/Documents/Git/postgres-v7/build/CMakeFiles 6
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test/utils/CMakeFiles/fstack_test.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /Users/zlh/Documents/Git/postgres-v7/build/CMakeFiles 0
 .PHONY : test/utils/CMakeFiles/fstack_test.dir/rule
@@ -349,6 +368,33 @@ fstack_test: test/utils/CMakeFiles/fstack_test.dir/rule
 test/utils/CMakeFiles/fstack_test.dir/clean:
 	$(MAKE) $(MAKESILENT) -f test/utils/CMakeFiles/fstack_test.dir/build.make test/utils/CMakeFiles/fstack_test.dir/clean
 .PHONY : test/utils/CMakeFiles/fstack_test.dir/clean
+
+#=============================================================================
+# Target rules for target test/utils/CMakeFiles/oset_test.dir
+
+# All Build rule for target.
+test/utils/CMakeFiles/oset_test.dir/all: src/backend/utils/misc/CMakeFiles/fstack.dir/all
+test/utils/CMakeFiles/oset_test.dir/all: src/backend/utils/mmgr/CMakeFiles/oset.dir/all
+	$(MAKE) $(MAKESILENT) -f test/utils/CMakeFiles/oset_test.dir/build.make test/utils/CMakeFiles/oset_test.dir/depend
+	$(MAKE) $(MAKESILENT) -f test/utils/CMakeFiles/oset_test.dir/build.make test/utils/CMakeFiles/oset_test.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/zlh/Documents/Git/postgres-v7/build/CMakeFiles --progress-num=9,10 "Built target oset_test"
+.PHONY : test/utils/CMakeFiles/oset_test.dir/all
+
+# Build rule for subdir invocation for target.
+test/utils/CMakeFiles/oset_test.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/zlh/Documents/Git/postgres-v7/build/CMakeFiles 6
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test/utils/CMakeFiles/oset_test.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/zlh/Documents/Git/postgres-v7/build/CMakeFiles 0
+.PHONY : test/utils/CMakeFiles/oset_test.dir/rule
+
+# Convenience name for target.
+oset_test: test/utils/CMakeFiles/oset_test.dir/rule
+.PHONY : oset_test
+
+# clean rule for target.
+test/utils/CMakeFiles/oset_test.dir/clean:
+	$(MAKE) $(MAKESILENT) -f test/utils/CMakeFiles/oset_test.dir/build.make test/utils/CMakeFiles/oset_test.dir/clean
+.PHONY : test/utils/CMakeFiles/oset_test.dir/clean
 
 #=============================================================================
 # Special targets to cleanup operation of make.

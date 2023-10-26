@@ -143,17 +143,17 @@ fstack/fast:
 .PHONY : fstack/fast
 
 #=============================================================================
-# Target rules for targets named utils
+# Target rules for targets named oset
 
 # Build rule for target.
-utils: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 utils
-.PHONY : utils
+oset: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 oset
+.PHONY : oset
 
 # fast build rule for target.
-utils/fast:
-	$(MAKE) $(MAKESILENT) -f src/backend/utils/misc/CMakeFiles/utils.dir/build.make src/backend/utils/misc/CMakeFiles/utils.dir/build
-.PHONY : utils/fast
+oset/fast:
+	$(MAKE) $(MAKESILENT) -f src/backend/utils/mmgr/CMakeFiles/oset.dir/build.make src/backend/utils/mmgr/CMakeFiles/oset.dir/build
+.PHONY : oset/fast
 
 #=============================================================================
 # Target rules for targets named slock_test
@@ -181,6 +181,19 @@ fstack_test/fast:
 	$(MAKE) $(MAKESILENT) -f test/utils/CMakeFiles/fstack_test.dir/build.make test/utils/CMakeFiles/fstack_test.dir/build
 .PHONY : fstack_test/fast
 
+#=============================================================================
+# Target rules for targets named oset_test
+
+# Build rule for target.
+oset_test: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 oset_test
+.PHONY : oset_test
+
+# fast build rule for target.
+oset_test/fast:
+	$(MAKE) $(MAKESILENT) -f test/utils/CMakeFiles/oset_test.dir/build.make test/utils/CMakeFiles/oset_test.dir/build
+.PHONY : oset_test/fast
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -192,8 +205,9 @@ help:
 	@echo "... buffer"
 	@echo "... fstack"
 	@echo "... fstack_test"
+	@echo "... oset"
+	@echo "... oset_test"
 	@echo "... slock_test"
-	@echo "... utils"
 .PHONY : help
 
 

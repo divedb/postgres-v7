@@ -10,15 +10,15 @@ typedef struct OrderedSetData OrderedSetData;
 typedef OrderedSetData* OrderedSet;
 
 struct OrderedElemData {
-  OrderedElem next;  // Next elem or &this->set->dummy
-  OrderedElem prev;  // Previous elem or &this->set->head
-  OrderedSet set;    // Parent set
+  OrderedElem next;  // Next elem or &this->set->dummy.
+  OrderedElem prev;  // Previous elem or &this->set->head.
+  OrderedSet set;    // Parent set.
 };
 
 struct OrderedSetData {
-  OrderedElem head;   // First elem or &this->dummy
-  OrderedElem dummy;  // (hack) Terminator == NULL
-  OrderedElem tail;   // Last elem or &this->head
+  OrderedElem head;   // First elem or &this->dummy.
+  OrderedElem dummy;  // (hack) Terminator == NULL.
+  OrderedElem tail;   // Last elem or &this->head.
   Offset offset;      // Offset from struct base to elem this could be signed short int!
 };
 

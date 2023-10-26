@@ -130,27 +130,12 @@ fstack/fast:
 	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f src/backend/utils/misc/CMakeFiles/fstack.dir/build.make src/backend/utils/misc/CMakeFiles/fstack.dir/build
 .PHONY : fstack/fast
 
-# Convenience name for target.
-src/backend/utils/misc/CMakeFiles/utils.dir/rule:
-	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 src/backend/utils/misc/CMakeFiles/utils.dir/rule
-.PHONY : src/backend/utils/misc/CMakeFiles/utils.dir/rule
-
-# Convenience name for target.
-utils: src/backend/utils/misc/CMakeFiles/utils.dir/rule
-.PHONY : utils
-
-# fast build rule for target.
-utils/fast:
-	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f src/backend/utils/misc/CMakeFiles/utils.dir/build.make src/backend/utils/misc/CMakeFiles/utils.dir/build
-.PHONY : utils/fast
-
 fstack.o: fstack.c.o
 .PHONY : fstack.o
 
 # target to build an object file
 fstack.c.o:
 	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f src/backend/utils/misc/CMakeFiles/fstack.dir/build.make src/backend/utils/misc/CMakeFiles/fstack.dir/fstack.c.o
-	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f src/backend/utils/misc/CMakeFiles/utils.dir/build.make src/backend/utils/misc/CMakeFiles/utils.dir/fstack.c.o
 .PHONY : fstack.c.o
 
 fstack.i: fstack.c.i
@@ -159,7 +144,6 @@ fstack.i: fstack.c.i
 # target to preprocess a source file
 fstack.c.i:
 	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f src/backend/utils/misc/CMakeFiles/fstack.dir/build.make src/backend/utils/misc/CMakeFiles/fstack.dir/fstack.c.i
-	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f src/backend/utils/misc/CMakeFiles/utils.dir/build.make src/backend/utils/misc/CMakeFiles/utils.dir/fstack.c.i
 .PHONY : fstack.c.i
 
 fstack.s: fstack.c.s
@@ -168,7 +152,6 @@ fstack.s: fstack.c.s
 # target to generate assembly for a file
 fstack.c.s:
 	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f src/backend/utils/misc/CMakeFiles/fstack.dir/build.make src/backend/utils/misc/CMakeFiles/fstack.dir/fstack.c.s
-	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f src/backend/utils/misc/CMakeFiles/utils.dir/build.make src/backend/utils/misc/CMakeFiles/utils.dir/fstack.c.s
 .PHONY : fstack.c.s
 
 # Help Target
@@ -180,7 +163,6 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... fstack"
-	@echo "... utils"
 	@echo "... fstack.o"
 	@echo "... fstack.i"
 	@echo "... fstack.s"
