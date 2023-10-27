@@ -93,6 +93,7 @@ slock_test_EXTERNAL_OBJECTS =
 test/storage/slock_test: test/storage/CMakeFiles/slock_test.dir/slock_test.c.o
 test/storage/slock_test: test/storage/CMakeFiles/slock_test.dir/build.make
 test/storage/slock_test: src/backend/storage/buffer/libbuffer.a
+test/storage/slock_test: /usr/local/Cellar/cunit/2.1-3/lib/libcunit.dylib
 test/storage/slock_test: test/storage/CMakeFiles/slock_test.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/Users/zlh/Documents/Git/postgres-v7/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking C executable slock_test"
 	cd /Users/zlh/Documents/Git/postgres-v7/build/test/storage && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/slock_test.dir/link.txt --verbose=$(VERBOSE)
