@@ -170,7 +170,7 @@ AllocPointer alloc_set_alloc(AllocSet set, Size size) {
     if (prior_free == NULL) {
       set->freelist[fidx] = (AllocChunk)chunk->aset;
     } else {
-      prior_free->aset = (void*)set;
+      prior_free->aset = chunk->aset;
     }
 
     chunk->aset = (void*)set;
@@ -281,6 +281,7 @@ AllocPointer alloc_set_alloc(AllocSet set, Size size) {
   chunk->aset = (void*)set;
   chunk->size = chunk_size;
   block->freeptr += (chunk_size + ALLOC_CHUNKHDRSZ);
+
   assert(block->freeptr <= block->endptr);
 
   return AllocChunkGetPointer(chunk);
