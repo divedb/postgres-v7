@@ -7,6 +7,7 @@ src/backend/utils/misc/CMakeFiles/fstack.dir/fstack.c.o: \
   /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/sys/cdefs.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/sys/_symbol_aliasing.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/sys/_posix_availability.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/sys/_types/_errno_t.h \
   /Library/Developer/CommandLineTools/usr/lib/clang/14.0.3/include/stdarg.h \
   /Library/Developer/CommandLineTools/usr/lib/clang/14.0.3/include/stddef.h \
   /Library/Developer/CommandLineTools/usr/lib/clang/14.0.3/include/__stddef_max_align_t.h \
@@ -81,6 +82,7 @@ src/backend/utils/misc/CMakeFiles/fstack.dir/fstack.c.o: \
   /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/sys/_types/_dev_t.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/sys/_types/_mode_t.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/string.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/sys/_types/_rsize_t.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/strings.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/secure/_strings.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/secure/_string.h \
