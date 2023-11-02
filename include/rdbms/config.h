@@ -11,6 +11,6 @@
 // pgsql/src/backend/utils/fmgr/fmgr.c and add additional entries
 // to the 'case' statement for the additional arguments.
 #define INDEX_MAX_KEYS 16
-#define FUNC_MAX_ARGS INDEX_MAX_KEYS
+#define FUNC_MAX_ARGS  INDEX_MAX_KEYS
 
 #endif  // RDBMS_CONFIG_H_

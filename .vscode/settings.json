@@ -1,0 +1,13 @@
+{
+    "files.associations": {
+        "*.h": "cpp",
+        "*.lock": "toml",
+        "*.hdl": "verilog",
+        "*.tst": "verilog",
+        "*.cmp": "verilog",
+        ".clang-format": "yaml",
+        "*.in": "cmake",
+        "initializer_list": "c",
+        "exception": "cpp"
+    }
+}

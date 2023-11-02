@@ -233,6 +233,25 @@ typedef Datum* DatumPtr;
 // Address of the element one past the last in an array.
 #define EndOf(array) (&array[LengthOf(array)])
 
+// ================================================
+// Section 7: exception handling definitions
+//            Assert, Trap, etc macros
+// ================================================
+
+// Exception Handling definitions.
+typedef char* ExcMessage;
+typedef struct Exception {
+  ExcMessage message;
+} Exception;
+
+// USE_ASSERT_CHECKING, if defined, turns on all the assertions.
+// - plai  9/5/90
+//
+// It should _NOT_ be defined in releases or in benchmark copies
+
+// Trap
+//  Generates an exception if the given condition is true.
+
 // Get a bit mask of the bits set in non-int32 aligned addresses.
 #define INT_ALIGN_MASK (sizeof(int32) - 1)
 

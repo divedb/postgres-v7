@@ -121,7 +121,8 @@ CATALOG(pg_attribute) BOOTSTRAP {
 
   // Has DEFAULT value or not.
   bool atthasdef;
-};
+}
+FormData_pg_attribute;
 
 // Someone should figure out how to do this properly. (The problem is
 // the size of the C struct is not the same as the size of the tuple.)
