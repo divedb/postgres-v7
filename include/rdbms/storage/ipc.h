@@ -1,3 +1,24 @@
+// =========================================================================
+//
+// ipc.h
+//  POSTGRES inter-process communication definitions.
+//
+//
+// Portions Copyright (c) 1996-2000, PostgreSQL, Inc
+// Portions Copyright (c) 1994, Regents of the University of California
+//
+// $Id: ipc.h,v 1.38 2000/01/26 05:58:32 momjian Exp $
+//
+// NOTES
+//  This file is very architecture-specific.	This stuff should actually
+//  be factored into the port/ directories.
+//
+// Some files that would normally need to include only sys/ipc.h must
+// instead included this file because on Ultrix, sys/ipc.h is not designed
+// to be included multiple times.  This file (by virtue of the ifndef IPC_H)
+// is.
+// =========================================================================
+
 #ifndef RDBMS_STORAGE_IPC_H_
 #define RDBMS_STORAGE_IPC_H_
 
@@ -57,14 +78,13 @@ int on_proc_exit(void (*function)(), caddr_t arg);
 int on_shmem_exit(void (*function)(), caddr_t arg);
 
 // This function clears all proc_exit() registered functions.
-void on_exit_reset(void);
+void on_exit_reset();
 
 IpcSemaphoreId ipc_semaphore_create(IpcSemaphoreKey sem_key, int sem_num, int permission, int sem_start_value,
                                     bool remove_on_exit);
-
-// Remove a semaphore.
 void ipc_semaphore_kill(IpcSemaphoreKey key);
 void ipc_semaphore_lock(IpcSemaphoreId semid, int sem, int lock);
+void ipc_semaphore_unlock(IpcSemaphoreId semid, int sem, int lock);
 int ipc_semaphore_get_count(IpcSemaphoreId semid, int sem);
 int ipc_semaphore_get_value(IpcSemaphoreId semid, int sem);
 
@@ -112,7 +132,7 @@ typedef struct SLock {
 
 // Note:
 //  These must not hash to DefaultIPCKey or PrivateIPCKey.
-#define SystemPortAddressGetIPCKey(address) (28597 * (address) + 17491)
+#define SystemPortAddressGetIPCKey(address) (28597// (address) + 17491)
 
 // These keys are originally numbered from 1 to 12 consecutively but not
 // all are used. The unused ones are removed.			- ay 4/95.

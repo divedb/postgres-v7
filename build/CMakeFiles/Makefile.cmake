@@ -15,6 +15,7 @@ set(CMAKE_MAKEFILE_DEPENDS
   "/Users/zlh/Documents/Git/postgres-v7/src/backend/CMakeLists.txt"
   "/Users/zlh/Documents/Git/postgres-v7/src/backend/storage/CMakeLists.txt"
   "/Users/zlh/Documents/Git/postgres-v7/src/backend/storage/buffer/CMakeLists.txt"
+  "/Users/zlh/Documents/Git/postgres-v7/src/backend/storage/ipc/CMakeLists.txt"
   "/Users/zlh/Documents/Git/postgres-v7/src/backend/utils/CMakeLists.txt"
   "/Users/zlh/Documents/Git/postgres-v7/src/backend/utils/misc/CMakeLists.txt"
   "/Users/zlh/Documents/Git/postgres-v7/src/backend/utils/mmgr/CMakeLists.txt"
@@ -56,6 +57,7 @@ set(CMAKE_MAKEFILE_PRODUCTS
   "src/backend/CMakeFiles/CMakeDirectoryInformation.cmake"
   "src/backend/storage/CMakeFiles/CMakeDirectoryInformation.cmake"
   "src/backend/storage/buffer/CMakeFiles/CMakeDirectoryInformation.cmake"
+  "src/backend/storage/ipc/CMakeFiles/CMakeDirectoryInformation.cmake"
   "src/backend/utils/CMakeFiles/CMakeDirectoryInformation.cmake"
   "src/backend/utils/misc/CMakeFiles/CMakeDirectoryInformation.cmake"
   "src/backend/utils/mmgr/CMakeFiles/CMakeDirectoryInformation.cmake"
@@ -67,10 +69,12 @@ set(CMAKE_MAKEFILE_PRODUCTS
 # Dependency information for all targets:
 set(CMAKE_DEPEND_INFO_FILES
   "src/backend/storage/buffer/CMakeFiles/buffer.dir/DependInfo.cmake"
+  "src/backend/storage/ipc/CMakeFiles/ipc.dir/DependInfo.cmake"
   "src/backend/utils/misc/CMakeFiles/fstack.dir/DependInfo.cmake"
   "src/backend/utils/mmgr/CMakeFiles/oset.dir/DependInfo.cmake"
   "src/backend/utils/mmgr/CMakeFiles/aset.dir/DependInfo.cmake"
   "test/storage/CMakeFiles/slock_test.dir/DependInfo.cmake"
+  "test/storage/CMakeFiles/ipc_test.dir/DependInfo.cmake"
   "test/utils/CMakeFiles/fstack_test.dir/DependInfo.cmake"
   "test/utils/CMakeFiles/oset_test.dir/DependInfo.cmake"
   "test/utils/CMakeFiles/aset_test.dir/DependInfo.cmake"

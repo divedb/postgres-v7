@@ -130,6 +130,44 @@ slock_test/fast:
 	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f test/storage/CMakeFiles/slock_test.dir/build.make test/storage/CMakeFiles/slock_test.dir/build
 .PHONY : slock_test/fast
 
+# Convenience name for target.
+test/storage/CMakeFiles/ipc_test.dir/rule:
+	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test/storage/CMakeFiles/ipc_test.dir/rule
+.PHONY : test/storage/CMakeFiles/ipc_test.dir/rule
+
+# Convenience name for target.
+ipc_test: test/storage/CMakeFiles/ipc_test.dir/rule
+.PHONY : ipc_test
+
+# fast build rule for target.
+ipc_test/fast:
+	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f test/storage/CMakeFiles/ipc_test.dir/build.make test/storage/CMakeFiles/ipc_test.dir/build
+.PHONY : ipc_test/fast
+
+ipc_test.o: ipc_test.c.o
+.PHONY : ipc_test.o
+
+# target to build an object file
+ipc_test.c.o:
+	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f test/storage/CMakeFiles/ipc_test.dir/build.make test/storage/CMakeFiles/ipc_test.dir/ipc_test.c.o
+.PHONY : ipc_test.c.o
+
+ipc_test.i: ipc_test.c.i
+.PHONY : ipc_test.i
+
+# target to preprocess a source file
+ipc_test.c.i:
+	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f test/storage/CMakeFiles/ipc_test.dir/build.make test/storage/CMakeFiles/ipc_test.dir/ipc_test.c.i
+.PHONY : ipc_test.c.i
+
+ipc_test.s: ipc_test.c.s
+.PHONY : ipc_test.s
+
+# target to generate assembly for a file
+ipc_test.c.s:
+	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f test/storage/CMakeFiles/ipc_test.dir/build.make test/storage/CMakeFiles/ipc_test.dir/ipc_test.c.s
+.PHONY : ipc_test.c.s
+
 slock_test.o: slock_test.c.o
 .PHONY : slock_test.o
 
@@ -162,7 +200,11 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
+	@echo "... ipc_test"
 	@echo "... slock_test"
+	@echo "... ipc_test.o"
+	@echo "... ipc_test.i"
+	@echo "... ipc_test.s"
 	@echo "... slock_test.o"
 	@echo "... slock_test.i"
 	@echo "... slock_test.s"

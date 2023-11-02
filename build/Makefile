@@ -130,6 +130,19 @@ buffer/fast:
 .PHONY : buffer/fast
 
 #=============================================================================
+# Target rules for targets named ipc
+
+# Build rule for target.
+ipc: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 ipc
+.PHONY : ipc
+
+# fast build rule for target.
+ipc/fast:
+	$(MAKE) $(MAKESILENT) -f src/backend/storage/ipc/CMakeFiles/ipc.dir/build.make src/backend/storage/ipc/CMakeFiles/ipc.dir/build
+.PHONY : ipc/fast
+
+#=============================================================================
 # Target rules for targets named fstack
 
 # Build rule for target.
@@ -180,6 +193,19 @@ slock_test: cmake_check_build_system
 slock_test/fast:
 	$(MAKE) $(MAKESILENT) -f test/storage/CMakeFiles/slock_test.dir/build.make test/storage/CMakeFiles/slock_test.dir/build
 .PHONY : slock_test/fast
+
+#=============================================================================
+# Target rules for targets named ipc_test
+
+# Build rule for target.
+ipc_test: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 ipc_test
+.PHONY : ipc_test
+
+# fast build rule for target.
+ipc_test/fast:
+	$(MAKE) $(MAKESILENT) -f test/storage/CMakeFiles/ipc_test.dir/build.make test/storage/CMakeFiles/ipc_test.dir/build
+.PHONY : ipc_test/fast
 
 #=============================================================================
 # Target rules for targets named fstack_test
@@ -233,6 +259,8 @@ help:
 	@echo "... buffer"
 	@echo "... fstack"
 	@echo "... fstack_test"
+	@echo "... ipc"
+	@echo "... ipc_test"
 	@echo "... oset"
 	@echo "... oset_test"
 	@echo "... slock_test"

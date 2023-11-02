@@ -99,11 +99,12 @@ void proc_exit(int code) {
   // be invoked again when control comes back here (nor will the
   // previously-completed callbacks).  So, an infinite loop
   // should not be possible.
-  while (OnProcExitIndex >= 0) {
+  while (--OnProcExitIndex >= 0) {
     (*OnProcExitList[OnProcExitIndex].function)(code, OnProcExitList[OnProcExitIndex].arg);
   }
 
   printf("exit(%d)\n", code);
+
   exit(code);
 }
 
@@ -112,7 +113,7 @@ void proc_exit(int code) {
 // semaphores after a backend dies horribly.
 void shmem_exit(int code) {
   // TPRINTF(TRACE_VERBOSE, "shmem_exit(%d)", code);
-  printf("shmem_exit(%d)\n", code);
+  // printf("shmem_exit(%d)\n", code);
 
   while (--OnShmemExitIndex >= 0) {
     (*OnShmemExitList[OnShmemExitIndex].function)(code, OnShmemExitList[OnShmemExitIndex].arg);
@@ -195,9 +196,9 @@ IpcSemaphoreId ipc_semaphore_create(IpcSemaphoreKey sem_key, int sem_num, int pe
 
     if (semid < 0) {
       fprintf(stderr,
-              "IpcSemaphoreCreate: semget failed (%s) "
+              "`%s`: semget failed (%s) "
               "key=%d, num=%d, permission=%o\n",
-              strerror(errno), sem_key, sem_num, permission);
+              __func__, strerror(errno), sem_key, sem_num, permission);
 
       ipc_config_tip();
 
@@ -212,7 +213,7 @@ IpcSemaphoreId ipc_semaphore_create(IpcSemaphoreKey sem_key, int sem_num, int pe
     err_status = semctl(semid, 0, SETALL, semun);
 
     if (err_status == -1) {
-      fprintf(stderr, "IpcSemaphoreCreate: semctl failed (%s) id=%d\n", strerror(errno), semid);
+      fprintf(stderr, "`%s`: semctl failed (%s) id=%d\n", __func__, strerror(errno), semid);
       semctl(semid, 0, IPC_RMID, semun);
       ipc_config_tip();
 
@@ -279,7 +280,8 @@ void ipc_semaphore_unlock(IpcSemaphoreId semid, int sem, int lock) {
   sops.sem_flg = 0;
   sops.sem_num = sem;
 
-  // Note: if errStatus is -1 and errno == EINTR then it means we
+  // Note:
+  //    If errStatus is -1 and errno == EINTR then it means we
   //    returned from the operation prematurely because we were
   //    sent a signal.  So we try and lock the semaphore again.
   //    I am not certain this is correct, but the semantics aren't
@@ -294,7 +296,7 @@ void ipc_semaphore_unlock(IpcSemaphoreId semid, int sem, int lock) {
   IpcSemaphoreUnlockReturn = err_status;
 
   if (err_status == -1) {
-    fprintf(stderr, "IpcSemaphoreUnlock: semop failed (%s) id=%d", strerror(errno), semid);
+    fprintf(stderr, "%s: semop failed (%s) id=%d", __func__, strerror(errno), semid);
     proc_exit(255);
   }
 }
@@ -399,7 +401,7 @@ void ipc_memory_kill(IpcMemoryKey mem_key) {
 void create_and_init_slock_memory(IPCKey key);
 void attach_slock__memory(IPCKey key);
 
-static void IpcConfigTip(void) {
+static void ipc_config_tip() {
   fprintf(stderr, "This type of error is usually caused by an improper\n");
   fprintf(stderr, "shared memory or System V IPC semaphore configuration.\n");
   fprintf(stderr, "For more information, see the FAQ and platform-specific\n");

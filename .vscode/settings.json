@@ -8,6 +8,8 @@
         ".clang-format": "yaml",
         "*.in": "cmake",
         "initializer_list": "c",
-        "exception": "cpp"
+        "exception": "cpp",
+        "__locale": "c",
+        "locale": "c"
     }
 }

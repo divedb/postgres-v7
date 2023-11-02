@@ -1,6 +1,8 @@
 #ifndef RDBMS_CONFIG_H_
 #define RDBMS_CONFIG_H_
 
+#define HAVE_UNION_SEMUN 1
+
 // Maximum number of columns in an index and maximum number of arguments
 // to a function. They must be the same value.
 //
