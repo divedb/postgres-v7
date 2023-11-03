@@ -34,6 +34,16 @@
 
 #include "rdbms/c.h"
 
+#ifdef linux
+
+union semun {
+  int val;
+  struct semid_ds* buf;
+  unsigned short* array;
+};
+
+#endif
+
 // This flag is set during proc_exit() to change elog()'s behavior,
 // so that an elog() from an on_proc_exit routine cannot get us out
 // of the exit procedure.  We do NOT want to go back to the idle loop...
@@ -377,7 +387,7 @@ char* ipc_memory_attach(IpcMemoryId memid) {
   if (mem_address == (char*)-1) {
     fprintf(stderr, "IpcMemoryAttach: shmat failed (%s) id=%d\n", strerror(errno), memid);
 
-    return IpcMemAttachFailed;
+    return IPC_MEM_ATTACH_FAILED;
   }
 
   if (!UsePrivateMemory) {

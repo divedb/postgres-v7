@@ -14,37 +14,35 @@
 #ifndef RDBMS_STORAGE_SHMEM_H_
 #define RDBMS_STORAGE_SHMEM_H_
 
-// The shared memory region can start at a different address
-// in every process.  Shared memory "pointers" are actually
-// offsets relative to the start of the shared memory region(s).
-typedef unsigned long SHMEM_OFFSET;
+#include "rdbms/storage/shmem_def.h"
+#include "rdbms/storage/spin.h"
+#include "rdbms/utils/hsearch.h"
 
-#define INVALID_OFFSET (-1)
-#define BAD_LOCATION   (-1)
+void shmem_index_reset();
+void shmem_create(unsigned int key, unsigned int size);
+bool init_shmem(unsigned int key, unsigned int size);
+long* shmem_alloc(unsigned long size);
+int shmem_is_valid(unsigned long addr);
+HTAB* shmem_init_hash(char* name, long init_size, long max_size, HASHCTL* infop, int hash_flags);
+bool shmem_pid_lookup(int pid, SHMEM_OFFSET* location_ptr);
+SHMEM_OFFSET shmem_pid_destroy(int pid);
+long* shmem_init_struct(char* name, unsigned long size, bool* found_ptr);
 
-// Start of the lowest shared memory region.  For now, assume that
-// there is only one shared memory region.
-extern SHMEM_OFFSET ShmemBase;
+typedef int TableID;
 
-// Coerce an offset into a pointer in this process's address space.
-#define MAKE_PTR(xx_offs) (ShmemBase + ((unsigned long)(xx_offs)))
+// Size constants for the shmem index table.
+// Max size of data structure string name.
+#define SHMEM_INDEX_KEYSIZE (50)
+// Data in shmem index table hash bucket.
+#define SHMEM_INDEX_DATASIZE (sizeof(ShmemIndexEnt) - SHMEM_INDEX_KEYSIZE)
+// Maximum size of the shmem index table.
+#define SHMEM_INDEX_SIZE (100)
 
-// Coerce a pointer into a shmem offset.
-#define MAKE_OFFSET(xx_ptr) (SHMEM_OFFSET)(((unsigned long)(xx_ptr)) - ShmemBase)
-
-#define SHM_PTR_VALID(xx_ptr) (((unsigned long)xx_ptr) > ShmemBase)
-
-// Cannot have an offset to ShmemFreeStart (offset 0)
-#define SHM_OFFSET_VALID(xx_offs) ((xx_offs != 0) && (xx_offs != INVALID_OFFSET))
-
-void ShmemIndexReset(void);
-void ShmemCreate(unsigned int key, unsigned int size);
-int InitShmem(unsigned int key, unsigned int size);
-long* ShmemAlloc(unsigned long size);
-int ShmemIsValid(unsigned long addr);
-HTAB* ShmemInitHash(char* name, long init_size, long max_size, HASHCTL* infoP, int hash_flags);
-bool ShmemPIDLookup(int pid, SHMEM_OFFSET* location_ptr);
-SHMEM_OFFSET ShmemPIDDestroy(int pid);
-long* ShmemInitStruct(char* name, unsigned long size, bool* found_ptr);
+// This is a hash bucket in the shmem index table.
+typedef struct {
+  char key[SHMEM_INDEX_KEYSIZE];  // String name.
+  unsigned long location;         // Location in shared mem.
+  unsigned long size;             // Number of bytes allocated for the structure.
+} ShmemIndexEnt;
 
 #endif  // RDBMS_STORAGE_SHMEM_H_

@@ -14,14 +14,14 @@
 #ifndef RDBMS_STORAGE_BUF_H_
 #define RDBMS_STORAGE_BUF_H_
 
-#define InvalidBuffer (0)
-#define UnknownBuffer (-99999)
+#define INVALID_BUFFER (0)
+#define UNKOWN_BUFFER  (-99999)
 
 typedef long Buffer;
 
-#define BufferIsInvalid(buffer) ((buffer) == InvalidBuffer)
-#define BufferIsUnknown(buffer) ((buffer) == UnknownBuffer)
-#define BufferIsLocal(buffer)   ((buffer) < 0)
+#define BUFFER_IS_INVALID(buffer) ((buffer) == INVALID_BUFFER)
+#define BUFFER_IS_UNKOWN(buffer)  ((buffer) == UNKOWN_BUFFER)
+#define BUFFER_IS_LOCAL(buffer)   ((buffer) < 0)
 
 // If NO_BUFFERISVALID is defined, all error checking using BufferIsValid()
 // are suppressed.	Decision-making using BufferIsValid is not affected.

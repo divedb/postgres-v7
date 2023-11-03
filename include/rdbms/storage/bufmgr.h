@@ -29,7 +29,7 @@
 typedef void* Block;
 
 // Special pageno for bget.
-#define P_NEW InvalidBlockNumber
+#define P_NEW INVALID_BLOCK_NUMBER
 
 typedef bits16 BufferLock;
 
@@ -59,6 +59,6 @@ extern int ShowPinTrace;
 // I believe this was bogus and served only to mask logic errors.
 // Code should always know whether it has a buffer reference,
 // independently of the pin state.
-#define BufferIsValid(bufnum) (BufferIsLocal(bufnum) ? ((bufnum) >= -NLocBuffer) : (!BAD_BUFFER_ID(bufnum)))
+#define BUFFER_IS_VALID(bufnum) (BUFFER_IS_LOCAL(bufnum) ? ((bufnum) >= -NLocBuffer) : (!BAD_BUFFER_ID(bufnum)))
 
 #endif  // RDBMS_STORAGE_BUFMGR_H_

@@ -17,15 +17,13 @@
 #include <assert.h>
 #include <stdbool.h>
 
-#include "rdbms/c.h"
-
 // User defined attribute numbers start at 1.   -ay 2/95
 typedef int16 AttrNumber;
 
-#define InvalidAttrNumber                               0
-#define AttributeNumberIsValid(attributeNumber)         ((bool)((attributeNumber) != InvalidAttrNumber))
-#define AttrNumberIsForUserDefinedAttr(attributeNumber) ((bool)((attributeNumber) > 0))
-#define AttrNumberGetAttrOffset(att_num)                (assert(AttrNumberIsForUserDefinedAttr(att_num)), ((att_num)-1))
-#define AttrOffsetGetAttrNumber(attribute_offset)       ((AttrNumber)(1 + attribute_offset))
+#define INVALID_ATTR_NUMBER                           0
+#define ATTRIBUTE_NUMBER_IS_VALID(att_num)            ((bool)((att_num) != INVALID_ATTR_NUMBER))
+#define ATTR_NUMBER_IS_FOR_USER_DEFINED_ATTR(att_num) ((bool)((att_num) > 0))
+#define ATTR_NUMBER_GET_ATTR_OFFSET(att_num)          (assert(ATTR_NUMBER_IS_FOR_USER_DEFINED_ATTR(att_num)), ((att_num)-1))
+#define ATTR_OFFSET_GET_ATTR_NUMBER(att_offset)       ((AttrNumber)(1 + att_offset))
 
 #endif  // RDBMS_ACCESS_ATTNUM_H_

@@ -45,8 +45,8 @@ typedef double float8;
 
 typedef int4 aclitem;
 
-#define InvalidOid            0
-#define OidIsValid(object_id) ((bool)((object_id) != InvalidOid))
+#define INVALID_OID             0
+#define OID_IS_VALID(object_id) ((bool)((object_id) != INVALID_OID))
 
 // Unfortunately, both regproc and RegProcedure are used
 typedef Oid regproc;
@@ -55,7 +55,7 @@ typedef Oid RegProcedure;
 // Pointer to func returning (char *)
 typedef char*((*func_ptr)());
 
-#define RegProcedureIsValid(p) OidIsValid(p)
+#define REG_PROCEDURE_IS_VALID(p) OID_IS_VALID(p)
 
 // ================================================
 // Section 2: variable length and array types
@@ -87,24 +87,24 @@ typedef union NameData {
 
 typedef NameData* Name;
 
-#define NameStr(name) ((name).data)
+#define NAME_STR(name) ((name).data)
 
 // ================================================
 // Section 3: TransactionId and CommandId
 // ================================================
 
 typedef uint32 TransactionId;
-#define InalidTransactionId 0
+#define INVALID_TRANSACTION_ID 0
 
 typedef uint32 CommandId;
-#define FirstCommandId 0
+#define FIRST_COMMAND_ID 0
 
 // ================================================
 // Section 4: genbki macros used by the
 //            catalog/pg_xxx.h files
 // ================================================
 
-#define CATALOG(x) typedef struct CppConcat(FormData_, x)
+#define CATALOG(x) typedef struct CPP_CONCAT(FormData_, x)
 
 #define DATA(x)                 extern int errno
 #define DESCR(x)                extern int errno

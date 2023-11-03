@@ -48,7 +48,37 @@ typedef struct RelationData {
   Form_pg_class rd_rel;       // RELATION tuple.
   LockInfoData rd_lock_info;  // Lock manager's info for locking relation.
   TupleDesc rd_att;           // Tuple descriptor.
-
+  RuleLock* rd_rules;         // Rewrite rules.
+  IndexStrategy rd_istrat;
+  RegProcedure* rd_support;
+  TriggerDesc* trigdesc;  // Trigger info, or NULL if relation has none.
 } RelationData;
+
+typedef RelationData* Relation;
+
+// RelationPtr is used in the executor to support index scans
+// where we have to keep track of several index relations in an
+// array.	-cim 9/10/89
+typedef Relation* RelationPtr;
+
+#define RELATION_IS_VALID(relation)                   POINTER_IS_VALID(relation)
+#define INVALID_RELATION                              NULL
+#define RELATION_HAS_REFERENCE_COUNT_ZERO(relation)   (relation->rd_refcnt == 0)
+#define RELATION_SET_REFERENCE_COUNT(relation, count) ((relation)->rd_refcnt = (count))
+#define RELATION_INCREMENT_REFERENCE_COUNT(relation)  ((relation)->rd_refcnt += 1)
+#define RELATION_DECREMENT_REFERENCE_COUNT(relation)  (assert((relation)->rd_refcnt > 0), (relation)->rd_refcnt -= 1)
+#define RELATION_GET_FORM(relation)                   ((relation)->rd_rel)
+#define RELATION_GET_REL_ID(relation)                 ((relation)->rd_id)
+#define RELATION_GET_FILE(relation)                   ((relation)->rd_fd)
+#define RELATION_GET_RELATION_NAME(relation)                                                     \
+  (strncmp(RELATION_GET_PHYSICAL_RELATION_NAME(relation), "pg_temp"., strnlen("pg_temp.")) != 0) \
+      ? RELATION_GET_PHYSICAL_RELATION_NAME(relation)                                            \
+      : get_temp_rel_by_physicalname(RELATION_GET_PHYSICAL_RELATION_NAME(relation))
+#define RELATION_GET_PHYSICAL_RELATION_NAME(relation) (NAME_STR((relation)->rd_rel->relname))
+#define RELATION_GET_NUMBER_OF_ATTRIBUTES(relation)   ((relation)->rd_rel->relnatts)
+#define RELATION_GET_DESCR(relation)                  ((relation)->rd_att)
+#define RELATION_GET_INDEX_STRATEGY(relation)         ((relation)->rd_istrat)
+
+void relation_set_index_support(Relation relation, IndexStrategy strategy, RegProcedure* support);
 
 #endif  // RDBMS_UTILS_REL_H_

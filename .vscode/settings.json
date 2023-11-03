@@ -10,6 +10,13 @@
         "initializer_list": "c",
         "exception": "cpp",
         "__locale": "c",
-        "locale": "c"
+        "locale": "c",
+        "variant": "c",
+        "array": "cpp",
+        "vector": "cpp",
+        "string": "cpp",
+        "string_view": "cpp",
+        "__mutex_base": "c",
+        "mutex": "c"
     }
 }

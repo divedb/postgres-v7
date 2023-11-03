@@ -25,8 +25,8 @@
 // Section 2: non-ansi C definitions
 // ================================================
 
-#define CppAsString(identifier) #identifier
-#define CppConcat(x, y)         x##y
+#define CPP_AS_STRING(identifier) #identifier
+#define CPP_CONCAT(x, y)          x##y
 
 // ================================================
 // Section 3: standard system types
@@ -215,9 +215,9 @@ typedef Datum* DatumPtr;
 // Section 5: IsValid macros for system types
 // ================================================
 
-#define BoolIsValid(boolean)            ((boolean) == false || (boolean) == true)
-#define PointerIsValid(pointer)         ((void*)(pointer) != NULL)
-#define PointerIsAligned(pointer, type) (((long)(pointer) % (sizeof(type))) == 0)
+#define BOOL_IS_VALID(boolean)            ((boolean) == false || (boolean) == true)
+#define POINTER_IS_VALID(pointer)         ((void*)(pointer) != NULL)
+#define POINTER_IS_ALIGNED(pointer, type) (((long)(pointer) % (sizeof(type))) == 0)
 
 // ================================================
 // Section 6: offsetof, lengthof, endof
@@ -228,10 +228,10 @@ typedef Datum* DatumPtr;
 #endif
 
 // Number of elements in an array.
-#define LengthOf(array) (sizeof(array) / sizeof((array)[0]))
+#define LENGTH_OF(array) (sizeof(array) / sizeof((array)[0]))
 
 // Address of the element one past the last in an array.
-#define EndOf(array) (&array[LengthOf(array)])
+#define END_OF(array) (&array[LengthOf(array)])
 
 // ================================================
 // Section 7: exception handling definitions

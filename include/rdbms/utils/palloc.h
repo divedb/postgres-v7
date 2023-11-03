@@ -22,6 +22,8 @@
 
 #else  // ! PALLOC_IS_MALLOC
 
+#include "rdbms/utils/mctx.h"
+
 // In the case we use memory contexts, use macro's for palloc() etc.
 #define palloc(s)      ((void*)memory_context_alloc(CurrentMemoryContext, (Size)(s)))
 #define pfree(p)       memory_context_free(CurrentMemoryContext, (Pointer)(p))

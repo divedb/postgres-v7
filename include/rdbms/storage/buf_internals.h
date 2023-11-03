@@ -33,6 +33,7 @@
 typedef bits16 BufFlags;
 
 // long* so alignment will be correct.
+typedef long** BufferBlock;
 
 typedef struct buftag {
   LockRelId relid;
@@ -40,7 +41,7 @@ typedef struct buftag {
 } BufferTag;
 
 #define CLEAR_BUFFERTAG(a) \
-  ((a)->relid.dbid = InvalidOid, (a)->relid.relid = InvalidOid, (a)->block_num = InvalidBlockNumber)
+  ((a)->relid.dbid = INVALID_OID, (a)->relid.relid = INVALID_OID, (a)->block_num = INVALID_BLOCK_NUMBER)
 
 #define INIT_BUFFERTAG(a, xx_reln, xx_block_num) \
   ((a)->block_num = (xx_block_num), (a)->relid = (xx_reln)->rd_lock_info.lock_relid)
@@ -83,7 +84,8 @@ typedef struct sbufdesc {
   /* can afford a dedicated lock if test-and-set locks are available */
   slock_t io_in_progress_lock;
   slock_t cntx_lock; /* to lock access to page context */
-#endif               /* HAS_TEST_AND_SET */
+#endif               // HAS_TEST_AND_SET
+
   unsigned r_locks;  // # of shared locks.
   bool ri_lock;      // Read-intent lock.
   bool w_lock;       // context exclusively locked.
@@ -91,12 +93,10 @@ typedef struct sbufdesc {
   BufferBlindId blind;  // Extra info to support blind write.
 } BufferDesc;
 
-/*
- * Each backend has its own BufferLocks[] array holding flag bits
- * showing what locks it has set on each buffer.
- *
- * We have to free these locks in elog(ERROR)...
- */
+// Each backend has its own BufferLocks[] array holding flag bits
+// showing what locks it has set on each buffer.
+//
+// We have to free these locks in elog(ERROR)...
 #define BL_IO_IN_PROGRESS (1 << 0) /* unimplemented */
 #define BL_R_LOCK         (1 << 1)
 #define BL_RI_LOCK        (1 << 2)
@@ -121,5 +121,35 @@ typedef struct _bmtrace {
 } bmtrace;
 
 #endif  // BMTRACE
+
+// freelist.c
+extern int FreeListDescriptor;
+extern BufferDesc* BufferDescriptors;
+extern long* PrivateRefCount;
+
+void add_buffer_to_freelist(BufferDesc* buf_desc);
+void pin_buffer(BufferDesc* buf_desc);
+void pin_buffer_debug(char* file, int line, BufferDesc* buf_desc);
+void unpin_buffer(BufferDesc* buf_desc);
+BufferDesc* get_free_buffer(void);
+void init_freelist(bool init);
+
+// buf_table.c
+void init_buf_table();
+BufferDesc* buf_table_lookup(BufferTag* tag_ptr);
+bool buf_table_delete(BufferDesc* buf_desc);
+bool buf_table_insert(BufferDesc* buf_desc);
+
+// localbuf.c
+extern long* LocalRefCount;
+extern BufferDesc* LocalBufferDescriptors;
+extern int NLocBuffer;
+
+Buffer* local_buffer_alloc(Relation relation, BlockNumber block_num, bool* found_ptr);
+int write_local_buffer(Buffer buffer, bool release);
+int flush_local_buffer(Buffer buffer, bool release);
+void init_local_buffer(void);
+void local_buffer_sync();
+void reset_local_buffer_pool();
 
 #endif  // RDBMS_STORAGE_BUF_INTERNALS_H_

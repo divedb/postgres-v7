@@ -32,13 +32,13 @@ static IpcSemaphoreId GSemaId;
 
 static void* routine() {
   for (int i = 0; i < 100000; i++) {
-    ipc_semaphore_lock(GSemaId, 0, 1);
+    ipc_semaphore_lock(GSemaId, 0, -1);
 
     if (i % 2 == 0) {
       Gcount += i;
     }
 
-    ipc_semaphore_unlock(GSemaId, 0, 1);
+    ipc_semaphore_unlock(GSemaId, 0, -1);
   }
 
   pthread_exit(NULL);
@@ -92,7 +92,7 @@ int main() {
 
   // Initialize the global variables.
   Gcount = 0;
-  GSemaId = ipc_semaphore_create(PrivateIPCKey, 1, IPCProtection, 0, true);
+  GSemaId = ipc_semaphore_create(PrivateIPCKey, 1, IPCProtection, 1, true);
 
   suite = CU_add_suite("Semaphore", NULL, NULL);
 
