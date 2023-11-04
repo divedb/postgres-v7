@@ -82,3 +82,6 @@ List* lconsi(int datum, List* list) {
 
   return l;
 }
+
+// Nondestructive, returns t iff l1 is a member of the list l2.
+bool member(void* datum, List* list) { List* i; }
