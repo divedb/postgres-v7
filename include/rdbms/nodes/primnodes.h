@@ -134,6 +134,31 @@ typedef struct Var {
   AttrNumber var_oattno;
 } Var;
 
+// Oper
+//  opno            - PG_OPERATOR OID of the operator
+//  opid            - PG_PROC OID for the operator
+//  opresulttype    - PG_TYPE OID of the operator's return value
+//  opsize          - size of return result (cached by executor)
+//  op_fcache       - XXX comment me.
+//
+// NOTE: in the good old days 'opno' used to be both (or either, or
+// neither) the pg_operator oid, and/or the pg_proc oid depending
+// on the postgres module in question (parser->pg_operator,
+// executor->pg_proc, planner->both), the mood of the programmer,
+// and the phase of the moon (rumors that it was also depending on the day
+// of the week are probably false). To make things even more postgres-like
+// (i.e. a mess) some comments were referring to 'opno' using the name
+// 'opid'. Anyway, now we have two separate fields, and of course that
+// immediately removes all bugs from the code...		[ sp :-) ].
+typedef struct Oper {
+  NodeTag type;
+  Oid op_no;
+  Oid op_id;
+  Oid op_result_type;
+  int op_size;
+  FunctionCachePtr op_fcache;
+} Oper;
+
 // Const
 //      consttype   - PG_TYPE OID of the constant's value
 //      constlen    - length in bytes of the constant's value
@@ -204,10 +229,10 @@ typedef struct Param {
 //      func_planlist   - result of planning this func, if it's a PQ func
 typedef struct Func {
   NodeTag type;
-  Oid funcid;
-  Oid functype;
-  bool funcisindex;
-  int funcsize;
+  Oid func_id;
+  Oid func_type;
+  bool func_is_index;
+  int func_size;
   FunctionCachePtr func_fcache;
   List* func_tlist;
   List* func_planlist;
