@@ -3,6 +3,7 @@
 
 #include <errno.h>
 #include <stdarg.h>
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -20,6 +21,8 @@
 #ifndef FALSE
 #define FALSE 0
 #endif
+
+typedef bool* BoolPtr;
 
 // ================================================
 // Section 2: non-ansi C definitions
@@ -139,77 +142,77 @@ typedef Datum* DatumPtr;
 #define SET_4_BYTES(value) (((Datum)(value)) & 0xffffffff)
 
 // Returns character value of a datum.
-#define DatumGetChar(x) ((char)GET_1_BYTE(x))
+#define DATUM_GET_CHAR(x) ((char)GET_1_BYTE(x))
 
 // Returns datum representation for a character.
-#define CharGetDatum(x) ((Datum)SET_1_BYTE(x))
+#define CHAR_GET_DATUM(x) ((Datum)SET_1_BYTE(x))
 
 // Returns datum representation for an 8-bit integer.
-#define Int8GetDatum(x) ((Datum)SET_1_BYTE(x))
+#define INT8_GET_DATUM(x) ((Datum)SET_1_BYTE(x))
 
 // Returns 8-bit unsigned integer value of a datum.
-#define DatumGetUInt8(x) ((uint8)GET_1_BYTE(x))
+#define DATUM_GET_UINT8(x) ((uint8)GET_1_BYTE(x))
 
 // Returns datum representation for an 8-bit unsigned integer.
-#define UInt8GetDatum(x) ((Datum)SET_1_BYTE(x))
+#define UINT8_GET_DATUM(x) ((Datum)SET_1_BYTE(x))
 
-// Returns 16-bit integer value of a datum.
-#define DatumGetInt16(x) ((int16)GET_2_BYTES(x))
+// Returns 16-bit integer value of a datum.fj_always_done
+#define DATUM_GET_INT16(x) ((int16)GET_2_BYTES(x))
 
 // Returns datum representation for a 16-bit integer.
-#define Int16GetDatum(x) ((Datum)SET_2_BYTES(x))
+#define INT16_GET_DATUM(x) ((Datum)SET_2_BYTES(x))
 
 // Returns 16-bit unsigned integer value of a datum.
-#define DatumGetUInt16(x) ((uint16)GET_2_BYTES(x))
+#define DATUM_GET_UINT16(x) ((uint16)GET_2_BYTES(x))
 
 // Returns datum representation for a 16-bit unsigned integer.
-#define UInt16GetDatum(x) ((Datum)SET_2_BYTES(x))
+#define UINT16_GET_DATUM(x) ((Datum)SET_2_BYTES(x))
 
 // Returns 32-bit integer value of a datum.
-#define DatumGetInt32(x) ((int32)GET_4_BYTES(x))
+#define DATUM_GET_INT32(x) ((int32)GET_4_BYTES(x))
 
 // Returns datum representation for a 32-bit integer.
-#define Int32GetDatum(x) ((Datum)SET_4_BYTES(x))
+#define INT32_GET_DATUM(x) ((Datum)SET_4_BYTES(x))
 
 // Returns 32-bit unsigned integer value of a datum.
-#define DatumGetUInt32(x) ((uint32)GET_4_BYTES(x))
+#define DATUM_GET_UINT32(x) ((uint32)GET_4_BYTES(x))
 
 // Returns datum representation for a 32-bit unsigned integer.
-#define UInt32GetDatum(x) ((Datum)SET_4_BYTES(x))
+#define UINT32_GET_DATUM(x) ((Datum)SET_4_BYTES(x))
 
 // Returns object identifier value of a datum.
-#define DatumGetObjectId(x) ((Oid)GET_4_BYTES(x))
+#define DATUM_GET_OBJECT_ID(x) ((Oid)GET_4_BYTES(x))
 
 // Returns datum representation for an object identifier.
-#define ObjectIdGetDatum(x) ((Datum)SET_4_BYTES(x))
+#define OBJECT_ID_GET_DATUM(x) ((Datum)SET_4_BYTES(x))
 
 // Returns pointer value of a datum.
-#define DatumGetPointer(x) ((Pointer)(x))
+#define DATUM_GET_POINTER(x) ((Pointer)(x))
 
 // Returns datum representation for a pointer.
-#define PointerGetDatum(x) ((Datum)(x))
+#define POINTER_GET_DATUM(x) ((Datum)(x))
 
 // Returns name value of a datum.
-#define DatumGetName(x) ((Name)DatumGetPointer((Datum)(x)))
+#define DATUM_GET_NAME(x) ((Name)DATUM_GET_POINTER((Datum)(x)))
 
 // Returns datum representation for a name.
-#define NameGetDatum(x) PointerGetDatum((Pointer)(x))
+#define NAME_GET_DATUM(x) POINTER_GET_DATUM((Pointer)(x))
 
 // Returns 32-bit floating point value of a datum.
 // This is really a pointer, of course.
-#define DatumGetFloat32(x) ((float32)DatumGetPointer(x))
+#define DATUM_GET_FLOAT32(x) ((float32)DATUM_GET_POINTER(x))
 
 // Returns datum representation for a 32-bit floating point number.
 // This is really a pointer, of course.
-#define Float32GetDatum(x) PointerGetDatum((Pointer)(x))
+#define FLOAT32_GET_DATUM(x) POINTER_GET_DATUM((Pointer)(x))
 
 // Returns 64-bit floating point value of a datum.
 // This is really a pointer, of course.
-#define DatumGetFloat64(x) ((float64)DatumGetPointer(x))
+#define DATUM_GET_FLOAT64(x) ((float64)DATUM_GET_POINTER(x))
 
 // Returns datum representation for a 64-bit floating point number.
 // This is really a pointer, of course.
-#define Float64GetDatum(x) PointerGetDatum((Pointer)(x))
+#define FLOAT64_GET_DATUM(x) POINTER_GET_DATUM((Pointer)(x))
 
 // ================================================
 // Section 5: IsValid macros for system types
@@ -231,7 +234,7 @@ typedef Datum* DatumPtr;
 #define LENGTH_OF(array) (sizeof(array) / sizeof((array)[0]))
 
 // Address of the element one past the last in an array.
-#define END_OF(array) (&array[LengthOf(array)])
+#define END_OF(array) (&array[LENGTH_OF(array)])
 
 // ================================================
 // Section 7: exception handling definitions
@@ -266,7 +269,7 @@ typedef struct Exception {
 //
 // I think the crossover point could be a good deal higher for
 // most platforms, actually.  tgl 2000-03-19
-#define MemSet(start, val, len)                                                                \
+#define MEMSET(start, val, len)                                                                \
   do {                                                                                         \
     int32* _start = (int32*)(start);                                                           \
     int _val = (val);                                                                          \

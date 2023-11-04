@@ -228,23 +228,19 @@ typedef struct Node {
   NodeTag type;
 } Node;
 
-#define GetNodeTag(nodeptr) (((Node*)(nodeptr))->type)
+#define GET_NODE_TAG(nodeptr) (((Node*)(nodeptr))->type)
 
-#define MakeNode(_type_)       ((_type_*)new_node(sizeof(_type_), T_##_type_))
-#define NodeSetTag(nodeptr, t) (((Node*)(nodeptr))->type = (t))
-
-#define IsA(nodeptr, _type_) (GetNodeTag(nodeptr) == T_##_type_)
+#define MAKE_NODE(type)          ((type*)new_node(sizeof(type), T_##type))
+#define NODE_SET_TAG(nodeptr, t) (((Node*)(nodeptr))->type = (t))
+#define IS_A(nodeptr, type)      (GET_NODE_TAG(nodeptr) == T_##type)
 
 // ================================================================
 //                      IsA functions (no inheritance any more)
 // ================================================================
-#define IsA_JoinPath(jp) (IsA(jp, NestPath) || IsA(jp, MergePath) || IsA(jp, HashPath))
-
-#define IsA_Join(jp) (IsA(jp, Join) || IsA(jp, NestLoop) || IsA(jp, MergeJoin) || IsA(jp, HashJoin))
-
-#define IsA_Noname(t) (IsA(t, Noname) || IsA(t, Material) || IsA(t, Sort) || IsA(t, Unique))
-
-#define IsA_Value(t) (IsA(t, Integer) || IsA(t, Float) || IsA(t, String))
+#define IS_A_JOIN_PATH(jp) (IS_A(jp, NestPath) || IS_A(jp, MergePath) || IS_A(jp, HashPath))
+#define IS_A_JOIN(jp)      (IS_A(jp, Join) || IS_A(jp, NestLoop) || IS_A(jp, MergeJoin) || IS_A(jp, HashJoin))
+#define IS_A_NO_NAME(t)    (IS_A(t, Noname) || IS_A(t, Material) || IS_A(t, Sort) || IS_A(t, Unique))
+#define IS_A_VALUE(t)      (IS_A(t, Integer) || IS_A(t, Float) || IS_A(t, String))
 
 // ================================================================
 //                      Extern declarations follow
@@ -281,12 +277,12 @@ typedef double Cost;         // execution cost (in page=access units)
 //     optimizer also need this...
 typedef enum CmdType {
   CMD_UNKNOWN,
-  CMD_SELECT,  // select stmt (formerly retrieve)
-  CMD_UPDATE,  // update stmt (formerly replace)
-  CMD_INSERT,  // insert stmt (formerly append)
+  CMD_SELECT,  // Select stmt (formerly retrieve)
+  CMD_UPDATE,  // Update stmt (formerly replace)
+  CMD_INSERT,  // Insert stmt (formerly append)
   CMD_DELETE,
-  CMD_UTILITY,  // cmds like create, destroy, copy, vacuum, etc.
-  CMD_NOTHING   // dummy command for instead nothing rules with qua
+  CMD_UTILITY,  // Cmds like create, destroy, copy, vacuum, etc.
+  CMD_NOTHING   // Dummy command for instead nothing rules with qua
 } CmdType;
 
 #endif  // RDBMS_NODES_NODES_H_

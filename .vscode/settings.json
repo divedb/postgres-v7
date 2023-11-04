@@ -17,6 +17,15 @@
         "string": "cpp",
         "string_view": "cpp",
         "__mutex_base": "c",
-        "mutex": "c"
+        "mutex": "c",
+        "__bit_reference": "cpp",
+        "__hash_table": "cpp",
+        "__threading_support": "cpp",
+        "algorithm": "cpp",
+        "bitset": "cpp",
+        "compare": "cpp",
+        "iterator": "cpp",
+        "tuple": "cpp",
+        "typeinfo": "cpp"
     }
 }
