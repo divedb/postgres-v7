@@ -3,13 +3,13 @@
 #include <assert.h>
 #include <stdbool.h>
 
-#define FixedItemIsValid(item)             PointerIsValid(item)
-#define FixedStackGetItemBase(stack, item) ((Pointer)((char*)(item) - (stack)->offset))
-#define FixedStackGetItem(stack, pointer)  ((FixedItem)((char*)(pointer) + (stack)->offset))
-#define FixedStackIsValid(stack)           ((bool)PointerIsValid(stack))
+#define FIXED_ITEM_IS_VALID(item)              POINTER_IS_VALID(item)
+#define FIXED_STACK_GET_ITEM_BASE(stack, item) ((Pointer)((char*)(item) - (stack)->offset))
+#define FIXED_STACK_GET_ITEM(stack, pointer)   ((FixedItem)((char*)(pointer) + (stack)->offset))
+#define FIXED_STACK_IS_VALID(stack)            ((bool)POINTER_IS_VALID(stack))
 
 void fixed_stack_init(FixedStack stack, Offset offset) {
-  assert(PointerIsValid(stack));
+  assert(POINTER_IS_VALID(stack));
 
   stack->top = NULL;
   stack->offset = offset;
@@ -18,48 +18,48 @@ void fixed_stack_init(FixedStack stack, Offset offset) {
 Pointer fixed_stack_pop(FixedStack stack) {
   Pointer pointer;
 
-  assert(FixedStackIsValid(stack));
+  assert(FIXED_STACK_IS_VALID(stack));
 
-  if (!PointerIsValid(stack->top)) {
+  if (!POINTER_IS_VALID(stack->top)) {
     return NULL;
   }
 
-  pointer = FixedStackGetItemBase(stack, stack->top);
+  pointer = FIXED_STACK_GET_ITEM_BASE(stack, stack->top);
   stack->top = stack->top->next;
 
   return pointer;
 }
 
 void fixed_stack_push(FixedStack stack, Pointer pointer) {
-  FixedItem item = FixedStackGetItem(stack, pointer);
+  FixedItem item = FIXED_STACK_GET_ITEM(stack, pointer);
 
-  assert(FixedStackIsValid(stack));
-  assert(PointerIsValid(pointer));
+  assert(FIXED_STACK_IS_VALID(stack));
+  assert(POINTER_IS_VALID(pointer));
 
   item->next = stack->top;
   stack->top = item;
 }
 
 Pointer fixed_stack_get_top(FixedStack stack) {
-  assert(FixedStackIsValid(stack));
+  assert(FIXED_STACK_IS_VALID(stack));
 
-  if (!PointerIsValid(stack->top)) {
+  if (!POINTER_IS_VALID(stack->top)) {
     return NULL;
   }
 
-  return FixedStackGetItemBase(stack, stack->top);
+  return FIXED_STACK_GET_ITEM_BASE(stack, stack->top);
 }
 
 static bool fixed_stack_contains(FixedStack stack, Pointer pointer) {
   FixedItem next;
   FixedItem item;
 
-  assert(FixedStackIsValid(stack));
-  assert(PointerIsValid(pointer));
+  assert(FIXED_STACK_IS_VALID(stack));
+  assert(POINTER_IS_VALID(pointer));
 
-  item = FixedStackGetItem(stack, pointer);
+  item = FIXED_STACK_GET_ITEM(stack, pointer);
 
-  for (next = stack->top; FixedItemIsValid(next); next = next->next) {
+  for (next = stack->top; FIXED_ITEM_IS_VALID(next); next = next->next) {
     if (next == item) {
       return true;
     }
@@ -73,11 +73,11 @@ Pointer fixed_stack_get_next(FixedStack stack, Pointer pointer) {
 
   assert(fixed_stack_contains(stack, pointer));
 
-  item = FixedStackGetItem(stack, pointer)->next;
+  item = FIXED_STACK_GET_ITEM(stack, pointer)->next;
 
-  if (!PointerIsValid(item)) {
+  if (!POINTER_IS_VALID(item)) {
     return NULL;
   }
 
-  return FixedStackGetItemBase(stack, item);
+  return FIXED_STACK_GET_ITEM_BASE(stack, item);
 }

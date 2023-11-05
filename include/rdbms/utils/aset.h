@@ -97,8 +97,8 @@ typedef struct AllocChunkData {
   Size size;   // size is always the size of the usable space in the chunk.
 } AllocChunkData;
 
-#define AllocPointerIsValid(pointer) PointerIsValid(pointer)
-#define AllocSetIsValid(set)         PointerIsValid(set)
+#define ALLOC_POINTER_IS_VALID(pointer) POINTER_IS_VALID(pointer)
+#define ALLOC_SET_IS_VALID(set)         POINTER_IS_VALID(set)
 
 void alloc_set_init(AllocSet set, AllocMode mode, Size limit);
 void alloc_set_reset(AllocSet set);

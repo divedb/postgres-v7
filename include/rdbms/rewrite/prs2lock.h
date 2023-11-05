@@ -13,7 +13,27 @@
 #ifndef RDBMS_REWRITE_PRS_2_LOCK_H_
 #define RDBMS_REWRITE_PRS_2_LOCK_H_
 
-#include "nodes/pg_list.h"
 #include "rdbms/access/attnum.h"
+#include "rdbms/nodes/pg_list.h"
+
+// RewriteRule -
+//  Holds a info for a rewrite rule.
+typedef struct RewriteRule {
+  Oid rule_id;
+  CmdType event;
+  AttrNumber attr_no;
+  Node* qual;
+  List* actions;
+  bool is_instead;
+} RewriteRule;
+
+// RuleLock -
+//	All rules that apply to a particular relation. Even though we only
+//	have the rewrite rule system left and these are not really "locks",
+//	the name is kept for historical reasons.
+typedef struct RuleLock {
+  int num_locks;
+  RewriteRule** rules;
+} RuleLock;
 
 #endif  // RDBMS_REWRITE_PRS_2_LOCK_H_

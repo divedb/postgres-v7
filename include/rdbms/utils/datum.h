@@ -14,6 +14,8 @@
 #ifndef RDBMS_UTILS_DATUM_H_
 #define RDBMS_UTILS_DATUM_H_
 
+#include "rdbms/postgres.h"
+
 // SOME NOT VERY PORTABLE ROUTINES ???
 //
 // In the implementation of the next routines we assume the following:

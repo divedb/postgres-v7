@@ -1,3 +1,9 @@
+# function(add_utils_test)
+#     add_executable(${ARGV})
+#     target_link_libraries(${ARGV0} PRIVATE storage PkgConfig::CUNIT pthread)
+# endfunction()
+
+
 add_executable(fstack_test fstack_test.c)
 target_link_libraries(fstack_test PRIVATE utils PkgConfig::CUNIT)
 

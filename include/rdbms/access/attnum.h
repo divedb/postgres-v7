@@ -17,6 +17,8 @@
 #include <assert.h>
 #include <stdbool.h>
 
+#include "rdbms/postgres.h"
+
 // User defined attribute numbers start at 1.   -ay 2/95
 typedef int16 AttrNumber;
 

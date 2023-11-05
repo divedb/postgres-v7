@@ -82,13 +82,13 @@
 #define ALLOC_BLOCKHDRSZ MAXALIGN(sizeof(AllocBlockData))
 #define ALLOC_CHUNKHDRSZ MAXALIGN(sizeof(AllocChunkData))
 
-#define AllocPointerGetChunk(ptr) ((AllocChunk)(((char*)(ptr)) - ALLOC_CHUNKHDRSZ))
-#define AllocChunkGetPointer(chk) ((AllocPointer)(((char*)(chk)) + ALLOC_CHUNKHDRSZ))
-#define AllocPointerGetAset(ptr)  ((AllocSet)(AllocPointerGetChunk(ptr)->aset))
-#define AllocPointerGetSize(ptr)  (AllocPointerGetChunk(ptr)->size)
+#define ALLOC_POINTER_GET_CHUNK(ptr) ((AllocChunk)(((char*)(ptr)) - ALLOC_CHUNKHDRSZ))
+#define ALLOC_CHUNK_GET_POINTER(chk) ((AllocPointer)(((char*)(chk)) + ALLOC_CHUNKHDRSZ))
+#define ALLOC_POINTER_GET_ASET(ptr)  ((AllocSet)(ALLOC_POINTER_GET_CHUNK(ptr)->aset))
+#define ALLOC_POINTER_GET_SIZE(ptr)  (ALLOC_POINTER_GET_CHUNK(ptr)->size)
 
 void alloc_set_init(AllocSet set, AllocMode mode, Size limit) {
-  assert(PointerIsValid(set));
+  assert(POINTER_IS_VALID(set));
   assert((int)DynamicAllocMode <= (int)mode);
   assert((int)mode <= (int)BoundedAllocMode);
 
@@ -96,7 +96,7 @@ void alloc_set_init(AllocSet set, AllocMode mode, Size limit) {
 }
 
 void alloc_set_reset(AllocSet set) {
-  assert(AllocSetIsValid(set));
+  assert(ALLOC_SET_IS_VALID(set));
 
   AllocBlock block = set->blocks;
   AllocBlock next;
@@ -111,10 +111,10 @@ void alloc_set_reset(AllocSet set) {
 }
 
 bool alloc_set_contains(AllocSet set, AllocPointer pointer) {
-  assert(AllocSetIsValid(set));
-  assert(AllocPointerIsValid(pointer));
+  assert(ALLOC_SET_IS_VALID(set));
+  assert(POINTER_IS_VALID(pointer));
 
-  return AllocPointerGetAset(pointer) == set;
+  return ALLOC_POINTER_GET_ASET(pointer) == set;
 }
 
 // Depending on the size of an allocation compute which freechunk
@@ -143,7 +143,7 @@ static inline int alloc_set_free_index(Size size) {
 }
 
 AllocPointer alloc_set_alloc(AllocSet set, Size size) {
-  assert(AllocSetIsValid(set));
+  assert(ALLOC_SET_IS_VALID(set));
 
   AllocBlock block;
   AllocChunk chunk;
@@ -175,7 +175,7 @@ AllocPointer alloc_set_alloc(AllocSet set, Size size) {
 
     chunk->aset = (void*)set;
 
-    return AllocChunkGetPointer(chunk);
+    return ALLOC_CHUNK_GET_POINTER(chunk);
   }
 
   // Choose the actual chunk size to allocate.
@@ -228,7 +228,7 @@ AllocPointer alloc_set_alloc(AllocSet set, Size size) {
       set->blocks = block;
     }
 
-    return AllocChunkGetPointer(chunk);
+    return ALLOC_CHUNK_GET_POINTER(chunk);
   }
 
   // Time to create a new regular block.
@@ -284,7 +284,7 @@ AllocPointer alloc_set_alloc(AllocSet set, Size size) {
 
   assert(block->freeptr <= block->endptr);
 
-  return AllocChunkGetPointer(chunk);
+  return ALLOC_CHUNK_GET_POINTER(chunk);
 }
 
 // Frees allocated memory; memory is removed from the set.
@@ -292,7 +292,7 @@ void alloc_set_free(AllocSet set, AllocPointer pointer) {
   assert(alloc_set_contains(set, pointer));
 
   AllocChunk chunk;
-  chunk = AllocPointerGetChunk(pointer);
+  chunk = ALLOC_POINTER_GET_CHUNK(pointer);
 
   if (chunk->size >= ALLOC_BIGCHUNK_LIMIT) {
     // Big chunks are certain to have been allocated as single-chunk
@@ -348,7 +348,7 @@ AllocPointer alloc_set_realloc(AllocSet set, AllocPointer pointer, Size size) {
   // Chunk sizes are aligned to power of 2 on AllocSetAlloc(). Maybe the
   // allocated area already is >= the new size.  (In particular, we
   // always fall out here if the requested size is a decrease.)
-  old_size = AllocPointerGetSize(pointer);
+  old_size = ALLOC_POINTER_GET_SIZE(pointer);
 
   if (old_size >= size) {
     return pointer;
@@ -359,7 +359,7 @@ AllocPointer alloc_set_realloc(AllocSet set, AllocPointer pointer, Size size) {
     // been allocated as a single-chunk block.	Find the containing
     // block and use realloc() to make it bigger with minimum space
     // wastage.
-    AllocChunk chunk = AllocPointerGetChunk(pointer);
+    AllocChunk chunk = ALLOC_POINTER_GET_CHUNK(pointer);
     AllocBlock block = set->blocks;
     AllocBlock prevblock = NULL;
     Size blksize;
@@ -399,7 +399,7 @@ AllocPointer alloc_set_realloc(AllocSet set, AllocPointer pointer, Size size) {
 
     chunk->size = size;
 
-    return AllocChunkGetPointer(chunk);
+    return ALLOC_CHUNK_GET_POINTER(chunk);
   } else {
     // Normal small-chunk case: just do it by brute force.
     AllocPointer new_pointer = alloc_set_alloc(set, size);

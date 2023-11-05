@@ -35,7 +35,7 @@ Node* new_node(Size size, NodeTag tag) {
   assert(size >= sizeof(Node));
 
   node = (Node*)palloc(size);
-  MemSet((char*)node, 0, size);
+  MEMSET((char*)node, 0, size);
   node->type = tag;
 
   return node;

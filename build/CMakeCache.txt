@@ -210,6 +210,9 @@ PKG_CONFIG_EXECUTABLE:FILEPATH=/usr/local/bin/pkg-config
 //The directory containing a CMake configuration file for cunit.
 cunit_DIR:PATH=cunit_DIR-NOTFOUND
 
+//Dependencies for the target
+nodes_LIB_DEPENDS:STATIC=general;adt;
+
 //Path to a library.
 pkgcfg_lib_CUNIT_cunit:FILEPATH=/usr/local/Cellar/cunit/2.1-3/lib/libcunit.dylib
 
@@ -312,7 +315,7 @@ CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_NM
 CMAKE_NM-ADVANCED:INTERNAL=1
 //number of local generators
-CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=12
+CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=14
 //ADVANCED property for variable: CMAKE_OBJCOPY
 CMAKE_OBJCOPY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_OBJDUMP

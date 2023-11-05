@@ -14,7 +14,12 @@
 #ifndef RDBMS_UTILS_PALLOC_H_
 #define RDBMS_UTILS_PALLOC_H_
 
+// TODO(gc): fix this.
+#define PALLOC_IS_MALLOC
+
 #ifdef PALLOC_IS_MALLOC
+
+#include <stdlib.h>
 
 #define palloc(s)      malloc(s)
 #define pfree(p)       free(p)

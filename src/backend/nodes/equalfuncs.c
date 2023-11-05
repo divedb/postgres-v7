@@ -63,7 +63,7 @@ static bool equal_resdom(Resdom* a, Resdom* b) {
   return true;
 }
 
-static bool euqal_fjoin(Fjoin* a, Fjoin* b) {
+static bool equal_fjoin(Fjoin* a, Fjoin* b) {
   int nodes_count;
 
   if (a->fj_initialized != b->fj_initialized) {
@@ -264,14 +264,14 @@ static bool equal_func(Func* a, Func* b) {
     return false;
   }
 
-  if (!euqal(a->func_planlist, b->func_planlist)) {
+  if (!equal(a->func_planlist, b->func_planlist)) {
     return false;
   }
 
   return true;
 }
 
-static bool euqal_aggref(Aggref* a, Aggref* b) {
+static bool equal_aggref(Aggref* a, Aggref* b) {
   if (strcmp(a->agg_name, b->agg_name) != 0) {
     return false;
   }
@@ -304,7 +304,7 @@ static bool euqal_aggref(Aggref* a, Aggref* b) {
   return true;
 }
 
-static bool euqal_sublink(SubLink* a, SubLink* b) {
+static bool equal_sublink(SubLink* a, SubLink* b) {
   if (a->sublink_type != b->sublink_type) {
     return false;
   }
@@ -477,7 +477,7 @@ static bool equal_index_path(IndexPath* a, IndexPath* b) {
 }
 
 static bool equal_tid_path(TidPath* a, TidPath* b) {
-  if (!equal_path((Path*)a, (Path*)n)) {
+  if (!equal_path((Path*)a, (Path*)b)) {
     return false;
   }
 
@@ -493,7 +493,7 @@ static bool equal_tid_path(TidPath* a, TidPath* b) {
 }
 
 static bool equal_join_path(JoinPath* a, JoinPath* b) {
-  if (!equal_path((Path*)a, (Path*)n)) {
+  if (!equal_path((Path*)a, (Path*)b)) {
     return false;
   }
 
@@ -513,7 +513,7 @@ static bool equal_join_path(JoinPath* a, JoinPath* b) {
 }
 
 static bool equal_nest_path(NestPath* a, NestPath* b) {
-  if (!equal_join_path((JoinPath*)a, (JoinPath*)n)) {
+  if (!equal_join_path((JoinPath*)a, (JoinPath*)b)) {
     return false;
   }
 
@@ -541,7 +541,7 @@ static bool equal_merge_path(MergePath* a, MergePath* b) {
 }
 
 static bool equal_hash_path(HashPath* a, HashPath* b) {
-  if (!equal_join_path((JoinPath*)a, (JoinPath*)n)) {
+  if (!equal_join_path((JoinPath*)a, (JoinPath*)b)) {
     return false;
   }
 
@@ -561,3 +561,529 @@ static bool equal_hash_path(HashPath* a, HashPath* b) {
 // // XXX Why is this even here? We don't have equal() funcs for
 // //     any other kinds of Plan nodes... likely this is dead code...
 // static bool equal_index_scan(IndexScan* a, IndexScan* b) { return true; }
+
+static bool equal_restrict_info(RestrictInfo* a, RestrictInfo* b) {
+  if (!equal(a->clause, b->clause)) {
+    return false;
+  }
+
+  if (!equal(a->sub_clause_indices, b->sub_clause_indices)) {
+    return false;
+  }
+
+  if (a->merge_join_operator != b->merge_join_operator) {
+    return false;
+  }
+
+  if (a->left_sort_op != b->left_sort_op) {
+    return false;
+  }
+
+  if (a->right_sort_op != b->right_sort_op) {
+    return false;
+  }
+
+  if (a->hash_join_operator != b->hash_join_operator) {
+    return false;
+  }
+
+  return true;
+}
+
+static bool equal_join_info(JoinInfo* a, JoinInfo* b) {
+  if (!equali(a->unjoined_relids, b->unjoined_relids)) {
+    return false;
+  }
+
+  if (!equal(a->jinfo_restrict_info, b->jinfo_restrict_info)) {
+    return false;
+  }
+
+  return true;
+}
+
+static bool equal_iter(Iter* a, Iter* b) { return equal(a->iter_expr, b->iter_expr); }
+
+static bool equal_stream(Stream* a, Stream* b) {
+  if (a->clause_type != b->clause_type) {
+    return false;
+  }
+
+  if (a->group_up != b->group_up) {
+    return false;
+  }
+
+  if (a->group_cost != b->group_cost) {
+    return false;
+  }
+
+  if (a->group_sel != b->group_sel) {
+    return false;
+  }
+
+  if (!equal(a->path_ptr, b->path_ptr)) {
+    return false;
+  }
+
+  if (!equal(a->cinfo, b->cinfo)) {
+    return false;
+  }
+
+  if (!equal(a->upstream, b->upstream)) {
+    return false;
+  }
+
+  return equal(a->downstream, b->downstream);
+}
+
+static bool equal_query(Query* a, Query* b) {
+  if (a->command_type != b->command_type) {
+    return false;
+  }
+
+  if (!equal(a->utility_stmt, b->utility_stmt)) {
+    return false;
+  }
+
+  if (a->result_relation != b->result_relation) {
+    return false;
+  }
+
+  if (a->into && b->into) {
+    if (strcmp(a->into, b->into) != 0) {
+      return false;
+    }
+  } else {
+    if (a->into != b->into) {
+      return false;
+    }
+  }
+
+  if (a->is_portal != b->is_portal) {
+    return false;
+  }
+
+  if (a->is_binary != b->is_binary) {
+    return false;
+  }
+
+  if (a->is_temp != b->is_temp) {
+    return false;
+  }
+
+  if (a->union_all != b->union_all) {
+    return false;
+  }
+
+  if (a->has_aggs != b->has_aggs) {
+    return false;
+  }
+
+  if (a->has_sublinks != b->has_sublinks) {
+    return false;
+  }
+
+  if (!equal(a->rtable, b->rtable)) {
+    return false;
+  }
+
+  if (!equal(a->target_list, b->target_list)) {
+    return false;
+  }
+
+  if (!equal(a->qual, b->qual)) {
+    return false;
+  }
+
+  if (!equal(a->row_mark, b->row_mark)) {
+    return false;
+  }
+
+  if (!equal(a->distinct_clause, b->distinct_clause)) {
+    return false;
+  }
+
+  if (!equal(a->sort_clause, b->sort_clause)) {
+    return false;
+  }
+
+  if (!equal(a->group_clause, b->group_clause)) {
+    return false;
+  }
+
+  if (!equal(a->having_qual, b->having_qual)) {
+    return false;
+  }
+
+  if (!equal(a->intersect_clause, b->intersect_clause)) {
+    return false;
+  }
+
+  if (!equal(a->union_clause, b->union_clause)) {
+    return false;
+  }
+
+  if (!equal(a->limit_offset, b->limit_offset)) {
+    return false;
+  }
+
+  if (!equal(a->limit_count, b->limit_count)) {
+    return false;
+  }
+
+  // We do not check the internal-to-the-planner fields: base_rel_list,
+  // join_rel_list, equi_key_list, query_pathkeys. They might not be set
+  // yet, and in any case they should be derivable from the other
+  // fields.
+  return true;
+}
+
+static bool equal_range_tbl_entry(RangeTblEntry* a, RangeTblEntry* b) {
+  if (a->rel_name && b->rel_name) {
+    if (strcmp(a->rel_name, b->rel_name) != 0) {
+      return false;
+    }
+  } else {
+    if (a->rel_name != b->rel_name) {
+      return false;
+    }
+  }
+
+  if (!equal(a->ref, b->ref)) {
+    return false;
+  }
+
+  if (a->rel_id != b->rel_id) {
+    return false;
+  }
+
+  if (a->inh != b->inh) {
+    return false;
+  }
+
+  if (a->in_from_cl != b->in_from_cl) {
+    return false;
+  }
+
+  if (a->in_join_set != b->in_join_set) {
+    return false;
+  }
+
+  if (a->skip_acl != b->skip_acl) {
+    return false;
+  }
+
+  return true;
+}
+
+static bool equal_sort_clause(SortClause* a, SortClause* b) {
+  if (a->tle_sort_group_ref != b->tle_sort_group_ref) {
+    return false;
+  }
+
+  if (a->sort_op != b->sort_op) {
+    return false;
+  }
+
+  return true;
+}
+
+static bool equal_target_entry(TargetEntry* a, TargetEntry* b) {
+  if (!equal(a->resdom, b->resdom)) {
+    return false;
+  }
+
+  if (!equal(a->fjoin, b->fjoin)) {
+    return false;
+  }
+
+  if (!equal(a->expr, b->expr)) {
+    return false;
+  }
+
+  return true;
+}
+
+static bool equal_case_expr(CaseExpr* a, CaseExpr* b) {
+  if (a->case_type != b->case_type) {
+    return false;
+  }
+
+  if (!equal(a->arg, b->arg)) {
+    return false;
+  }
+
+  if (!equal(a->args, b->args)) {
+    return false;
+  }
+
+  if (!equal(a->def_result, b->def_result)) {
+    return false;
+  }
+
+  return true;
+}
+
+static bool equal_case_when(CaseWhen* a, CaseWhen* b) {
+  if (!equal(a->expr, b->expr)) {
+    return false;
+  }
+
+  if (!equal(a->result, b->result)) {
+    return false;
+  }
+
+  return true;
+}
+
+static bool equal_value(Value* a, Value* b) {
+  if (a->type != b->type) {
+    return false;
+  }
+
+  switch (a->type) {
+    case T_Integer:
+      return a->val.ival == b->val.ival;
+
+    case T_Float:
+    case T_String:
+      return strcmp(a->val.str, b->val.str) == 0;
+
+    default:
+      break;
+  }
+
+  return true;
+}
+
+bool equal(void* a, void* b) {
+  bool retval = false;
+
+  if (a == b) {
+    return true;
+  }
+
+  // Note that a != b, so only one of them can be NULL.
+  if (a == NULL || b == NULL) {
+    return false;
+  }
+
+  // Are they the same type of nodes?
+  if (NODE_TAG(a) != NODE_TAG(b)) {
+    return false;
+  }
+
+  switch (NODE_TAG(a)) {
+    case T_Resdom:
+      retval = equal_resdom(a, b);
+      break;
+
+    case T_Fjoin:
+      retval = equal_fjoin(a, b);
+      break;
+
+    case T_Expr:
+      retval = equal_expr(a, b);
+      break;
+
+    case T_Iter:
+      retval = equal_iter(a, b);
+      break;
+
+    case T_Stream:
+      retval = equal_stream(a, b);
+      break;
+
+    case T_Attr:
+      retval = equal_attr(a, b);
+      break;
+
+    case T_Var:
+      retval = equal_var(a, b);
+      break;
+
+    case T_Array:
+      retval = equal_array(a, b);
+      break;
+
+    case T_ArrayRef:
+      retval = equal_array_ref(a, b);
+      break;
+
+    case T_Oper:
+      retval = equal_oper(a, b);
+      break;
+
+    case T_Const:
+      retval = equal_const(a, b);
+      break;
+
+    case T_Param:
+      retval = equal_param(a, b);
+      break;
+
+    case T_Aggref:
+      retval = equal_aggref(a, b);
+      break;
+
+    case T_SubLink:
+      retval = equal_sublink(a, b);
+      break;
+
+    case T_RelabelType:
+      retval = equal_relabel_type(a, b);
+      break;
+
+    case T_Func:
+      retval = equal_func(a, b);
+      break;
+
+    case T_RestrictInfo:
+      retval = equal_restrict_info(a, b);
+      break;
+
+    case T_RelOptInfo:
+      retval = equal_rel_opt_info(a, b);
+      break;
+
+    case T_IndexOptInfo:
+      retval = equal_index_opt_info(a, b);
+      break;
+
+    case T_PathKeyItem:
+      retval = equal_path_key_item(a, b);
+      break;
+
+    case T_Path:
+      retval = equal_path(a, b);
+      break;
+
+    case T_IndexPath:
+      retval = equal_index_path(a, b);
+      break;
+
+    case T_TidPath:
+      retval = equal_tid_path(a, b);
+      break;
+
+    case T_NestPath:
+      retval = equal_nest_path(a, b);
+      break;
+
+    case T_MergePath:
+      retval = equal_merge_path(a, b);
+      break;
+
+    case T_HashPath:
+      retval = equal_hash_path(a, b);
+      break;
+
+    case T_IndexScan:
+      // TODO(gc): fix this.
+      // retval = equal_index_scan(a, b);
+      break;
+
+    case T_TidScan:
+      // TODO(gc): fix this.
+      // retval = equal_tid_scan(a, b);
+      break;
+
+    case T_SubPlan:
+      // TODO(gc): fix this.
+      // retval = equal_subplan(a, b);
+      break;
+
+    case T_JoinInfo:
+      retval = equal_join_info(a, b);
+      break;
+
+    case T_EState:
+      // TODO(gc): fix this.
+      // retval = equal_estate(a, b);
+      break;
+
+    case T_Integer:
+    case T_Float:
+    case T_String:
+      retval = equal_value(a, b);
+      break;
+
+    case T_List: {
+      List* la = (List*)a;
+      List* lb = (List*)b;
+      List* l;
+
+      // Try to reject by length check before we grovel through all the elements...
+      if (length(a) != length(b)) {
+        return false;
+      }
+
+      FOR_EACH(l, la) {
+        if (!equal(LFIRST(l), LFIRST(lb))) {
+          return false;
+        }
+
+        lb = LNEXT(lb);
+      }
+      retval = true;
+    } break;
+
+    case T_Query:
+      retval = equal_query(a, b);
+      break;
+
+    case T_RangeTblEntry:
+      retval = equal_range_tbl_entry(a, b);
+      break;
+
+    case T_SortClause:
+      retval = equal_sort_clause(a, b);
+      break;
+
+    case T_GroupClause:
+      // GroupClause is equivalent to SortClause.
+      retval = equal_sort_clause(a, b);
+      break;
+
+    case T_TargetEntry:
+      retval = equal_target_entry(a, b);
+      break;
+
+    case T_CaseExpr:
+      retval = equal_case_expr(a, b);
+      break;
+
+    case T_CaseWhen:
+      retval = equal_case_when(a, b);
+      break;
+
+    default:
+      elog(NOTICE, "%s: don't know whether nodes of type %d are equal.", __func__, NODE_TAG(a));
+      break;
+  }
+
+  return retval;
+}
+
+// Compares two lists of integers.
+static bool equali(List* a, List* b) {
+  List* l;
+
+  FOR_EACH(l, a) {
+    if (b == NIL) {
+      return false;
+    }
+
+    if (LFIRSTI(l) != LFIRSTI(b)) {
+      return false;
+    }
+
+    b = LNEXT(b);
+  }
+
+  if (b != NIL) {
+    return false;
+  }
+
+  return true;
+}

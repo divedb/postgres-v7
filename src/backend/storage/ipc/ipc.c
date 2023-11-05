@@ -84,7 +84,7 @@ static int private_memory_create(IpcMemoryKey mem_key, uint32 size) {
     exit(EXIT_FAILURE);
   }
 
-  MemSet(IpcPrivateMem[memid].memptr, 0, size);
+  MEMSET(IpcPrivateMem[memid].memptr, 0, size);
 
   return memid++;
 }
@@ -332,7 +332,7 @@ int ipc_semaphore_get_value(IpcSemaphoreId semid, int sem) {
 IpcMemoryId ipc_memory_create(IpcMemoryKey mem_key, uint32 size, int permission) {
   IpcMemoryId shmid;
 
-  if (mem_key == PrivateIPCKey) {
+  if (mem_key == PRIVATE_IPC_KEY) {
     shmid = private_memory_create(mem_key, size);
   } else {
     shmid = shmget(mem_key, size, IPC_CREAT | permission);
@@ -345,7 +345,7 @@ IpcMemoryId ipc_memory_create(IpcMemoryKey mem_key, uint32 size, int permission)
             strerror(errno), mem_key, size, permission);
     ipc_config_tip();
 
-    return IpcMemCreationFailed;
+    return IPC_MEM_CREATION_FAILED;
   }
 
   on_shmem_exit(ipc_private_memory_kill, (caddr_t)shmid);
@@ -363,7 +363,8 @@ IpcMemoryId ipc_memory_id_get(IpcMemoryKey mem_key, uint32 size) {
             "IpcMemoryIdGet: shmget failed (%s) "
             "key=%d, size=%d, permission=%o",
             strerror(errno), mem_key, size, 0);
-    return IpcMemIdGetFailed;
+
+    return IPC_MEM_ID_GET_FAILED;
   }
 
   return shmid;

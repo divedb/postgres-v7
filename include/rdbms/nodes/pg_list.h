@@ -34,6 +34,7 @@
 // the value is too large to fit in a 'long'.
 typedef struct Value {
   NodeTag type;  // Tag appropriately (eg. T_String).
+
   union ValUnion {
     long ival;  // Machine integer.
     char* str;  // String.
@@ -95,5 +96,6 @@ bool non_overlap_setsi(List* list1, List* list2);
 bool is_subseti(List* list1, List* list2);
 
 void free_list(List* list);
+List* list_copy(List* list);
 
 #endif  // RDBMS_NODES_PG_LIST_H_

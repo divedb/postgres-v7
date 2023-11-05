@@ -36,7 +36,7 @@ typedef struct Query {
   bool is_temp;           // Is 'into' a temp table?.
   bool union_all;         // Union without unique sort.
   bool has_aggs;          // Has aggregates in tlist or havingQual.
-  bool has_subLinks;      // Has subquery SubLink.
+  bool has_sublinks;      // Has subquery SubLink.
   List* rtable;           // List of range table entries.
   List* target_list;      // Target list (of TargetEntry).
   Node* qual;             // Qualifications applied to tuples.

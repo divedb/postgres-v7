@@ -14,6 +14,8 @@
 #ifndef RDBMS_NODES_PLAN_NODES_H_
 #define RDBMS_NODES_PLAN_NODES_H_
 
+#include "rdbms/access/sdir.h"
+
 // Executor State types are used in the plannode structures
 // so we have to include their definitions too.
 //
@@ -122,23 +124,16 @@ typedef struct Plan {
 //  * Scan nodes
 //  * ==========
 //  */
-// typedef struct Scan
-// {
-// 	Plan		plan;
-// 	Index		scanrelid;		/* relid is index into the range table */
-// 	CommonScanState *scanstate;
+// typedef struct Scan {
+//   Plan plan;
+//   Index scanrelid; /* relid is index into the range table */
+//   CommonScanState* scanstate;
 // } Scan;
 
-// /* ----------------
-//  *		sequential scan node
-//  * ----------------
-//  */
+// // Sequential scan node.
 // typedef Scan SeqScan;
 
-/* ----------------
- *		index scan node
- * ----------------
- */
+// // Index scan node.
 // typedef struct IndexScan {
 //   Scan scan;
 //   List* indxid;

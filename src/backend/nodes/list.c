@@ -24,6 +24,7 @@
 
 #include "rdbms/nodes/pg_list.h"
 #include "rdbms/utils/elog.h"
+#include "rdbms/utils/palloc.h"
 
 int length(List* l) {
   int i = 0;
@@ -86,7 +87,7 @@ List* lconsi(int datum, List* list) {
 // Nondestructive, returns t iff l1 is a member of the list l2.
 // TODO(gc): fix this.
 bool member(void* datum, List* list) {
-  List* i;
+  // List* i;
 
   return false;
 }
@@ -95,7 +96,7 @@ bool int_member(int datum, List* list) {
   List* i;
 
   FOR_EACH(i, list) {
-    if (l1 == LFIRSTI(i)) {
+    if (datum == LFIRSTI(i)) {
       return true;
     }
   }
@@ -144,7 +145,7 @@ List* make_list(void* elem, ...) {
   temp = elem;
 
   while (temp != (void*)-1) {
-    temp - lcons(temp, NIL);
+    temp = lcons(temp, NIL);
 
     if (temp_cons == NIL) {
       retval = temp;
@@ -162,10 +163,10 @@ List* make_list(void* elem, ...) {
 
 // Add obj to the end of list, or make a new list if 'list' is NIL
 // MORE EXPENSIVE THAN lcons
-List* lappend(List* list, void* datum) { return ncons(list, lcons(datum, NIL)); }
+List* lappend(List* list, void* datum) { return nconc(list, lcons(datum, NIL)); }
 
 // Same as lappend, but for integers.
-List* lappendi(List* list, int datum) { return ncons(list, lconsi(datum, NIL)); }
+List* lappendi(List* list, int datum) { return nconc(list, lconsi(datum, NIL)); }
 
 // Removes 'elem' from the the linked list.
 // This version matches 'elem' using simple pointer comparison.
@@ -234,7 +235,7 @@ List* ltruncate(int n, List* list) {
 
   FOR_EACH(ptr, list) {
     if (--n == 0) {
-      LNEXT(prt) = NIL;
+      LNEXT(ptr) = NIL;
       break;
     }
   }
@@ -337,7 +338,7 @@ List* lisp_unioni(List* list1, List* list2) {
   List* i;
 
   FOR_EACH(i, list2) {
-    if (!member(LFIRSTI(i), retval)) {
+    if (!int_member(LFIRSTI(i), retval)) {
       retval = lappendi(retval, LFIRSTI(i));
     }
   }
@@ -414,4 +415,29 @@ void free_list(List* list) {
     list = LNEXT(list);
     pfree(l);
   }
+}
+
+// This copy function only copies the "cons-cells" of the list, not the
+// pointed-to objects.  (Use copyObject if you want a "deep" copy.)
+//
+// We also use this function for copying lists of integers, which is
+// grotty but unlikely to break --- it could fail if sizeof(pointer)
+// is less than sizeof(int), but I don't know any such machines...
+//
+// Note that copyObject will surely coredump if applied to a list
+// of integers!
+List* list_copy(List* list) {
+  List* new_list;
+  List* l;
+  List* nl;
+
+  nl = lcons(LFIRST(list), NIL);
+  new_list = nl;
+
+  FOR_EACH(l, LNEXT(list)) {
+    LNEXT(nl) = lcons(LFIRST(l), NIL);
+    nl = LNEXT(nl);
+  }
+
+  return new_list;
 }

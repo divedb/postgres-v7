@@ -2,8 +2,6 @@
 
 #include <string.h>
 
-#include "rdbms/utils/mctx.h"
-
 char* pstrdup(const char* string) {
   char* nstr;
   int len;

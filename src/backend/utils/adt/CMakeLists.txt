@@ -1,0 +1,1 @@
+add_library(adt datum.c)

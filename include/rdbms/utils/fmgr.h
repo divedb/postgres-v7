@@ -18,6 +18,9 @@
 #ifndef RDBMS_UTILS_FMGR_H_
 #define RDBMS_UTILS_FMGR_H_
 
+#include "rdbms/utils/fmgr.h"
+#include "rdbms/utils/mctx.h"
+
 // We don't want to include primnodes.h here, so make a stub reference.
 typedef struct Node* FmNodePtr;
 
@@ -57,6 +60,11 @@ typedef struct FunctionCallInfoData {
   Datum arg[FUNC_MAX_ARGS];     // Arguments passed to function.
   bool argnull[FUNC_MAX_ARGS];  // T if arg[i] is actually NULL.
 } FunctionCallInfoData;
+
+// TODO(gc): the size of data is temporarily fixed to compile.
+typedef struct FmgrValuesData {
+  char* data[256];
+} FmgrValues;
 
 char* fmgr_c(FmgrInfo* finfo, FmgrValues* values, bool* is_null);
 

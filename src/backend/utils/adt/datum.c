@@ -32,6 +32,7 @@
 
 #include "rdbms/postgres.h"
 #include "rdbms/utils/elog.h"
+#include "rdbms/utils/palloc.h"
 
 // Find the "real" size of a datum, given the datum value,
 // its type, whether it is a "by value", and its length.
@@ -49,7 +50,7 @@ Size datum_get_size(Datum value, Oid type, bool by_val, Size len) {
     if (len <= sizeof(Datum)) {
       size = len;
     } else {
-      elog(ERROR, "%s: error type = %ld, by val with len = %d.", (long)type, len);
+      elog(ERROR, "%s: error type = %ld, by val with len = %zu.", __func__, (long)type, len);
     }
   } else {
     if (len == -1) {
@@ -83,10 +84,10 @@ Datum datum_copy(Datum value, Oid type, bool by_val, Size len) {
     res = value;
   } else {
     if (value == 0) {
-      return NULL;
+      return 0;
     }
 
-    real_size = DATUM_GET_SIZE(value, type, by_val, len);
+    real_size = datum_get_size(value, type, by_val, len);
 
     // The value is a pointer. Allocate enough space and copy the
     // pointed data.
@@ -111,7 +112,7 @@ void datum_free(Datum value, Oid type, bool by_val, Size len) {
   Size real_size;
   Pointer s;
 
-  real_size = DATUM_GET_SIZE(value, type, by_val, len);
+  real_size = datum_get_size(value, type, by_val, len);
 
   if (!by_val) {
     // Free the space palloced by "datumCopy()".
@@ -145,8 +146,8 @@ bool datum_is_equal(Datum value1, Datum value2, Oid type, bool by_val, Size len)
   } else {
     // byVal = false Compare the bytes pointed by the pointers stored
     // in the datums.
-    size1 = DATUM_GET_SIZE(value1, type, by_val, len);
-    size2 = DATUM_GET_SIZE(value2, type, by_val, len);
+    size1 = datum_get_size(value1, type, by_val, len);
+    size2 = datum_get_size(value2, type, by_val, len);
 
     if (size1 != size2) {
       return false;

@@ -182,69 +182,69 @@ aset/fast:
 .PHONY : aset/fast
 
 #=============================================================================
-# Target rules for targets named slock_test
+# Target rules for targets named palloc
 
 # Build rule for target.
-slock_test: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 slock_test
-.PHONY : slock_test
+palloc: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 palloc
+.PHONY : palloc
 
 # fast build rule for target.
-slock_test/fast:
-	$(MAKE) $(MAKESILENT) -f test/storage/CMakeFiles/slock_test.dir/build.make test/storage/CMakeFiles/slock_test.dir/build
-.PHONY : slock_test/fast
+palloc/fast:
+	$(MAKE) $(MAKESILENT) -f src/backend/utils/mmgr/CMakeFiles/palloc.dir/build.make src/backend/utils/mmgr/CMakeFiles/palloc.dir/build
+.PHONY : palloc/fast
 
 #=============================================================================
-# Target rules for targets named ipc_test
+# Target rules for targets named error
 
 # Build rule for target.
-ipc_test: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 ipc_test
-.PHONY : ipc_test
+error: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 error
+.PHONY : error
 
 # fast build rule for target.
-ipc_test/fast:
-	$(MAKE) $(MAKESILENT) -f test/storage/CMakeFiles/ipc_test.dir/build.make test/storage/CMakeFiles/ipc_test.dir/build
-.PHONY : ipc_test/fast
+error/fast:
+	$(MAKE) $(MAKESILENT) -f src/backend/utils/error/CMakeFiles/error.dir/build.make src/backend/utils/error/CMakeFiles/error.dir/build
+.PHONY : error/fast
 
 #=============================================================================
-# Target rules for targets named fstack_test
+# Target rules for targets named adt
 
 # Build rule for target.
-fstack_test: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 fstack_test
-.PHONY : fstack_test
+adt: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 adt
+.PHONY : adt
 
 # fast build rule for target.
-fstack_test/fast:
-	$(MAKE) $(MAKESILENT) -f test/utils/CMakeFiles/fstack_test.dir/build.make test/utils/CMakeFiles/fstack_test.dir/build
-.PHONY : fstack_test/fast
+adt/fast:
+	$(MAKE) $(MAKESILENT) -f src/backend/utils/adt/CMakeFiles/adt.dir/build.make src/backend/utils/adt/CMakeFiles/adt.dir/build
+.PHONY : adt/fast
 
 #=============================================================================
-# Target rules for targets named oset_test
+# Target rules for targets named nodes
 
 # Build rule for target.
-oset_test: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 oset_test
-.PHONY : oset_test
+nodes: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 nodes
+.PHONY : nodes
 
 # fast build rule for target.
-oset_test/fast:
-	$(MAKE) $(MAKESILENT) -f test/utils/CMakeFiles/oset_test.dir/build.make test/utils/CMakeFiles/oset_test.dir/build
-.PHONY : oset_test/fast
+nodes/fast:
+	$(MAKE) $(MAKESILENT) -f src/backend/nodes/CMakeFiles/nodes.dir/build.make src/backend/nodes/CMakeFiles/nodes.dir/build
+.PHONY : nodes/fast
 
 #=============================================================================
-# Target rules for targets named aset_test
+# Target rules for targets named pg_list_test
 
 # Build rule for target.
-aset_test: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 aset_test
-.PHONY : aset_test
+pg_list_test: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 pg_list_test
+.PHONY : pg_list_test
 
 # fast build rule for target.
-aset_test/fast:
-	$(MAKE) $(MAKESILENT) -f test/utils/CMakeFiles/aset_test.dir/build.make test/utils/CMakeFiles/aset_test.dir/build
-.PHONY : aset_test/fast
+pg_list_test/fast:
+	$(MAKE) $(MAKESILENT) -f test/nodes/CMakeFiles/pg_list_test.dir/build.make test/nodes/CMakeFiles/pg_list_test.dir/build
+.PHONY : pg_list_test/fast
 
 # Help Target
 help:
@@ -254,16 +254,16 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
+	@echo "... adt"
 	@echo "... aset"
-	@echo "... aset_test"
 	@echo "... buffer"
+	@echo "... error"
 	@echo "... fstack"
-	@echo "... fstack_test"
 	@echo "... ipc"
-	@echo "... ipc_test"
+	@echo "... nodes"
 	@echo "... oset"
-	@echo "... oset_test"
-	@echo "... slock_test"
+	@echo "... palloc"
+	@echo "... pg_list_test"
 .PHONY : help
 
 

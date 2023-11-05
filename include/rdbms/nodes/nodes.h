@@ -228,8 +228,7 @@ typedef struct Node {
   NodeTag type;
 } Node;
 
-#define GET_NODE_TAG(nodeptr) (((Node*)(nodeptr))->type)
-
+#define NODE_TAG(nodeptr)        (((Node*)(nodeptr))->type)
 #define MAKE_NODE(type)          ((type*)new_node(sizeof(type), T_##type))
 #define NODE_SET_TAG(nodeptr, t) (((Node*)(nodeptr))->type = (t))
 #define IS_A(nodeptr, type)      (GET_NODE_TAG(nodeptr) == T_##type)
