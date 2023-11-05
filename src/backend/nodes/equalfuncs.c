@@ -16,6 +16,7 @@
 #include "rdbms/nodes/parsenodes.h"
 #include "rdbms/nodes/pg_list.h"
 #include "rdbms/nodes/primnodes.h"
+#include "rdbms/nodes/relation.h"
 #include "rdbms/postgres.h"
 #include "rdbms/utils/datum.h"
 #include "rdbms/utils/elog.h"
@@ -402,4 +403,161 @@ static bool equal_array_ref(ArrayRef* a, ArrayRef* b) {
 }
 
 // Stuff from relation.h.
-static bool equal_rel_opt_info(RelOptInfo* a, RelOptInfo* b) {}
+static bool equal_rel_opt_info(RelOptInfo* a, RelOptInfo* b) {
+  // We treat RelOptInfos as equal if they refer to the same base rels
+  // joined in the same order.  Is this sufficient?
+  return equali(a->relids, b->relids);
+}
+
+static bool equal_index_opt_info(IndexOptInfo* a, IndexOptInfo* b) {
+  // We treat IndexOptInfos as equal if they refer to the same index. Is
+  // this sufficient?
+  if (a->index_oid != b->index_oid) {
+    return false;
+  }
+
+  return true;
+}
+
+static bool equal_path_key_item(PathKeyItem* a, PathKeyItem* b) {
+  if (a->sort_op != b->sort_op) {
+    return false;
+  }
+
+  if (!equal(a->key, b->key)) {
+    return false;
+  }
+
+  return true;
+}
+
+static bool equal_path(Path* a, Path* b) {
+  if (a->path_type != b->path_type) {
+    return false;
+  }
+
+  if (!equal(a->parent, b->parent)) {
+    return false;
+  }
+
+  // Do not check path costs, since they may not be set yet, and being
+  // float values there are roundoff error issues anyway...
+  if (!equal(a->path_keys, b->path_keys)) {
+    return false;
+  }
+
+  return true;
+}
+
+static bool equal_index_path(IndexPath* a, IndexPath* b) {
+  if (!equal_path((Path*)a, (Path*)b)) {
+    return false;
+  }
+
+  if (!equali(a->index_id, b->index_id)) {
+    return false;
+  }
+
+  if (!equal(a->index_qual, b->index_qual)) {
+    return false;
+  }
+
+  if (a->index_scan_dir != b->index_scan_dir) {
+    return false;
+  }
+
+  if (!equali(a->join_rel_ids, b->join_rel_ids)) {
+    return false;
+  }
+
+  // Skip 'rows' because of possibility of floating-point roundoff
+  // error. It should be derivable from the other fields anyway.
+
+  return true;
+}
+
+static bool equal_tid_path(TidPath* a, TidPath* b) {
+  if (!equal_path((Path*)a, (Path*)n)) {
+    return false;
+  }
+
+  if (!equal(a->tid_eval, b->tid_eval)) {
+    return false;
+  }
+
+  if (!equali(a->unjoined_rel_ids, b->unjoined_rel_ids)) {
+    return false;
+  }
+
+  return true;
+}
+
+static bool equal_join_path(JoinPath* a, JoinPath* b) {
+  if (!equal_path((Path*)a, (Path*)n)) {
+    return false;
+  }
+
+  if (!equal(a->outer_join_path, b->outer_join_path)) {
+    return false;
+  }
+
+  if (!equal(a->inner_join_path, b->inner_join_path)) {
+    return false;
+  }
+
+  if (!equal(a->join_restrict_info, b->join_restrict_info)) {
+    return false;
+  }
+
+  return true;
+}
+
+static bool equal_nest_path(NestPath* a, NestPath* b) {
+  if (!equal_join_path((JoinPath*)a, (JoinPath*)n)) {
+    return false;
+  }
+
+  return true;
+}
+
+static bool equal_merge_path(MergePath* a, MergePath* b) {
+  if (!equal_join_path((JoinPath*)a, (JoinPath*)b)) {
+    return false;
+  }
+
+  if (!equal(a->path_merge_clauses, b->path_merge_clauses)) {
+    return false;
+  }
+
+  if (!equal(a->outer_sort_keys, b->outer_sort_keys)) {
+    return false;
+  }
+
+  if (!equal(a->inner_sort_keys, b->inner_sort_keys)) {
+    return false;
+  }
+
+  return true;
+}
+
+static bool equal_hash_path(HashPath* a, HashPath* b) {
+  if (!equal_join_path((JoinPath*)a, (JoinPath*)n)) {
+    return false;
+  }
+
+  if (!equal(a->path_hash_clauses, b->path_hash_clauses)) {
+    return false;
+  }
+
+  return true;
+}
+
+// TODO(gc): fix this.
+// extern IndexScan;
+
+// // XXX This equality function is a quick hack, should be
+// //     fixed to compare all fields.
+// //
+// // XXX Why is this even here? We don't have equal() funcs for
+// //     any other kinds of Plan nodes... likely this is dead code...
+// static bool equal_index_scan(IndexScan* a, IndexScan* b) { return true; }

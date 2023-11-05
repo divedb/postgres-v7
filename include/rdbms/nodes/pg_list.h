@@ -70,15 +70,15 @@ List* nconc(List* list1, List* list2);
 List* lcons(void* datum, List* list);
 List* lconsi(int datum, List* list);
 bool member(void* datum, List* list);
-bool intMember(int datum, List* list);
-Value* makeInteger(long i);
-Value* makeFloat(char* numericStr);
-Value* makeString(char* str);
-List* makeList(void* elem, ...);
+bool int_member(int datum, List* list);
+Value* make_integer(long i);
+Value* make_float(char* numeric_str);
+Value* make_string(char* str);
+List* make_list(void* elem, ...);
 List* lappend(List* list, void* datum);
 List* lappendi(List* list, int datum);
 List* lremove(void* elem, List* list);
-List* LispRemove(void* elem, List* list);
+List* lisp_remove(void* elem, List* list);
 List* ltruncate(int n, List* list);
 
 void* nth(int n, List* l);
@@ -87,13 +87,13 @@ void set_nth(List* l, int n, void* elem);
 
 List* set_difference(List* list1, List* list2);
 List* set_differencei(List* list1, List* list2);
-List* LispUnion(List* list1, List* list2);
-List* LispUnioni(List* list1, List* list2);
+List* lisp_union(List* list1, List* list2);
+List* lisp_unioni(List* list1, List* list2);
 
-bool sameseti(List* list1, List* list2);
-bool nonoverlap_setsi(List* list1, List* list2);
+bool same_seti(List* list1, List* list2);
+bool non_overlap_setsi(List* list1, List* list2);
 bool is_subseti(List* list1, List* list2);
 
-void freeList(List* list);
+void free_list(List* list);
 
 #endif  // RDBMS_NODES_PG_LIST_H_
