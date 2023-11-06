@@ -14,11 +14,18 @@
 #ifndef RDBMS_STORAGE_BUF_INTERNALS_H_
 #define RDBMS_STORAGE_BUF_INTERNALS_H_
 
-#include "rdbms/c.h"
+#include "rdbms/postgres.h"
 #include "rdbms/storage/block.h"
 #include "rdbms/storage/buf.h"
 #include "rdbms/storage/shmem.h"
 #include "rdbms/utils/rel.h"
+
+// In bufmgr.c.
+extern int NBuffers;
+extern int DataDescriptors;
+extern int FreeListDescriptors;
+extern int LookupListDescriptors;
+extern int NumDescriptors;
 
 // Flags for buffer descriptors.
 #define BM_DIRTY          (1 << 0)
@@ -36,22 +43,22 @@ typedef bits16 BufFlags;
 typedef long** BufferBlock;
 
 typedef struct buftag {
-  LockRelId relid;
+  LockRelId rel_id;
   BlockNumber block_num;  // Block number relative to begin of relation.
 } BufferTag;
 
 #define CLEAR_BUFFERTAG(a) \
-  ((a)->relid.dbid = INVALID_OID, (a)->relid.relid = INVALID_OID, (a)->block_num = INVALID_BLOCK_NUMBER)
+  ((a)->rel_id.db_id = INVALID_OID, (a)->relid.rel_id = INVALID_OID, (a)->block_num = INVALID_BLOCK_NUMBER)
 
 #define INIT_BUFFERTAG(a, xx_reln, xx_block_num) \
-  ((a)->block_num = (xx_block_num), (a)->relid = (xx_reln)->rd_lock_info.lock_relid)
+  ((a)->block_num = (xx_block_num), (a)->rel_id = (xx_reln)->rd_lock_info.lock_rel_id)
 
 // If we have to write a buffer "blind" (without a relcache entry),
 // the BufferTag is not enough information.  BufferBlindId carries the
 // additional information needed.
 typedef struct bufblindid {
-  char dbname[NAMEDATALEN];   // Name of db in which buf belongs.
-  char relname[NAMEDATALEN];  // Name of reln.
+  char db_name[NAMEDATALEN];   // Name of db in which buf belongs.
+  char rel_name[NAMEDATALEN];  // Name of reln.
 } BufferBlindId;
 
 #define BAD_BUFFER_ID(bid) ((bid) < 1 || (bid) > NBuffers)
@@ -77,8 +84,8 @@ typedef struct sbufdesc {
   BufferTag tag;  // File/block identifier.
   int buf_id;     // maps global desc to local desc.
 
-  BufFlags flags;     // See bit definitions above.
-  unsigned refcount;  // # of times buffer is pinned.
+  BufFlags flags;      // See bit definitions above.
+  unsigned ref_count;  // # of times buffer is pinned.
 
 #ifdef HAS_TEST_AND_SET
   /* can afford a dedicated lock if test-and-set locks are available */
@@ -122,11 +129,7 @@ typedef struct _bmtrace {
 
 #endif  // BMTRACE
 
-// freelist.c
-extern int FreeListDescriptor;
-extern BufferDesc* BufferDescriptors;
-extern long* PrivateRefCount;
-
+// freelist.c.
 void add_buffer_to_freelist(BufferDesc* buf_desc);
 void pin_buffer(BufferDesc* buf_desc);
 void pin_buffer_debug(char* file, int line, BufferDesc* buf_desc);
@@ -134,13 +137,23 @@ void unpin_buffer(BufferDesc* buf_desc);
 BufferDesc* get_free_buffer(void);
 void init_freelist(bool init);
 
-// buf_table.c
+// buf_table.c.
 void init_buf_table();
 BufferDesc* buf_table_lookup(BufferTag* tag_ptr);
 bool buf_table_delete(BufferDesc* buf_desc);
 bool buf_table_insert(BufferDesc* buf_desc);
 
-// localbuf.c
+// bufmgr.c.
+extern BufferDesc* BufferDescriptors;
+extern BufferBlock BufferBlocks;
+extern long* PrivateRefCount;
+extern bits8* BufferLocks;
+extern BufferTag* BufferTagLastDirtied;
+extern BufferBlindId* BufferBlindLastDirtied;
+extern bool* BufferDirtiedByMe;
+extern SPINLOCK BufMgrLock;
+
+// localbuf.c.
 extern long* LocalRefCount;
 extern BufferDesc* LocalBufferDescriptors;
 extern int NLocBuffer;

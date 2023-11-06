@@ -25,4 +25,6 @@
 #define FUNC_MAX_ARGS INDEX_MAX_KEYS
 #define BLCKSZ        8192
 
+#define MAXPGPATH 1024
+
 #endif  // RDBMS_CONFIG_H_

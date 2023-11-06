@@ -36,4 +36,10 @@ long* LocalRefCount = NULL;
 static int NextFreeLocalBuf = 0;
 
 // Allocate a local buffer. We do round robin allocation for now.
-Buffer* local_buffer_alloc(Relation relation, BlockNumber block_num, bool* found_ptr) {}
+Buffer* local_buffer_alloc(Relation relation, BlockNumber block_num, bool* found_ptr) {
+  int i;
+  BufferDesc* buf_hdr = NULL;
+
+  if (block_num == P_NEW) {
+  }
+}

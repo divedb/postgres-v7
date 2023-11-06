@@ -14,12 +14,17 @@
 #ifndef RDBMS_STORAGE_SMGR_H_
 #define RDBMS_STORAGE_SMGR_H_
 
+#include "rdbms/storage/block.h"
 #include "rdbms/utils/rel.h"
 
 #define SM_FAIL      0
 #define SM_SUCCESS   1
 #define DEFAULT_SMGR 0
 
-int smgrinit();
+int smgr_init();
+
+// In md.c.
+int md_init();
+int md_create(Relation relation);
 
 #endif  // RDBMS_STORAGE_SMGR_H_

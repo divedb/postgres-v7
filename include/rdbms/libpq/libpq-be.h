@@ -53,18 +53,17 @@ typedef int (*PacketDoneProc)(void* arg, PacketLen pktlen, void* pktdata);
 
 typedef struct Packet {
   PacketState state;      // What's in progress.
-  PacketLen len;          // Actual length
-  int nrtodo;             // Bytes still to transfer
-  char* ptr;              // Buffer pointer
-  PacketDoneProc iodone;  // I/O complete callback
-  void* arg;              // Argument to callback
+  PacketLen len;          // Actual length.
+  int nrtodo;             // Bytes still to transfer.
+  char* ptr;              // Buffer pointer.
+  PacketDoneProc iodone;  // I/O complete callback.
+  void* arg;              // Argument to callback.
 
   // We declare the data buffer as a union of the allowed packet types,
   // mainly to ensure that enough space is allocated for the largest
   // one.
   union {
     // These are outgoing so have no packet length prepended.
-
     ErrorMessagePacket em;
     AuthRequestPacket ar;
 

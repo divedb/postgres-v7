@@ -1,7 +1,7 @@
 // =========================================================================
 //
 // globals.c
-//  global variable declarations
+//  Global variable declarations
 //
 // Portions Copyright (c) 1996=2000, PostgreSQL, Inc
 // Portions Copyright (c) 1994, Regents of the University of California
@@ -16,8 +16,6 @@
 //
 // =========================================================================
 
-#include "rdbms/utils/globals.h"
-
 #include <fcntl.h>
 #include <math.h>
 #include <stdbool.h>
@@ -26,8 +24,12 @@
 #include <unistd.h>
 
 #include "rdbms/catalog/catname.h"
+#include "rdbms/libpq/libpq-be.h"  // struct Port
+#include "rdbms/libpq/pqcomm.h"
+#include "rdbms/miscadmin.h"
 #include "rdbms/postgres.h"
 #include "rdbms/storage/backendid.h"
+#include "rdbms/utils/rel.h"
 
 ProtocolVersion FrontendProtocol = PG_PROTOCOL_LATEST;
 
@@ -43,9 +45,9 @@ long MyCancelKey;
 // variable.  NULL if no option given and no environment variable set
 char* DataDir = NULL;
 
-// Relation RelDesc; /* current relation descriptor///
+Relation RelDesc;  // Current relation descriptor.
 
-// char OutputFileName[MAXPGPATH] = "";
+char OutputFileName[MAXPGPATH] = "";
 
 BackendId MyBackendId;
 BackendTag MyBackendTag;
@@ -55,7 +57,7 @@ char* DatabaseName = NULL;
 char* DatabasePath = NULL;
 
 bool MyDatabaseIdIsInitialized = false;
-Oid MyDatabaseId = InvalidOid;
+Oid MyDatabaseId = INVALID_OID;
 bool TransactionInitWasProcessed = false;
 
 bool IsUnderPostmaster = false;
@@ -72,7 +74,7 @@ char CTZName[MAXTZLEN + 1] = "";
 char DateFormat[20] = "%d-%m-%Y";  // mjl: sizes! or better malloc? XXX.
 char FloatFormat[20] = "%f";
 
-bool allowSystemTableMods = false;
+bool AllowSystemTableMods = false;
 int SortMem = 512;
 
 char* IndexedCatalogNames[] = {AttributeRelationName, ProcedureRelationName, TypeRelationName, RelationRelationName, 0};
