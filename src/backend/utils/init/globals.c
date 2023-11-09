@@ -24,6 +24,7 @@
 #include <unistd.h>
 
 #include "rdbms/catalog/catname.h"
+#include "rdbms/catalog/indexing.h"
 #include "rdbms/libpq/libpq-be.h"  // struct Port
 #include "rdbms/libpq/pqcomm.h"
 #include "rdbms/miscadmin.h"
@@ -79,23 +80,25 @@ int SortMem = 512;
 
 char* IndexedCatalogNames[] = {AttributeRelationName, ProcedureRelationName, TypeRelationName, RelationRelationName, 0};
 
-// ps status buffer
+// ps status buffer.
 #ifndef linux
-char Ps_status_buffer[1024];
+
+char PsStatusBuffer[1024];
 
 #endif
 
-// we just do a linear search now so there's no requirement that the list
-// be ordered.	The list is so small it shouldn't make much difference.
+// We just do a linear search now so there's no requirement that the list
+// be ordered. The list is so small it shouldn't make much difference.
 // make sure the list is null-terminated
-//				- jolly 8/19/95
+//  - jolly 8/19/95
 //
 // OLD COMMENT
-//		WARNING  WARNING  WARNING  WARNING	WARNING  WARNING
+//  WARNING WARNING WARNING WARNING WARNING WARNING
 //
-//		keep SharedSystemRelationNames[] in SORTED order!  A binary search
-//		is done on it in catalog.c!
+// Keep SharedSystemRelationNames[] in SORTED order! A binary search
+// is done on it in catalog.c!
 //
-//		XXX this is a serious hack which should be fixed -cim 1/26/90
-char* SharedSystemRelationNames[] = {DatabaseRelationName, GroupRelationName,  GroupNameIndex,       GroupSysidIndex,
-                                     LogRelationName,      ShadowRelationName, VariableRelationName, 0};
+// XXX this is a serious hack which should be fixed -cim 1/26/90
+char* SharedSystemRelationNames[] = {
+    DATABASE_RELATION_NAME, GROUP_RELATION_NAME,  GROUP_NAME_INDEX,       GROUP_SYSID_INDEX,
+    LOG_RELATION_NAME,      SHADOW_RELATION_NAME, VARIABLE_RELATION_NAME, NULL};

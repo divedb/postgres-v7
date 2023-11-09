@@ -285,4 +285,17 @@ typedef struct Exception {
 
 #define MEMSET_LOOP_LIMIT 64
 
+// ================================================
+// Section 11: system-specific hacks
+//
+//  This should be limited to things that absolutely have to be
+// included in every source file. The changes should be factored
+// into a separate file so that changes to one port don't require
+// changes to c.h (and everyone recompiling their whole system).
+// ================================================
+
+// These are for things that are one way on Unix and another on NT.
+#define NULL_DEV "/dev/null"
+#define SEP_CHAR '/'
+
 #endif  // RDBMS_C_H_

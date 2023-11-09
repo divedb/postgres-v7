@@ -31,9 +31,9 @@
 extern bool Noversion;
 extern bool Quiet;
 extern bool QueryCancel;
-extern char* DataDir;
+extern char* DataDir;  // 数据目录
 
-extern int MyProcPid;
+extern int MyProcPid;  // 当前进程ID
 extern struct Port* MyProcPort;
 extern long MyCancelKey;
 
@@ -50,6 +50,8 @@ extern bool IsUnderPostmaster;
 
 extern int DebugLvl;
 
+// Date/Time Configuration.
+//
 // Constants to pass info from runtime environment:
 //  USE_POSTGRES_DATES specifies traditional postgres format for output.
 //  USE_ISO_DATES specifies ISO-compliant format for output.
@@ -63,6 +65,13 @@ extern int DebugLvl;
 // CDayLight is the apparent daylight savings time status.
 // CTimeZone is the timezone offset in seconds.
 // CTZName is the timezone label.
+#define MAX_TZ_LEN 7
+
+#define USE_POSTGRES_DATES 0
+#define USE_ISO_DATES      1
+#define USE_SQL_DATES      2
+#define USE_GERMAN_DATES   3
+
 extern int DateStyle;
 extern bool EuroDates;
 extern bool HasCTZSet;

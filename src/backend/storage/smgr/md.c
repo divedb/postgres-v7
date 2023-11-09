@@ -1,3 +1,6 @@
+#include <fcntl.h>
+
+#include "rdbms/catalog/catalog.h"
 #include "rdbms/postgres.h"
 #include "rdbms/storage/smgr.h"
 #include "rdbms/utils/mctx.h"
@@ -75,6 +78,20 @@ int md_init() {
 int md_create(Relation relation) {
   int fd;
   int vfd;
+  char* path;
 
   assert(relation->rd_unlinked && relation->rd_fd < 0);
+
+  path = relpath(RELATION_GET_PHYSICAL_RELATION_NAME(relation));
+  fd = file_name_open_file(path, O_RDWR | O_CREAT | O_EXCL, 0600);
+
+  // During bootstrap processing, we skip that check, because pg_time,
+  // pg_variable, and pg_log get created before their .bki file entries
+  // are processed.
+  //
+  // For cataloged relations, pg_class is guaranteed to have an unique
+  // record with the same relname by the unique index. So we are able to
+  // reuse existent files for new catloged relations. Currently we reuse
+  // them in the following cases. 1. they are empty. 2. they are used
+  // for Index relations and their size == BLCKSZ * 2.
 }
