@@ -1,5 +1,7 @@
 #include "rdbms/utils/enbl.h"
 
+#include <assert.h>
+
 #include "rdbms/c.h"
 
 // BypassEnable
@@ -13,7 +15,7 @@
 //  BadArg if "countP" is invalid pointer.
 //  BadArg if on is invalid.
 bool bypass_enable(int* enable_count_in_outp, bool on) {
-  assert(PointerIsValid(enable_count_in_outp));
+  assert(POINTER_IS_VALID(enable_count_in_outp));
 
   if (on) {
     *enable_count_in_outp += 1;

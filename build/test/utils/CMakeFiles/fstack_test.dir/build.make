@@ -93,8 +93,13 @@ fstack_test_EXTERNAL_OBJECTS =
 test/utils/fstack_test: test/utils/CMakeFiles/fstack_test.dir/fstack_test.c.o
 test/utils/fstack_test: test/utils/CMakeFiles/fstack_test.dir/build.make
 test/utils/fstack_test: src/backend/utils/misc/libfstack.a
+test/utils/fstack_test: src/backend/utils/misc/libtrace.a
 test/utils/fstack_test: src/backend/utils/mmgr/liboset.a
 test/utils/fstack_test: src/backend/utils/mmgr/libaset.a
+test/utils/fstack_test: src/backend/utils/mmgr/libpalloc.a
+test/utils/fstack_test: src/backend/utils/error/liberror.a
+test/utils/fstack_test: src/backend/utils/init/libenbl.a
+test/utils/fstack_test: src/backend/utils/init/libglobals.a
 test/utils/fstack_test: /usr/local/Cellar/cunit/2.1-3/lib/libcunit.dylib
 test/utils/fstack_test: test/utils/CMakeFiles/fstack_test.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/Users/zlh/Documents/Git/postgres-v7/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking C executable fstack_test"

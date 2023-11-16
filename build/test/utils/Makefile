@@ -158,6 +158,20 @@ aset_test/fast:
 	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f test/utils/CMakeFiles/aset_test.dir/build.make test/utils/CMakeFiles/aset_test.dir/build
 .PHONY : aset_test/fast
 
+# Convenience name for target.
+test/utils/CMakeFiles/trace_test.dir/rule:
+	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test/utils/CMakeFiles/trace_test.dir/rule
+.PHONY : test/utils/CMakeFiles/trace_test.dir/rule
+
+# Convenience name for target.
+trace_test: test/utils/CMakeFiles/trace_test.dir/rule
+.PHONY : trace_test
+
+# fast build rule for target.
+trace_test/fast:
+	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f test/utils/CMakeFiles/trace_test.dir/build.make test/utils/CMakeFiles/trace_test.dir/build
+.PHONY : trace_test/fast
+
 aset_test.o: aset_test.c.o
 .PHONY : aset_test.o
 
@@ -230,6 +244,30 @@ oset_test.c.s:
 	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f test/utils/CMakeFiles/oset_test.dir/build.make test/utils/CMakeFiles/oset_test.dir/oset_test.c.s
 .PHONY : oset_test.c.s
 
+trace_test.o: trace_test.c.o
+.PHONY : trace_test.o
+
+# target to build an object file
+trace_test.c.o:
+	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f test/utils/CMakeFiles/trace_test.dir/build.make test/utils/CMakeFiles/trace_test.dir/trace_test.c.o
+.PHONY : trace_test.c.o
+
+trace_test.i: trace_test.c.i
+.PHONY : trace_test.i
+
+# target to preprocess a source file
+trace_test.c.i:
+	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f test/utils/CMakeFiles/trace_test.dir/build.make test/utils/CMakeFiles/trace_test.dir/trace_test.c.i
+.PHONY : trace_test.c.i
+
+trace_test.s: trace_test.c.s
+.PHONY : trace_test.s
+
+# target to generate assembly for a file
+trace_test.c.s:
+	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f test/utils/CMakeFiles/trace_test.dir/build.make test/utils/CMakeFiles/trace_test.dir/trace_test.c.s
+.PHONY : trace_test.c.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -241,6 +279,7 @@ help:
 	@echo "... aset_test"
 	@echo "... fstack_test"
 	@echo "... oset_test"
+	@echo "... trace_test"
 	@echo "... aset_test.o"
 	@echo "... aset_test.i"
 	@echo "... aset_test.s"
@@ -250,6 +289,9 @@ help:
 	@echo "... oset_test.o"
 	@echo "... oset_test.i"
 	@echo "... oset_test.s"
+	@echo "... trace_test.o"
+	@echo "... trace_test.i"
+	@echo "... trace_test.s"
 .PHONY : help
 
 

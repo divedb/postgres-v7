@@ -15,12 +15,19 @@
 #include <string.h>
 #include <time.h>
 
+#define ELOG_TIMESTAMPS
+#define USE_SYSLOG
+
 #ifdef ELOG_TIMESTAMPS
-char* tprintf_timestamp(void);
 
 #define TIMESTAMP_SIZE 28
+
+char* tprintf_timestamp(void);
+
 #else
+
 #define TIMESTAMP_SIZE 0
+
 #endif
 
 int tprintf(int flag, const char* fmt, ...);

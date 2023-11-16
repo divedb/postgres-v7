@@ -156,6 +156,19 @@ fstack/fast:
 .PHONY : fstack/fast
 
 #=============================================================================
+# Target rules for targets named trace
+
+# Build rule for target.
+trace: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 trace
+.PHONY : trace
+
+# fast build rule for target.
+trace/fast:
+	$(MAKE) $(MAKESILENT) -f src/backend/utils/misc/CMakeFiles/trace.dir/build.make src/backend/utils/misc/CMakeFiles/trace.dir/build
+.PHONY : trace/fast
+
+#=============================================================================
 # Target rules for targets named oset
 
 # Build rule for target.
@@ -221,6 +234,32 @@ adt/fast:
 .PHONY : adt/fast
 
 #=============================================================================
+# Target rules for targets named enbl
+
+# Build rule for target.
+enbl: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 enbl
+.PHONY : enbl
+
+# fast build rule for target.
+enbl/fast:
+	$(MAKE) $(MAKESILENT) -f src/backend/utils/init/CMakeFiles/enbl.dir/build.make src/backend/utils/init/CMakeFiles/enbl.dir/build
+.PHONY : enbl/fast
+
+#=============================================================================
+# Target rules for targets named globals
+
+# Build rule for target.
+globals: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 globals
+.PHONY : globals
+
+# fast build rule for target.
+globals/fast:
+	$(MAKE) $(MAKESILENT) -f src/backend/utils/init/CMakeFiles/globals.dir/build.make src/backend/utils/init/CMakeFiles/globals.dir/build
+.PHONY : globals/fast
+
+#=============================================================================
 # Target rules for targets named nodes
 
 # Build rule for target.
@@ -232,6 +271,58 @@ nodes: cmake_check_build_system
 nodes/fast:
 	$(MAKE) $(MAKESILENT) -f src/backend/nodes/CMakeFiles/nodes.dir/build.make src/backend/nodes/CMakeFiles/nodes.dir/build
 .PHONY : nodes/fast
+
+#=============================================================================
+# Target rules for targets named fstack_test
+
+# Build rule for target.
+fstack_test: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 fstack_test
+.PHONY : fstack_test
+
+# fast build rule for target.
+fstack_test/fast:
+	$(MAKE) $(MAKESILENT) -f test/utils/CMakeFiles/fstack_test.dir/build.make test/utils/CMakeFiles/fstack_test.dir/build
+.PHONY : fstack_test/fast
+
+#=============================================================================
+# Target rules for targets named oset_test
+
+# Build rule for target.
+oset_test: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 oset_test
+.PHONY : oset_test
+
+# fast build rule for target.
+oset_test/fast:
+	$(MAKE) $(MAKESILENT) -f test/utils/CMakeFiles/oset_test.dir/build.make test/utils/CMakeFiles/oset_test.dir/build
+.PHONY : oset_test/fast
+
+#=============================================================================
+# Target rules for targets named aset_test
+
+# Build rule for target.
+aset_test: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 aset_test
+.PHONY : aset_test
+
+# fast build rule for target.
+aset_test/fast:
+	$(MAKE) $(MAKESILENT) -f test/utils/CMakeFiles/aset_test.dir/build.make test/utils/CMakeFiles/aset_test.dir/build
+.PHONY : aset_test/fast
+
+#=============================================================================
+# Target rules for targets named trace_test
+
+# Build rule for target.
+trace_test: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 trace_test
+.PHONY : trace_test
+
+# fast build rule for target.
+trace_test/fast:
+	$(MAKE) $(MAKESILENT) -f test/utils/CMakeFiles/trace_test.dir/build.make test/utils/CMakeFiles/trace_test.dir/build
+.PHONY : trace_test/fast
 
 #=============================================================================
 # Target rules for targets named pg_list_test
@@ -256,14 +347,21 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... adt"
 	@echo "... aset"
+	@echo "... aset_test"
 	@echo "... buffer"
+	@echo "... enbl"
 	@echo "... error"
 	@echo "... fstack"
+	@echo "... fstack_test"
+	@echo "... globals"
 	@echo "... ipc"
 	@echo "... nodes"
 	@echo "... oset"
+	@echo "... oset_test"
 	@echo "... palloc"
 	@echo "... pg_list_test"
+	@echo "... trace"
+	@echo "... trace_test"
 .PHONY : help
 
 

@@ -87,6 +87,7 @@ test/utils/CMakeFiles/fstack_test.dir/fstack_test.c.o: /Users/zlh/Documents/Git/
   /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/sys/wait.h \
   /Library/Developer/CommandLineTools/usr/lib/clang/14.0.3/include/__stddef_max_align_t.h \
   /Library/Developer/CommandLineTools/usr/lib/clang/14.0.3/include/stdarg.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/14.0.3/include/stdbool.h \
   /Library/Developer/CommandLineTools/usr/lib/clang/14.0.3/include/stddef.h \
   /Library/Developer/CommandLineTools/usr/lib/clang/14.0.3/include/stdint.h \
   /Users/zlh/Documents/Git/postgres-v7/include/rdbms/c.h \
@@ -135,6 +136,8 @@ test/utils/CMakeFiles/fstack_test.dir/fstack_test.c.o: /Users/zlh/Documents/Git/
 /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/sys/_types/_rsize_t.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/sys/_types/_pid_t.h:
+
+/Library/Developer/CommandLineTools/usr/lib/clang/14.0.3/include/stdbool.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/sys/_types/_va_list.h:
 

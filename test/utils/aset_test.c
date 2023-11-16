@@ -36,7 +36,7 @@ void test_alloc_and_dealloc() {
   Pointer array[N];
   int size[] = {1e1, 1e2, 1e3, 1e4, 1e5, 1e6};
 
-  for (int i = 0; i < LengthOf(size); i++) {
+  for (int i = 0; i < LENGTH_OF(size); i++) {
     int sz = size[i];
 
     for (int j = 0; j < N; j++) {

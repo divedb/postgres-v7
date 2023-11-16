@@ -13,8 +13,8 @@
 //
 // =========================================================================
 
-#ifndef RDBMS_LIBPQ_PGCOMM_H_
-#define RDBMS_LIBPQ_PGCOMM_H_
+#ifndef RDBMS_LIBPQ_PQCOMM_H_
+#define RDBMS_LIBPQ_PQCOMM_H_
 
 #include <sys/types.h>
 
@@ -129,4 +129,4 @@ typedef struct CancelRequestPacket {
 // secure channel.
 #define NEGOTIATE_SSL_CODE PG_PROTOCOL(1234, 5679)
 
-#endif  // RDBMS_LIBPQ_PGCOMM_H_
+#endif  // RDBMS_LIBPQ_PQCOMM_H_

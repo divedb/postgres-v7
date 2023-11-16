@@ -48,7 +48,7 @@ char* DataDir = NULL;
 
 Relation RelDesc;  // Current relation descriptor.
 
-char OutputFileName[MAXPGPATH] = "";
+char OutputFileName[MAX_PG_PATH] = "";
 
 BackendId MyBackendId;
 BackendTag MyBackendTag;
@@ -70,7 +70,7 @@ bool EuroDates = false;
 bool HasCTZSet = false;
 bool CDayLight = false;
 int CTimeZone = 0;
-char CTZName[MAXTZLEN + 1] = "";
+char CTZName[MAX_TZ_LEN + 1] = "";
 
 char DateFormat[20] = "%d-%m-%Y";  // mjl: sizes! or better malloc? XXX.
 char FloatFormat[20] = "%f";
@@ -78,7 +78,8 @@ char FloatFormat[20] = "%f";
 bool AllowSystemTableMods = false;
 int SortMem = 512;
 
-char* IndexedCatalogNames[] = {AttributeRelationName, ProcedureRelationName, TypeRelationName, RelationRelationName, 0};
+char* IndexedCatalogNames[] = {ATTRIBUTE_RELATION_NAME, PROCEDURE_RELATION_NAME, TYPE_RELATION_NAME,
+                               RELATION_RELATION_NAME, NULL};
 
 // ps status buffer.
 #ifndef linux

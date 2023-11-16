@@ -130,6 +130,20 @@ fstack/fast:
 	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f src/backend/utils/misc/CMakeFiles/fstack.dir/build.make src/backend/utils/misc/CMakeFiles/fstack.dir/build
 .PHONY : fstack/fast
 
+# Convenience name for target.
+src/backend/utils/misc/CMakeFiles/trace.dir/rule:
+	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 src/backend/utils/misc/CMakeFiles/trace.dir/rule
+.PHONY : src/backend/utils/misc/CMakeFiles/trace.dir/rule
+
+# Convenience name for target.
+trace: src/backend/utils/misc/CMakeFiles/trace.dir/rule
+.PHONY : trace
+
+# fast build rule for target.
+trace/fast:
+	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f src/backend/utils/misc/CMakeFiles/trace.dir/build.make src/backend/utils/misc/CMakeFiles/trace.dir/build
+.PHONY : trace/fast
+
 fstack.o: fstack.c.o
 .PHONY : fstack.o
 
@@ -154,6 +168,30 @@ fstack.c.s:
 	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f src/backend/utils/misc/CMakeFiles/fstack.dir/build.make src/backend/utils/misc/CMakeFiles/fstack.dir/fstack.c.s
 .PHONY : fstack.c.s
 
+trace.o: trace.c.o
+.PHONY : trace.o
+
+# target to build an object file
+trace.c.o:
+	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f src/backend/utils/misc/CMakeFiles/trace.dir/build.make src/backend/utils/misc/CMakeFiles/trace.dir/trace.c.o
+.PHONY : trace.c.o
+
+trace.i: trace.c.i
+.PHONY : trace.i
+
+# target to preprocess a source file
+trace.c.i:
+	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f src/backend/utils/misc/CMakeFiles/trace.dir/build.make src/backend/utils/misc/CMakeFiles/trace.dir/trace.c.i
+.PHONY : trace.c.i
+
+trace.s: trace.c.s
+.PHONY : trace.s
+
+# target to generate assembly for a file
+trace.c.s:
+	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f src/backend/utils/misc/CMakeFiles/trace.dir/build.make src/backend/utils/misc/CMakeFiles/trace.dir/trace.c.s
+.PHONY : trace.c.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -163,9 +201,13 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... fstack"
+	@echo "... trace"
 	@echo "... fstack.o"
 	@echo "... fstack.i"
 	@echo "... fstack.s"
+	@echo "... trace.o"
+	@echo "... trace.i"
+	@echo "... trace.s"
 .PHONY : help
 
 

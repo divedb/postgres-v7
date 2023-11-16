@@ -13,7 +13,7 @@
 
 #include <netinet/in.h>
 
-#include "rdbms/libpq/pgcomm.h"
+#include "rdbms/libpq/pqcomm.h"
 
 #define CONF_FILE     "pg_hba.conf"    // Name of the config file.
 #define USERMAP_FILE  "pg_ident.conf"  // Name of the usermap file.
