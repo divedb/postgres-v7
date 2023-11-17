@@ -105,9 +105,9 @@ typedef Relation* RelationPtr;
 #define RELATION_GET_FORM(relation)                   ((relation)->rd_rel)
 #define RELATION_GET_REL_ID(relation)                 ((relation)->rd_id)
 #define RELATION_GET_FILE(relation)                   ((relation)->rd_fd)
-#define RELATION_GET_RELATION_NAME(relation)                                                     \
-  (strncmp(RELATION_GET_PHYSICAL_RELATION_NAME(relation), "pg_temp"., strnlen("pg_temp.")) != 0) \
-      ? RELATION_GET_PHYSICAL_RELATION_NAME(relation)                                            \
+#define RELATION_GET_RELATION_NAME(relation)                                                    \
+  (strncmp(RELATION_GET_PHYSICAL_RELATION_NAME(relation), "pg_temp.", strlen("pg_temp.")) != 0) \
+      ? RELATION_GET_PHYSICAL_RELATION_NAME(relation)                                           \
       : get_temp_rel_by_physicalname(RELATION_GET_PHYSICAL_RELATION_NAME(relation))
 #define RELATION_GET_PHYSICAL_RELATION_NAME(relation) (NAME_STR((relation)->rd_rel->relname))
 #define RELATION_GET_NUMBER_OF_ATTRIBUTES(relation)   ((relation)->rd_rel->relnatts)

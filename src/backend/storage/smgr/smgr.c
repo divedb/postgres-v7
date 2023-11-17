@@ -43,8 +43,8 @@ typedef struct f_smgr {
 // happy, regardless of what storage managers we have (or don't have).
 static f_smgr smgrsw[] = {
     // magnetic disk.
-    {mdinit, NULL, mdcreate, mdunlink, mdextend, mdopen, mdclose, mdread, mdwrite, mdflush, mdblindwrt, mdmarkdirty,
-     mdblindmarkdirty, mdnblocks, mdtruncate, mdcommit, mdabort},
+    {md_init, NULL, md_create, md_unlink, md_extend, md_open, md_close, md_read, md_write, md_flush, md_blind_wrt,
+     md_mark_dirty, md_blind_mark_dirty, md_nblocks, md_truncate, md_commit, md_abort},
 
 #ifdef STABLE_MEMORY_STORAGE
     // main memory.

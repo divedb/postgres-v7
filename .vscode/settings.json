@@ -29,6 +29,9 @@
         "typeinfo": "cpp",
         "__split_buffer": "cpp",
         "unordered_map": "cpp",
-        "__tuple": "cpp"
+        "__tuple": "cpp",
+        "sstream": "c",
+        "streambuf": "c",
+        "ratio": "c"
     }
 }
