@@ -23,7 +23,28 @@
 // Changing this does not require an initdb, but it does require a full
 // backend recompile (including any user-defined C functions).
 #define FUNC_MAX_ARGS INDEX_MAX_KEYS
-#define BLCKSZ        8192
+
+// Size of a disk block --- currently, this limits the size of a tuple.
+// You can set it bigger if you need bigger tuples.
+//
+// Currently must be <= 32k bjm */
+#define BLCKSZ 8192
+
+// RELSEG_SIZE is the maximum number of blocks allowed in one disk file.
+// Thus, the maximum size of a single file is RELSEG_SIZE * BLCKSZ;
+// relations bigger than that are divided into multiple files.
+//
+// CAUTION: RELSEG_SIZE * BLCKSZ must be less than your OS' limit on file
+// size.  This is typically 2Gb or 4Gb in a 32-bit operating system.  By
+// default, we make the limit 1Gb to avoid any possible integer-overflow
+// problems within the OS.  A limit smaller than necessary only means we
+// divide a large relation into more chunks than necessary, so it seems
+// best to err in the direction of a small limit.  (Besides, a power-of-2
+// value saves a few cycles in md.c.)
+//
+// CAUTION: you had best do an initdb if you change either BLCKSZ or
+// RELSEG_SIZE.
+#define RELSEG_SIZE (0x40000000 / BLCKSZ)
 
 #define MAX_PG_PATH 1024
 

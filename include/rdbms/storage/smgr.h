@@ -26,5 +26,13 @@ int smgr_init();
 // In md.c.
 int md_init();
 int md_create(Relation relation);
+int md_unlink(Relation relation);
+int md_extend(Relation relation, char* buffer);
+int md_open(Relation relation);
+
+int md_nblocks(Relation relation);
+int md_truncate(Relation relation, int bnlocks);
+int md_commit();
+int md_abort();
 
 #endif  // RDBMS_STORAGE_SMGR_H_

@@ -146,12 +146,12 @@ DESCR("");
 // Xact lock pseudo-table.
 #define XactLockTableId 376
 
-#define RELKIND_INDEX       'i'  // secondary index.
-#define RELKIND_LOBJECT     'l'  // large objects.
-#define RELKIND_RELATION    'r'  // cataloged heap.
-#define RELKIND_SPECIAL     's'  // special (non-heap).
+#define RELKIND_INDEX       'i'  // Secondary index.
+#define RELKIND_LOBJECT     'l'  // Large objects.
+#define RELKIND_RELATION    'r'  // Cataloged heap.
+#define RELKIND_SPECIAL     's'  // Special (non-heap).
 #define RELKIND_SEQUENCE    'S'  // SEQUENCE relation.
-#define RELKIND_UNCATALOGED 'u'  // temporary heap.
-#define RELKIND_LONGVALUE   'v'  // moved off huge values.
+#define RELKIND_UNCATALOGED 'u'  // Temporary heap.
+#define RELKIND_LONGVALUE   'v'  // Moved off huge values.
 
 #endif  // RDBMS_CATALOG_PG_CLASS_H_

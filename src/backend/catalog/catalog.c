@@ -20,7 +20,7 @@
 #include "rdbms/miscadmin.h"
 #include "rdbms/utils/palloc.h"
 
-// Construct path to a relation's file
+// relpath - Construct path to a relation's file
 //
 // Note that this only works with relations that are visible to the current
 // backend, ie, either in the current database or shared system relations.
@@ -42,6 +42,29 @@ char* relpath(const char* relation_name) {
   // If it is in the current database, assume it is in current working
   // directory. NB: this does not work during bootstrap!
   return pstrdup(relation_name);
+}
+
+// rel_path_blind - construct path to a relation's file
+//
+// Construct the path using only the info available to smgrblindwrt,
+// namely the names and OIDs of the database and relation.	(Shared system
+// relations are identified with dbid = 0.)  Note that we may have to
+// access a relation belonging to a different database!
+//
+// Result is a palloc'd string.
+char* rel_path_blind(const char* db_name, const char* rel_name, Oid db_id, Oid rel_id) {
+  char* path;
+
+  if (db_id == 0) {
+    // Shared system relations live in DataDir.
+    path = (char*)palloc(strlen(DataDir) + sizeof(NameData) + 2);
+    sprintf(path, "%s%c%s", DataDir, SEP_CHAR, rel_name);
+  } else if (db_id == MyDatabaseId) {
+    // XXX why is this inconsistent with relpath() ?
+    path = (char*)palloc(strlen(DatabasePath) + sizeof(NameData) + 2);
+    sprintf(path, "%s%c%s", DatabasePath, SEP_CHAR, rel_name);
+  } else {
+  }
 }
 
 // True iff name is the name of a system catalog relation.

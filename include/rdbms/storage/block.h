@@ -14,7 +14,7 @@
 #ifndef RDBMS_STORAGE_BLOCK_H_
 #define RDBMS_STORAGE_BLOCK_H_
 
-#include "rdbms/c.h"
+#include "rdbms/postgres.h"
 
 // BlockNumber:
 //

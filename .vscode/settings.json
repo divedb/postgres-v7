@@ -26,6 +26,8 @@
         "compare": "cpp",
         "iterator": "cpp",
         "tuple": "cpp",
-        "typeinfo": "cpp"
+        "typeinfo": "cpp",
+        "__split_buffer": "cpp",
+        "unordered_map": "cpp"
     }
 }

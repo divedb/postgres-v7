@@ -17,7 +17,10 @@
 
 #include <stdbool.h>
 
+#include "rdbms/postgres.h"
+
 char* rel_path(const char* rel_name);
+char* rel_path_blind(const char* db_name, const char* rel_name, Oid db_id, Oid rel_id);
 bool is_system_relation_name(const char* rel_name);
 bool is_shared_system_relation_name(const char* rel_name);
 
