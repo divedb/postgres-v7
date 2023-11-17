@@ -12,7 +12,17 @@
 //
 // =========================================================================
 
+#include <fcntl.h>
+
+#include "rdbms/access/htup.h"
+#include "rdbms/access/xact.h"
+#include "rdbms/catalog/catname.h"
+#include "rdbms/catalog/pg_database.h"
 #include "rdbms/miscadmin.h"
+#include "rdbms/storage/bufpage.h"
+#include "rdbms/storage/page.h"
+#include "rdbms/utils/elog.h"
+#include "rdbms/utils/palloc.h"
 
 // Find the OID and path of the database.
 //
@@ -30,4 +40,170 @@ void get_raw_database_info(const char* name, Oid* db_id, char* path) {
   int nbytes;
   int max;
   int i;
+
+  HeapTupleData tup;
+  Page pg;
+  PageHeader ph;
+  char* db_fname;
+  Form_pg_database tup_db;
+
+  db_fname = (char*)palloc(strlen(DataDir) + strlen(DATABASE_RELATION_NAME) + 2);
+  sprintf(db_fname, "%s%c%s", DataDir, SEP_CHAR, DATABASE_RELATION_NAME);
+
+  if ((db_fd = open(db_fname, O_RDONLY, 0)) < 0) {
+    elog(FATAL, "cannot open %s: %s", db_fname, strerror(errno));
+  }
+
+  pfree(db_fname);
+
+  // Read and examine every page in pg_database
+  //
+  // Raw I/O! Read those tuples the hard way! Yow!
+  //
+  // Why don't we use the access methods or move this code
+  // someplace else?  This is really pg_database schema dependent
+  // code.  Perhaps it should go in lib/catalog/pg_database?
+  // -cim 10/3/90
+  //
+  // mao replies 4 apr 91:  yeah, maybe this should be moved to
+  // lib/catalog.  however, we CANNOT use the access methods since
+  // those use the buffer cache, which uses the relation cache, which
+  // requires that the dbid be set, which is what we're trying to do
+  // here.
+  pg = (Page)palloc(BLCKSZ);
+  ph = (PageHeader)pg;
+
+  while ((nbytes = read(db_fd, pg, BLCKSZ)) == BLCKSZ) {
+    max = PAGE_GET_MAX_OFFSET_NUMBER(pg);
+
+    // Look at each tuple on the page.
+    for (i = 0; i <= max; i++) {
+      int offset;
+
+      // If it's a freed tuple, ignore it.
+      if (!(ph->pd_linp[i].lp_flags & LP_USED)) {
+        continue;
+      }
+
+      // Get a pointer to the tuple itself.
+      offset = (int)ph->pd_linp[i].lp_off;
+      tup.t_data_mcxt = NULL;
+      tup.t_data = (HeapTupleHeader)(((char*)pg) + offset);
+
+      // If the tuple has been deleted (the database was destroyed),
+      // skip this tuple.  XXX warning, will robinson:  violation of
+      // transaction semantics happens right here.  we should check
+      // to be sure that the xact that deleted this tuple actually
+      // committed.  Only way to do that at init time is to paw over
+      // the log relation by hand, too.  Instead we take the
+      // conservative assumption that if someone tried to delete it,
+      // it's gone.  The other side of the coin is that we might
+      // accept a tuple that was stored and never committed.	All in
+      // all, this code is pretty shaky.	We will cross-check our
+      // result in ReverifyMyDatabase() in postinit.c.
+      //
+      // NOTE: if a bogus tuple in pg_database prevents connection to a
+      // valid database, a fix is to connect to another database and
+      // do "select * from pg_database".	That should cause
+      // committed and dead tuples to be marked with correct states.
+      //
+      // XXX wouldn't it be better to let new backends read the
+      // database OID from a flat file, handled the same way we
+      // handle the password relation?
+      if (TRANSACTION_ID_IS_VALID((TransactionId)tup.t_data->t_xmax)) {
+        continue;
+      }
+
+      // Okay, see if this is the one we want.
+      tup_db = (Form_pg_database)GET_STRUCT(&tup);
+
+      if (strcmp(name, NAME_STR(tup_db->datname)) == 0) {
+        // Found it; extract the OID and the database path.
+        *db_id = tup.t_data->t_oid;
+        strncpy(path, VARDATA(&(tup_db->datpath)), (VARSIZE(&(tup_db->datpath)) - VARHDRSZ));
+        *(path + VARSIZE(&(tup_db->datpath)) - VARHDRSZ) = '\0';
+
+        goto done;
+      }
+    }
+  }
+
+done:
+  close(db_fd);
+  pfree(pg);
+}
+
+// Resolves a proposed database path (obtained from
+// pg_database.datpath) to a full absolute path for further consumption.
+// NULL means an error, which the caller should process. One reason for
+// such an error would be an absolute alternative path when no absolute
+// paths are alllowed.
+char* expand_database_path(const char* db_path) {
+  char buf[MAX_PG_PATH];
+  const char* cp;
+  int len;
+
+  assert(db_path != NULL);
+  assert(DataDir != NULL);
+
+  // ain't gonna fit nohow.
+  if (strlen(db_path >= MAX_PG_PATH)) {
+    return NULL;
+  }
+
+  // Leading path delimiter? then already absolute path.
+  if (*db_path == SEP_CHAR) {
+#ifdef ALLOW_ABSOLUTE_DBPATHS
+    cp = strrchr(db_path, SEP_CHAR);
+    len = cp - db_path;
+    strncpy(buf, db_path, len);
+    snprintf(&buf[len], MAX_PG_PATH - len, "%cbase%c%s", SEP_CHAR, SEP_CHAR, (cp + 1));
+#else
+    return NULL;
+#endif
+  } else if ((cp = strchr(db_path, SEP_CHAR)) != NULL) {
+    // Path delimiter somewhere? then has leading environment variable.
+    const char* envvar;
+
+    len = cp - db_path;
+    strncpy(buf, db_path, len);
+    buf[len] = '\0';
+    envvar = getenv(buf);
+    if (envvar == NULL) {
+      return NULL;
+    }
+
+    snprintf(buf, sizeof(buf), "%s%cbase%c%s", envvar, SEP_CHAR, SEP_CHAR, (cp + 1));
+  } else {
+    // No path delimiter? then add the default path prefix.
+    snprintf(buf, sizeof(buf), "%s%cbase%c%s", DataDir, SEP_CHAR, SEP_CHAR, db_path);
+  }
+
+  // Check for illegal characters in dbpath these should really throw an
+  // error, shouldn't they? or else all callers need to test for NULL.
+  for (cp = buf; *cp; cp++) {
+    // The following characters will not be allowed anywhere in the
+    // database path. (Do not include the slash  or '.' here.)
+    char illegal_dbpath_chars[] =
+        "\001\002\003\004\005\006\007\010"
+        "\011\012\013\014\015\016\017\020"
+        "\021\022\023\024\025\026\027\030"
+        "\031\032\033\034\035\036\037"
+        "'`";
+
+    const char* cx;
+
+    for (cx = illegal_dbpath_chars; *cx; cx++) {
+      if (*cp == *cx) {
+        return NULL;
+      }
+    }
+
+    // Don't allow access to parent dirs.
+    if (strncmp(cp, "/../", 4) == 0) {
+      return NULL;
+    }
+  }
+
+  return pstrdup(buf);
 }

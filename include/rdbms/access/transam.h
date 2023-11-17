@@ -18,6 +18,10 @@
 #ifndef RDBMS_ACCESS_TRANSAM_H_
 #define RDBMS_ACCESS_TRANSAM_H_
 
+#include "rdbms/postgres.h"
+#include "rdbms/storage/block.h"
+#include "rdbms/utils/rel.h"
+
 // Transaction system version id
 //
 //  This is stored on the first page of the log, time and variable
@@ -47,11 +51,11 @@ typedef unsigned char XidStatus;  // (2 bits).
 #define BootstrapObjectIdData 16384
 
 // BitIndexOf computes the index of the Nth xid on a given block
-#define BitIndexOf(N) ((N)*2)
+#define BIT_INDEX_OF(n) ((n)*2)
 
 // Transaction page definitions.
-#define TP_DataSize             BLCKSZ
-#define TP_NumXidStatusPerBlock (TP_DataSize * 4)
+#define TP_DATA_SIZE                BLCKSZ
+#define TP_NUM_XID_STATUS_PER_BLOCK (TP_DATA_SIZE * 4)
 
 // LogRelationContents structure
 //
@@ -114,7 +118,7 @@ void transaction_id_abort(TransactionId xid);
 
 // In transam/transsup.c.
 void ami_transaction_override(bool flag);
-void trans_compute_block_number(Relation relation, TransactionId xid, BlockNumer* block_number_outp);
+void trans_compute_block_number(Relation relation, TransactionId xid, BlockNumber* block_number_outp);
 XidStatus trans_block_number_get_xid_status(Relation relation, BlockNumber block_number, TransactionId xid,
                                             bool* failp);
 void trans_block_number_set_xid_status(Relation relation, BlockNumber block_number, TransactionId xid,
@@ -132,8 +136,8 @@ void check_max_object_id(Oid assigned_oid);
 extern Relation LogRelation;
 extern Relation VariableRelation;
 
-extern TransactionId cachedTestXid;
-extern XidStatus cachedTestXidStatus;
+extern TransactionId CachedTestXid;
+extern XidStatus CachedTestXidStatus;
 
 extern TransactionId NullTransactionId;
 extern TransactionId AmiTransactionId;
@@ -142,7 +146,7 @@ extern TransactionId FirstTransactionId;
 extern int RecoveryCheckingEnableState;
 
 // In transsup.c.
-extern bool AMI_OVERRIDE;
+extern bool AmiOverride;
 
 // In varsup.c.
 extern int OidGenLockId;
