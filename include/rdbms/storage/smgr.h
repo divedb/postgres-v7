@@ -22,6 +22,9 @@
 #define DEFAULT_SMGR 0
 
 int smgr_init();
+int smgr_create(int16 which, Relation relation);
+int smgr_unlink(int16 which, Relation relation);
+int smgr_extend(int16 which, Relation relation, char* buffer);
 
 // In md.c
 int md_init();

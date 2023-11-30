@@ -1,13 +1,13 @@
-// ========================================================================
+//===----------------------------------------------------------------------===//
 // postgres.h
-//     definition of (and support for) postgres system types.
-// this file is included by almost every .c in the system
+//  definition of (and support for) postgres system types.
+//  this file is included by almost every .c in the system
 //
 // Portions Copyright (c) 1996-2000, PostgreSQL, Inc
 // Portions Copyright (c) 1995, Regents of the University of California
 //
 // $Id: postgres.h,v 1.38 2000/04/12 17:16:24 momjian Exp $
-// ========================================================================
+//===----------------------------------------------------------------------===//
 
 // This file will eventually contain the definitions for the
 // following (and perhaps other) system types:
@@ -15,14 +15,14 @@
 //  int2    int4    float4    float8
 //  Oid     regproc RegProcedure
 //  aclitem
-//  struct varlena
+//  struct VarLena
 //  int2vector    oidvector
 //  bytea    text
 //  NameData   Name
 //
 //  TABLE OF CONTENTS
 //    1) simple type definitions
-//    2) varlena and array types
+//    2) VarLena and array types
 //    3) TransactionId and CommandId
 //    4) genbki macros used by catalog/pg_xxx.h files
 //    5) random stuff
@@ -61,27 +61,27 @@ typedef char*((*func_ptr)());
 // Section 2: variable length and array types
 // ================================================
 
-struct varlena {
+struct VarLena {
   int32 vl_len;
   char vl_dat[1];
 };
 
-#define VARSIZE(ptr) (((struct varlena*)(ptr))->vl_len)
-#define VARDATA(ptr) (((struct varlena*)(ptr))->vl_dat)
+#define VARSIZE(ptr) (((struct VarLena*)(ptr))->vl_len)
+#define VARDATA(ptr) (((struct VarLena*)(ptr))->vl_dat)
 #define VARHDRSZ     ((int32)sizeof(int32))
 
-typedef struct varlena bytea;
-typedef struct varlena text;
+typedef struct VarLena Bytea;
+typedef struct VarLena Text;
 
-typedef int2 int2vector[INDEX_MAX_KEYS];
-typedef Oid oidvector[INDEX_MAX_KEYS];
+typedef int2 Int2Vector[INDEX_MAX_KEYS];
+typedef Oid OidVector[INDEX_MAX_KEYS];
 
 // We want NameData to have length NAMEDATALEN and int alignment,
 // because that's how the data type 'name' is defined in pg_type.
 // Use a union to make sure the compiler agrees.
 // TODO(gc): does alignment_dummy makes sense here?
 typedef union NameData {
-  char data[NAMEDATALEN];
+  char data[NAME_DATA_LEN];
   int alignment_dummy;
 } NameData;
 

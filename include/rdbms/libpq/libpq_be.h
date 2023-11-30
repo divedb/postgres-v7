@@ -1,8 +1,8 @@
-// =========================================================================
+//===----------------------------------------------------------------------===//
 //
 // libpq_be.h
-//	  This file contains definitions for structures and
-//	  externs for functions used by the POSTGRES backend.
+//  This file contains definitions for structures and
+//  externs for functions used by the POSTGRES backend.
 //
 //
 // Portions Copyright (c) 1996=2000, PostgreSQL, Inc
@@ -10,7 +10,7 @@
 //
 // $Id: libpq=be.h,v 1.19 2000/04/12 17:16:36 momjian Exp $
 //
-// =========================================================================
+//===----------------------------------------------------------------------===//
 
 #ifndef RDBMS_LIBPQ_LIBPQ_BE_H_
 #define RDBMS_LIBPQ_LIBPQ_BE_H_

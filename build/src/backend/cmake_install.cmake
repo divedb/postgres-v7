@@ -40,8 +40,6 @@ endif()
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
   include("/Users/zlh/Documents/Git/postgres-v7/build/src/backend/storage/cmake_install.cmake")
-  include("/Users/zlh/Documents/Git/postgres-v7/build/src/backend/utils/cmake_install.cmake")
-  include("/Users/zlh/Documents/Git/postgres-v7/build/src/backend/nodes/cmake_install.cmake")
 
 endif()
 

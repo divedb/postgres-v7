@@ -1,4 +1,4 @@
-// =========================================================================
+//===----------------------------------------------------------------------===//
 //
 // s_lock.h
 //  This file contains the implementation (if any) for spinlocks.
@@ -10,7 +10,7 @@
 // IDENTIFICATION
 //  $Header: /usr/local/cvsroot/pgsql/src/include/storage/s_lock.h,v 1.70 2000/04/12 17:16:51 momjian Exp $
 //
-// =========================================================================
+//===----------------------------------------------------------------------===//
 
 // Description
 //  The public macros that must be provided are:
@@ -23,28 +23,26 @@
 #ifndef RDBMS_STORAGE_S_LOCK_H_
 #define RDBMS_STORAGE_S_LOCK_H_
 
-typedef unsigned char slock_t;
+typedef unsigned char TasLock;
 
-static inline int tas(volatile slock_t* lock) {
-  slock_t _res = 1;
+void s_lock(volatile TasLock* lock, const char* file, const int line);
 
-  __asm__("lock; xchgb %0, %1" : "=q"(_res), "=m"(*lock) : "0"(_res));
+static inline int tas(volatile TasLock* lock) {
+  TasLock res = 1;
 
-  return _res;
+  __asm__("lock; xchgb %0, %1" : "=q"(res), "=m"(*lock) : "0"(res));
+
+  return res;
 }
 
-#define TAS(lock) tas((volatile slock_t*)lock)
+#define TAS(lock) tas((volatile TasLock*)lock)
 
-void s_lock(volatile slock_t* lock, const char* file, const int line);
-
-#define S_INIT_LOCK(lock) S_UNLOCK(lock)
-
-#define S_LOCK(lock)                                                                       \
+#define INIT_LOCK(lock) LOCK_RELEASE(lock)
+#define LOCK_ACQUIRE(lock)                                                                 \
   do {                                                                                     \
-    if (TAS((volatile slock_t*)lock)) s_lock((volatile slock_t*)lock, __FILE__, __LINE__); \
+    if (TAS((volatile TasLock*)lock)) s_lock((volatile TasLock*)lock, __FILE__, __LINE__); \
   } while (0)
-
-#define S_UNLOCK(lock)    (*(lock) = 0)
-#define S_LOCK_FREE(lock) (*(lock) == 0)
+#define LOCK_RELEASE(lock) (*(lock) = 0)
+#define LOCK_IS_FREE(lock) (*(lock) == 0)
 
 #endif  // RDBMS_STORAGE_S_LOCK_H_

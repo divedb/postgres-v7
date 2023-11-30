@@ -23,15 +23,15 @@
 //
 // default: fake spin locks using semaphores.  see spin.c
 
-typedef int SPINLOCK;
+typedef int SpinLock;
 
 #ifdef STABLE_MEMORY_STORAGE
-extern SPINLOCK MMCacheLock;
+extern SpinLock MMCacheLock;
 #endif
 
 void create_spin_locks(IPCKey key);
 void init_spin_locks();
-void spin_acquire(SPINLOCK lock);
-void spin_release(SPINLOCK lock);
+void spin_acquire(SpinLock lock);
+void spin_release(SpinLock lock);
 
 #endif  // RDBMS_STORAGE_SPIN_H_

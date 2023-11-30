@@ -27,6 +27,6 @@ typedef unsigned int Oid;
 // attribute names, function names, etc.)
 //
 // NOTE that databases with different NAMEDATALEN's cannot interoperate!
-#define NAMEDATALEN 32
+#define NAME_DATA_LEN 32
 
 #endif  // RDBMS_POSTGRES_EXT_H_

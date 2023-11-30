@@ -1,7 +1,7 @@
-// =========================================================================
+//===----------------------------------------------------------------------===//
 //
 // localbuf.c
-//  local buffer manager. Fast buffer manager for temporary tables
+//  Local buffer manager. Fast buffer manager for temporary tables
 //  or special cases when the operation is not visible to other backends.
 //
 //  When a relation is being created, the descriptor will have rd_islocal
@@ -18,7 +18,7 @@
 // IDENTIFICATION
 //  $Header: /usr/local/cvsroot/pgsql/src/backend/storage/buffer/localbuf.c,v 1.30 2000/04/12 17:15:34 momjian Exp$
 //
-// =========================================================================
+//===----------------------------------------------------------------------===//
 
 #include <math.h>
 #include <signal.h>

@@ -14,7 +14,7 @@
 //
 //   Currently, semaphores are used (my understanding anyway) in two
 //   different ways:
-//      1. as mutexes on machines that don't have test=and=set (eg.
+//      1. as mutexes on machines that don't have test-and-set (eg.
 //      mips R3000).
 //      2. for putting processes to sleep when waiting on a lock
 //      and waking them up when the lock is free.
@@ -32,24 +32,17 @@
 #include <sys/sem.h>
 #include <sys/shm.h>
 
-#include "rdbms/c.h"
-
-#ifdef linux
-
-union semun {
-  int val;
-  struct semid_ds* buf;
-  unsigned short* array;
-};
-
-#endif
+#include "rdbms/utils/elog.h"
+#include "rdbms/utils/trace.h"
 
 // This flag is set during proc_exit() to change elog()'s behavior,
 // so that an elog() from an on_proc_exit routine cannot get us out
-// of the exit procedure.  We do NOT want to go back to the idle loop...
+// of the exit procedure. We do NOT want to go back to the idle loop...
 bool ProcExitInprogress = false;
 
 static int UsePrivateMemory = 0;
+static int OnProcExitIndex;
+static int OnShmemExitIndex;
 
 static void ipc_memory_detach(int status, char* shmaddr);
 static void ipc_config_tip();
@@ -60,9 +53,6 @@ static struct OnExit {
   void (*function)();
   caddr_t arg;
 } OnProcExitList[MAX_ON_EXITS], OnShmemExitList[MAX_ON_EXITS];
-
-static int OnProcExitIndex;
-static int OnShmemExitIndex;
 
 typedef struct PrivateMemStruct {
   int id;
@@ -80,8 +70,7 @@ static int private_memory_create(IpcMemoryKey mem_key, uint32 size) {
   IpcPrivateMem[memid].memptr = malloc(size);
 
   if (IpcPrivateMem[memid].memptr == NULL) {
-    fprintf(stderr, "private_memory_create: not enough memory to malloc");
-    exit(EXIT_FAILURE);
+    elog(ERROR, "%s: not enough memory to malloc", __func__);
   }
 
   MEMSET(IpcPrivateMem[memid].memptr, 0, size);
@@ -96,9 +85,11 @@ static char* private_memory_attach(IpcMemoryId memid) { return IpcPrivateMem[mem
 // This should be the only function to call exit().
 //                                      -cim 2/6/90
 void proc_exit(int code) {
+  // Once we set this flag, we are committed to exit. Any elog() will
+  // NOT send control back to the main loop, but right back here.
   ProcExitInprogress = true;
 
-  printf("proc_exit(%d)\n", code);
+  TPRINTF(TRACE_VERBOSE, "%s(%d)", __func__, code);
 
   shmem_exit(code);
 
@@ -113,7 +104,7 @@ void proc_exit(int code) {
     (*OnProcExitList[OnProcExitIndex].function)(code, OnProcExitList[OnProcExitIndex].arg);
   }
 
-  printf("exit(%d)\n", code);
+  TPRINTF(TRACE_VERBOSE, "exit(%d)", code);
 
   exit(code);
 }
@@ -122,9 +113,12 @@ void proc_exit(int code) {
 // This is used by the postmaster to re-initialize shared memory and
 // semaphores after a backend dies horribly.
 void shmem_exit(int code) {
-  // TPRINTF(TRACE_VERBOSE, "shmem_exit(%d)", code);
-  // printf("shmem_exit(%d)\n", code);
+  TPRINTF(TRACE_VERBOSE, "%s(%d)", __func__, code);
 
+  // Call all the registered callbacks.
+  //
+  // As with proc_exit(), we remove each callback from the list
+  // before calling it, to avoid infinite loop in case of error.
   while (--OnShmemExitIndex >= 0) {
     (*OnShmemExitList[OnShmemExitIndex].function)(code, OnShmemExitList[OnShmemExitIndex].arg);
   }
@@ -132,9 +126,9 @@ void shmem_exit(int code) {
   OnShmemExitIndex = 0;
 }
 
-// this function adds a callback function to the list of
+// This function adds a callback function to the list of
 // functions invoked by proc_exit().
-//                                           -cim 2/6/90
+// -cim 2/6/90
 int on_proc_exit(void (*function)(), caddr_t arg) {
   if (OnProcExitIndex >= MAX_ON_EXITS) {
     return -1;
@@ -147,6 +141,9 @@ int on_proc_exit(void (*function)(), caddr_t arg) {
   return 0;
 }
 
+// This function adds a callback function to the list of
+// functions invoked by shmem_exit().
+// -cim 2/6/90
 int on_shmem_exit(void (*function)(), caddr_t arg) {
   if (OnShmemExitIndex >= MAX_ON_EXITS) {
     return -1;
@@ -159,6 +156,7 @@ int on_shmem_exit(void (*function)(), caddr_t arg) {
   return 0;
 }
 
+// This function clears all proc_exit() registered functions.
 void on_exit_reset() {
   OnShmemExitIndex = 0;
   OnProcExitIndex = 0;
@@ -170,11 +168,12 @@ static void ipc_private_semaphore_kill(int status, int semid) {
   semctl(semid, 0, IPC_RMID, semun);
 }
 
-static void ipc_private_memory_kill(int status, int shmid) {
-  if (!UsePrivateMemory) {
-    if (shmctl(shmid, IPC_RMID, (struct shmid_ds*)NULL) < 0) {
-      fprintf(stderr, "IPCPrivateMemoryKill: shmctl(%d, %d, 0) failed: %d\n", shmid, IPC_RMID);
-      exit(EXIT_FAILURE);
+static void ipc_private_memory_kill(int status, int shm_id) {
+  if (UsePrivateMemory) {
+    free(IpcPrivateMem[shm_id].memptr);
+  } else {
+    if (shmctl(shm_id, IPC_RMID, (struct shmid_ds*)NULL) < 0) {
+      elog(NOTICE, "%s: shmctl(%d, IPC_RMID, NULL) failed", __func__, shm_id);
     }
   }
 }
@@ -191,22 +190,23 @@ IpcSemaphoreId ipc_semaphore_create(IpcSemaphoreKey sem_key, int sem_num, int pe
                                     bool remove_on_exit) {
   int i;
   int err_status;
-  int semid;
-  u_short array[IPC_NMAXSEM];
+  int sem_id;
+  u_short array[IPC_NMAX_SEM];
   union semun semun;
 
-  if (sem_num > IPC_NMAXSEM || sem_num <= 0) {
+  if (sem_num > IPC_NMAX_SEM || sem_num <= 0) {
     return -1;
   }
 
-  semid = semget(sem_key, 0, 0);
+  // Check if the semaphore key has existed.
+  sem_id = semget(sem_key, 0, 0);
 
-  if (semid == -1) {
-    semid = semget(sem_key, sem_num, IPC_CREAT | permission);
+  if (sem_id == -1) {
+    sem_id = semget(sem_key, sem_num, IPC_CREAT | permission);
 
-    if (semid < 0) {
-      fprintf(stderr,
-              "`%s`: semget failed (%s) "
+    if (sem_id < 0) {
+      EPRINTF(stderr,
+              "%s: semget failed (%s) "
               "key=%d, num=%d, permission=%o\n",
               __func__, strerror(errno), sem_key, sem_num, permission);
 
@@ -220,23 +220,48 @@ IpcSemaphoreId ipc_semaphore_create(IpcSemaphoreKey sem_key, int sem_num, int pe
     }
 
     semun.array = array;
-    err_status = semctl(semid, 0, SETALL, semun);
+    err_status = semctl(sem_id, 0, SETALL, semun);
 
     if (err_status == -1) {
-      fprintf(stderr, "`%s`: semctl failed (%s) id=%d\n", __func__, strerror(errno), semid);
-      semctl(semid, 0, IPC_RMID, semun);
+      EPRINTF("%s: semctl failed (%s) id=%d\n", __func__, strerror(errno), sem_id);
+      semctl(sem_id, 0, IPC_RMID, semun);
       ipc_config_tip();
 
       return -1;
     }
 
     if (remove_on_exit) {
-      on_shmem_exit(ipc_private_semaphore_kill, (caddr_t)semid);
+      on_shmem_exit(ipc_private_semaphore_kill, (caddr_t)sem_id);
     }
   }
 
-  return semid;
+#ifdef DEBUG_IPC
+  DPRINTF("\n%s, returns %d\n", sem_id);
+  fflush(stdout);
+  fflush(stderr);
+#endif
+
+  return sem_id;
 }
+
+#ifdef NOT_USED
+
+static int IpcSemaphoreSetReturn;
+
+void ipc_semaphore_set(int sem_id, int sem_no, int value) {
+  int err_status;
+  union semun semun;
+
+  semun.val = value;
+  err_status = semctl(sem_id, sem_no, SETVAL, semun);
+  IpcSemaphoreSetReturn = err_status;
+
+  if (err_status == -1) {
+    EPRINTF("%s: semctl failed (%s) id=%d", __func__, strerror(errno), sem_id);
+  }
+}
+
+#endif
 
 void ipc_semaphore_kill(IpcSemaphoreKey key) {
   int semid;
@@ -252,7 +277,8 @@ void ipc_semaphore_kill(IpcSemaphoreKey key) {
 // Note: the xxx_return variables are only used for debugging.
 static int IpcSemaphoreLockReturn;
 
-void ipc_semaphore_lock(IpcSemaphoreId semid, int sem, int lock) {
+void ipc_semaphore_lock(IpcSemaphoreId sem_id, int sem, int lock) {
+  extern int errno;
   int err_status;
   struct sembuf sops;
 
@@ -260,29 +286,31 @@ void ipc_semaphore_lock(IpcSemaphoreId semid, int sem, int lock) {
   sops.sem_flg = 0;
   sops.sem_num = sem;
 
-  // Note: if errStatus is -1 and errno == EINTR then it means we
-  //    returned from the operation prematurely because we were
-  //    sent a signal.  So we try and lock the semaphore again.
-  //    I am not certain this is correct, but the semantics aren't
-  //    clear it fixes problems with parallel abort synchronization,
-  //    namely that after processing an abort signal, the semaphore
-  //    call returns with -1 (and errno == EINTR) before it should.
-  //    -cim 3/28/90
+  // Note:
+  //   If err_status is -1 and errno == EINTR then it means we
+  // returned from the operation prematurely because we were
+  // sent a signal. So we try and lock the semaphore again.
+  // I am not certain this is correct, but the semantics aren't
+  // clear it fixes problems with parallel abort synchronization,
+  // namely that after processing an abort signal, the semaphore
+  // call returns with -1 (and errno == EINTR) before it should.
+  //  -cim 3/28/90
   do {
-    err_status = semop(semid, &sops, 1);
+    err_status = semop(sem_id, &sops, 1);
   } while (err_status == -1 && errno == EINTR);
 
   IpcSemaphoreLockReturn = err_status;
 
   if (err_status == -1) {
-    fprintf(stderr, "IpcSemaphoreLock: semop failed (%s) id=%d\n", strerror(errno), semid);
+    EPRINTF("%s: semop failed (%s) id=%d\n", __func__, strerror(errno), sem_id);
     proc_exit(255);
   }
 }
 
 static int IpcSemaphoreUnlockReturn;
 
-void ipc_semaphore_unlock(IpcSemaphoreId semid, int sem, int lock) {
+void ipc_semaphore_unlock(IpcSemaphoreId sem_id, int sem, int lock) {
+  extern int errno;
   int err_status;
   struct sembuf sops;
 
@@ -290,103 +318,94 @@ void ipc_semaphore_unlock(IpcSemaphoreId semid, int sem, int lock) {
   sops.sem_flg = 0;
   sops.sem_num = sem;
 
-  // Note:
-  //    If errStatus is -1 and errno == EINTR then it means we
-  //    returned from the operation prematurely because we were
-  //    sent a signal.  So we try and lock the semaphore again.
-  //    I am not certain this is correct, but the semantics aren't
-  //    clear it fixes problems with parallel abort synchronization,
-  //    namely that after processing an abort signal, the semaphore
-  //    call returns with -1 (and errno == EINTR) before it should.
-  //    -cim 3/28/90
   do {
-    err_status = semop(semid, &sops, 1);
+    err_status = semop(sem_id, &sops, 1);
   } while (err_status == -1 && errno == EINTR);
 
   IpcSemaphoreUnlockReturn = err_status;
 
   if (err_status == -1) {
-    fprintf(stderr, "%s: semop failed (%s) id=%d", __func__, strerror(errno), semid);
+    EPRINTF("%s: semop failed (%s) id=%d", __func__, strerror(errno), sem_id);
     proc_exit(255);
   }
 }
 
-int ipc_semaphore_get_count(IpcSemaphoreId semid, int sem) {
+int ipc_semaphore_get_count(IpcSemaphoreId sem_id, int sem) {
   int semncnt;
   union semun dummy;
 
-  semncnt = semctl(semid, sem, GETNCNT, dummy);
+  semncnt = semctl(sem_id, sem, GETNCNT, dummy);
 
   return semncnt;
 }
 
-int ipc_semaphore_get_value(IpcSemaphoreId semid, int sem) {
-  int semval;
+int ipc_semaphore_get_value(IpcSemaphoreId sem_id, int sem) {
+  int sem_val;
   union semun dummy;
 
-  semval = semctl(semid, sem, GETVAL, dummy);
+  sem_val = semctl(sem_id, sem, GETVAL, dummy);
 
-  return semval;
+  return sem_val;
 }
 
 IpcMemoryId ipc_memory_create(IpcMemoryKey mem_key, uint32 size, int permission) {
-  IpcMemoryId shmid;
+  IpcMemoryId shm_id;
 
   if (mem_key == PRIVATE_IPC_KEY) {
-    shmid = private_memory_create(mem_key, size);
+    shm_id = private_memory_create(mem_key, size);
   } else {
-    shmid = shmget(mem_key, size, IPC_CREAT | permission);
+    shm_id = shmget(mem_key, size, IPC_CREAT | permission);
   }
 
-  if (shmid < 0) {
-    fprintf(stderr,
-            "IpcMemoryCreate: shmget failed (%s) "
-            "key=%d, size=%d, permission=%o\n",
-            strerror(errno), mem_key, size, permission);
+  if (shm_id < 0) {
+    EPRINTF(
+        "%s: shmget failed (%s) "
+        "key=%d, size=%d, permission=%o\n",
+        __func__, strerror(errno), mem_key, size, permission);
     ipc_config_tip();
 
     return IPC_MEM_CREATION_FAILED;
   }
 
-  on_shmem_exit(ipc_private_memory_kill, (caddr_t)shmid);
+  on_shmem_exit(ipc_private_memory_kill, (caddr_t)shm_id);
 
-  return shmid;
+  return shm_id;
 }
 
 IpcMemoryId ipc_memory_id_get(IpcMemoryKey mem_key, uint32 size) {
-  IpcMemoryId shmid;
+  IpcMemoryId shm_id;
 
-  shmid = shmget(mem_key, size, 0);
+  shm_id = shmget(mem_key, size, 0);
 
-  if (shmid < 0) {
-    fprintf(stderr,
-            "IpcMemoryIdGet: shmget failed (%s) "
-            "key=%d, size=%d, permission=%o",
-            strerror(errno), mem_key, size, 0);
+  if (shm_id < 0) {
+    EPRINTF(
+        "%s: shmget failed (%s) "
+        "key=%d, size=%d, permission=%o",
+        __func__, strerror(errno), mem_key, size, 0);
 
     return IPC_MEM_ID_GET_FAILED;
   }
 
-  return shmid;
+  return shm_id;
 }
 
 static void ipc_memory_detach(int status, char* shm_addr) {
   if (shmdt(shm_addr) < 0) {
-    fprintf(stderr, "IpcMemoryDetach: shmdt(0x%p): %p\n", shm_addr);
+    elog(NOTICE, "%s: shmdt(0x%p): %p\n", __func__, shm_addr);
   }
 }
 
-char* ipc_memory_attach(IpcMemoryId memid) {
+char* ipc_memory_attach(IpcMemoryId mem_id) {
   char* mem_address;
 
   if (UsePrivateMemory) {
-    mem_address = (char*)private_memory_attach(memid);
+    mem_address = (char*)private_memory_attach(mem_id);
   } else {
-    mem_address = (char*)shmat(memid, 0, 0);
+    mem_address = (char*)shmat(mem_id, 0, 0);
   }
 
   if (mem_address == (char*)-1) {
-    fprintf(stderr, "IpcMemoryAttach: shmat failed (%s) id=%d\n", strerror(errno), memid);
+    EPRINTF("%s: shmat failed (%s) id=%d\n", __func__, strerror(errno), mem_id);
 
     return IPC_MEM_ATTACH_FAILED;
   }
@@ -399,12 +418,11 @@ char* ipc_memory_attach(IpcMemoryId memid) {
 }
 
 void ipc_memory_kill(IpcMemoryKey mem_key) {
-  IpcMemoryId shmid;
+  IpcMemoryId shm_id;
 
-  if (!UsePrivateMemory && (shmid = shmget(mem_key, 0, 0)) >= 0) {
-    if (shmctl(shmid, IPC_RMID, (struct shmid_ds*)NULL) < 0) {
-      fprintf(stderr, "IpcMemoryKill: shmctl(%d, %d, 0) failed: %d", shmid, IPC_RMID);
-      exit(EXIT_FAILURE);
+  if (!UsePrivateMemory && (shm_id = shmget(mem_key, 0, 0)) >= 0) {
+    if (shmctl(shm_id, IPC_RMID, (struct shmid_ds*)NULL) < 0) {
+      elog(NOTICE, "%s: shmctl(%d, %d, 0) failed: %d", __func__, shm_id, IPC_RMID);
     }
   }
 }

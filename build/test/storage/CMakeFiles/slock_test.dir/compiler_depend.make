@@ -15,7 +15,6 @@ test/storage/CMakeFiles/slock_test.dir/slock_test.c.o: /Users/zlh/Documents/Git/
   /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/_types/_uint8_t.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/_types/_uintmax_t.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/alloca.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/assert.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/errno.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/i386/_mcontext.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/i386/_types.h \
@@ -130,8 +129,6 @@ test/storage/CMakeFiles/slock_test.dir/slock_test.c.o: /Users/zlh/Documents/Git/
 /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/sys/wait.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/sys/stdio.h:
-
-/Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/sys/qos.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/sys/appleapiopts.h:
 
@@ -255,8 +252,6 @@ test/storage/CMakeFiles/slock_test.dir/slock_test.c.o: /Users/zlh/Documents/Git/
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/i386/_mcontext.h:
 
-/Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/assert.h:
-
 /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/_types/_uint16_t.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/pthread/sched.h:
@@ -291,6 +286,8 @@ test/storage/CMakeFiles/slock_test.dir/slock_test.c.o: /Users/zlh/Documents/Git/
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/errno.h:
 
+/Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/sys/qos.h:
+
 /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/sys/_types/_int64_t.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/sys/_pthread/_pthread_rwlock_t.h:
@@ -300,6 +297,10 @@ test/storage/CMakeFiles/slock_test.dir/slock_test.c.o: /Users/zlh/Documents/Git/
 /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/_ctermid.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/i386/_types.h:
+
+/Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/_types.h:
+
+/Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/mach/i386/_structs.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/_types/_intmax_t.h:
 
@@ -318,10 +319,6 @@ test/storage/CMakeFiles/slock_test.dir/slock_test.c.o: /Users/zlh/Documents/Git/
 /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/_types/_uint32_t.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/sys/errno.h:
-
-/Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/mach/i386/_structs.h:
-
-/Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/_types.h:
 
 /Users/zlh/Documents/Git/postgres-v7/test/storage/slock_test.c:
 

@@ -17,11 +17,15 @@
 
 #include "rdbms/storage/smgr.h"
 
+#include "rdbms/postgres.h"
+#include "rdbms/storage/ipc.h"
+#include "rdbms/utils/elog.h"
+
 static void smgr_shutdown(int dummy);
 
 typedef struct f_smgr {
-  int (*smgr_init)(void);      // May be NULL.
-  int (*smgr_shutdown)(void);  // May be NULL.
+  int (*smgr_init)();      // May be NULL.
+  int (*smgr_shutdown)();  // May be NULL.
   int (*smgr_create)(Relation relation);
   int (*smgr_unlink)(Relation relation);
   int (*smgr_extend)(Relation relation, char* buffer);
@@ -41,15 +45,67 @@ typedef struct f_smgr {
 
 // The weird placement of commas in this init block is to keep the compiler
 // happy, regardless of what storage managers we have (or don't have).
-static f_smgr smgrsw[] = {
-    // magnetic disk.
+static f_smgr SmgrSW[] = {
+    // Magnetic disk.
     {md_init, NULL, md_create, md_unlink, md_extend, md_open, md_close, md_read, md_write, md_flush, md_blind_wrt,
      md_mark_dirty, md_blind_mark_dirty, md_nblocks, md_truncate, md_commit, md_abort},
 
 #ifdef STABLE_MEMORY_STORAGE
-    // main memory.
+
+    // Main memory.
     {mminit, mmshutdown, mmcreate, mmunlink, mmextend, mmopen, mmclose, mmread, mmwrite, mmflush, mmblindwrt,
      mmmarkdirty, mmblindmarkdirty, mmnblocks, NULL, mmcommit, mmabort},
 
 #endif
 };
+
+static int NSmgr = LENGTH_OF(SmgrSW);
+
+// Initialize or shut down all storage managers.
+int smgr_init() {
+  int i;
+
+  for (i = 0; i < NSmgr; i++) {
+    if (SmgrSW[i].smgr_init) {
+      if ((*(SmgrSW[i].smgr_init))() == SM_FAIL) {
+        elog(FATAL, "%s: initialization failed on %s", __func__, smgrout(i));
+      }
+    }
+  }
+
+  // Register the shutdown proc.
+  on_proc_exit(smgr_shutdown, NULL);
+
+  return SM_SUCCESS;
+}
+
+// Create a new relation.
+//
+// This routine takes a reldesc, creates the relation on the appropriate
+// device, and returns a file descriptor for it.
+int smgr_create(int16 which, Relation relation) {
+  int fd;
+
+  if ((fd = (*(SmgrSW[which].smgr_create))(relation)) < 0) {
+    elog(ERROR, "%s: cannot create %s", __func__, RELATION_GET_RELATION_NAME(relation));
+  }
+
+  return fd;
+}
+
+// Unlink a relation.
+//
+// The relation is removed from the store.
+int smgr_unlink(int16 which, Relation relation) {
+  int status;
+
+  if ((status = (*(SmgrSW[which].smgr_unlink))(relation)) == SM_FAIL) {
+    elog(ERROR, "%s: cannot unlink %s", __func__, RELATION_GET_RELATION_NAME(relation));
+  }
+
+  return status;
+}
+
+int smgr_extend(int16 which, Relation relation, char* buffer) {
+    
+}

@@ -1,13 +1,13 @@
-// =========================================================================
+//===----------------------------------------------------------------------===//
 //
 // trace.h
+//
 //
 //  Conditional trace definitions.
 //
 //  Massimo Dal Zotto <dz@cs.unitn.it>
 //
-// =========================================================================
-
+//===----------------------------------------------------------------------===//
 #ifndef RDBMS_UTILS_TRACE_H_
 #define RDBMS_UTILS_TRACE_H_
 
@@ -67,8 +67,7 @@ enum PgOptionEnum {
   OPT_SYSLOG,            // Use syslog for error messages.
   OPT_HOSTLOOKUP,        // Enable hostname lookup in ps_status.
   OPT_SHOWPORTNUMBER,    // Show port number in ps_status.
-
-  NUM_PG_OPTIONS  // Must be the last item of enum.
+  NUM_PG_OPTIONS         // Must be the last item of enum.
 };
 
 extern int PgOptions[NUM_PG_OPTIONS];

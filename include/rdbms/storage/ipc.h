@@ -26,15 +26,14 @@
 #include <sys/ipc.h>
 #include <sys/types.h>
 
-#include "rdbms/c.h"
-#include "rdbms/config.h"
+#include "rdbms/postgres.h"
 #include "rdbms/storage/s_lock.h"
 
 typedef uint16 SystemPortAddress;
 
 // Semaphore definitions.
 #define IPC_PROTECTION                    (0600)  // Access/modify by user only.
-#define IPC_NMAXSEM                       25      // Maximum number of semaphores.
+#define IPC_NMAX_SEM                      25      // Maximum number of semaphores.
 #define IPC_SEMAPHORE_DEFAULT_START_VALUE 255
 #define IPC_SHARED_LOCK                   (-1)
 #define IPC_EXCLUSIVE_LOCK                (-255)
@@ -47,7 +46,7 @@ typedef uint16 SystemPortAddress;
 typedef uint32 IpcSemaphoreKey;  // Semaphore key.
 typedef int IpcSemaphoreId;
 
-// Shared memory definitions。
+// Shared memory definitions.
 #define IPC_MEM_CREATION_FAILED (-1)
 #define IPC_MEM_ID_GET_FAILED   (-2)
 #define IPC_MEM_ATTACH_FAILED   0
@@ -60,6 +59,7 @@ typedef uint32 IPCKey;
 typedef uint32 IpcMemoryKey;  // Shared memory key.
 typedef int IpcMemoryId;
 
+// Definition in ipc.c
 extern bool ProcExitInprogress;
 
 void proc_exit(int code);
@@ -111,7 +111,7 @@ typedef enum LockId {
 
 // Note:
 //  These must not hash to DEFAULT_IPC_KEY or PRIVATE_IPC_KEY.
-#define SystemPortAddressGetIPCKey(address) (28597 * (address) + 17491)
+#define SYSTEM_PORT_ADDRESS_GET_IPC_KEY(address) (28597 * (address) + 17491)
 
 // These keys are originally numbered from 1 to 12 consecutively but not
 // all are used. The unused ones are removed.			- ay 4/95.
@@ -119,8 +119,8 @@ typedef enum LockId {
 #define IPC_KEY_GET_SI_BUFFER_MEMORY_BLOCK(key)  ((key == PRIVATE_IPC_KEY) ? key : 7 + (key))
 #define IPC_KEY_GET_SLOCK_SHARED_MEMORY_KEY(key) ((key == PRIVATE_IPC_KEY) ? key : 10 + (key))
 #define IPC_KEY_GET_SPIN_LOCK_SEMAPHORE_KEY(key) ((key == PRIVATE_IPC_KEY) ? key : 11 + (key))
-#define IPC_KEY_GET_WWAIT_IO_SEMAPHORE_KEY(key)  ((key == PRIVATE_IPC_KEY) ? key : 12 + (key))
-#define IPC_KEY_GET_WWAIT_CL_SEMAPHORE_KEY(key)  ((key == PRIVATE_IPC_KEY) ? key : 13 + (key))
+#define IPC_KEY_GET_WAIT_IO_SEMAPHORE_KEY(key)   ((key == PRIVATE_IPC_KEY) ? key : 12 + (key))
+#define IPC_KEY_GET_WAIT_CL_SEMAPHORE_KEY(key)   ((key == PRIVATE_IPC_KEY) ? key : 13 + (key))
 
 // NOTE: This macro must always give the highest numbered key as every backend
 // process forked off by the postmaster will be trying to acquire a semaphore

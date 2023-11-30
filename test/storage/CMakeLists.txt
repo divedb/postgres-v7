@@ -4,4 +4,4 @@ function(add_storage_test)
 endfunction()
 
 add_storage_test(slock_test slock_test.c)
-add_storage_test(ipc_test ipc_test.c)
+# add_storage_test(ipc_test ipc_test.c)

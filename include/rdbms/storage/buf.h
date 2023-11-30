@@ -1,4 +1,4 @@
-// =========================================================================
+//===----------------------------------------------------------------------===//
 //
 // buf.h
 //  Basic buffer manager data types.
@@ -9,7 +9,7 @@
 //
 // $Id: buf.h,v 1.7 2000/01/26 05:58:32 momjian Exp $
 //
-// =========================================================================
+//===----------------------------------------------------------------------===//
 
 #ifndef RDBMS_STORAGE_BUF_H_
 #define RDBMS_STORAGE_BUF_H_
@@ -27,6 +27,6 @@ typedef long Buffer;
 // are suppressed.	Decision-making using BufferIsValid is not affected.
 // This should be set only if one is sure there will be no errors.
 //  - plai 9/10/90
-#undef NO_BUFFERISVALID
+#undef NO_BUFFER_IS_VALID
 
 #endif  // RDBMS_STORAGE_BUF_H_

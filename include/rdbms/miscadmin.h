@@ -152,9 +152,10 @@ typedef int16 ExitStatus;
 #define NORMAL_EXIT_STATUS 0
 #define FATAL_EXIT_STATUS  127
 
-// in utils/init/postinit.c
+// In utils/init/postinit.c
 extern bool PostgresIsInitialized;
 void init_postgres(const char* dbname);
+void be_portal_init();
 
 // TODO(gc): proc_exec or proc_exit
 #define EXIT_POSTGRES(status) proc_exit(status)

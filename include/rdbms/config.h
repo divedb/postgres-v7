@@ -46,6 +46,24 @@
 // RELSEG_SIZE.
 #define RELSEG_SIZE (0x40000000 / BLCKSZ)
 
+// As soon as the backend blocks on a lock, it waits this number of seconds
+// before checking for a deadlock.
+// We don't check for deadlocks just before sleeping because a deadlock is
+// a rare event, and checking is an expensive operation.
+#define DEADLOCK_CHECK_TIMER 1
+
+// Maximum number of columns in an index and maximum number of arguments
+// to a function. They must be the same value.
+//
+// The minimum value is 9 (btree index creation has a 9-argument function).
+//
+// There is no maximum value, though if you want to pass more than 32
+// arguments to a function, you will have to modify
+// pgsql/src/backend/utils/fmgr/fmgr.c and add additional entries
+// to the 'case' statement for the additional arguments.
+#define INDEX_MAX_KEYS 16
+#define FUNC_MAX_ARGS  INDEX_MAX_KEYS
+
 #define MAX_PG_PATH 1024
 
 #endif  // RDBMS_CONFIG_H_

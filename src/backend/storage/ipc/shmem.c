@@ -1,32 +1,33 @@
-// =========================================================================
+//===----------------------------------------------------------------------===//
 //
 // shmem.c
-//  create shared memory and initialize shared memory data structures.
+//  Create shared memory and initialize shared memory data structures.
 //
 // Portions Copyright (c) 1996=2000, PostgreSQL, Inc
 // Portions Copyright (c) 1994, Regents of the University of California
 //
 //
 // IDENTIFICATION
-//  $Header: /usr/local/cvsroot/pgsql/src/backend/storage/ipc/shmem.c,v 1.50 2000/04/12 17:15:37 momjian Exp $
+//  $Header: /usr/local/cvsroot/pgsql/src/backend/storage/ipc/shmem.c
+//           v 1.50 2000/04/12 17:15:37 momjian Exp $
 //
-// =========================================================================
+//===----------------------------------------------------------------------===//
 
 // POSTGRES processes share one or more regions of shared memory.
 // The shared memory is created by a postmaster and is inherited
-// by each backends via fork().  The routines in this file are used for
+// by each backends via fork(). The routines in this file are used for
 // allocating and binding to shared memory data structures.
 //
 // NOTES:
 //  (a) There are three kinds of shared memory data structures
 //  available to POSTGRES: fixed-size structures, queues and hash
-//  tables.  Fixed-size structures contain things like global variables
+//  tables. Fixed-size structures contain things like global variables
 //  for a module and should never be allocated after the process
-//  initialization phase.  Hash tables have a fixed maximum size, but
-//  their actual size can vary dynamically.  When entries are added
-//  to the table, more space is allocated.  Queues link data structures
+//  initialization phase. Hash tables have a fixed maximum size, but
+//  their actual size can vary dynamically. When entries are added
+//  to the table, more space is allocated. Queues link data structures
 //  that have been allocated either as fixed size structures or as hash
-//  buckets.  Each shared data structure has a string name to identify
+//  buckets. Each shared data structure has a string name to identify
 //  it (assigned in the module that declares it).
 //
 //  (b) During initialization, each module looks for its
@@ -37,20 +38,20 @@
 //  in the local address space.
 //    The shmem index has two purposes: first, it gives us
 //  a simple model of how the world looks when a backend process
-//  initializes.  If something is present in the shmem index,
-//  it is initialized.  If it is not, it is uninitialized.  Second,
+//  initializes. If something is present in the shmem index,
+//  it is initialized. If it is not, it is uninitialized. Second,
 //  the shmem index allows us to allocate shared memory on demand
-//  instead of trying to preallocate structures and hard=wire the
-//  sizes and locations in header files.  If you are using a lot
+//  instead of trying to preallocate structures and hard-wire the
+//  sizes and locations in header files. If you are using a lot
 //  of shared memory in a lot of different places (and changing
 //  things during development), this is important.
 //
 //  (c) memory allocation model: shared memory can never be
-//  freed, once allocated.   Each hash table has its own free list,
+//  freed, once allocated. Each hash table has its own free list,
 //  so hash buckets can be reused when an item is deleted.  However,
 //  if one hash table grows very large and then shrinks, its space
-//  cannot be redistributed to other tables.  We could build a simple
-//  hash bucket garbage collector if need be.  Right now, it seems
+//  cannot be redistributed to other tables. We could build a simple
+//  hash bucket garbage collector if need be. Right now, it seems
 //  unnecessary.
 //
 //    See InitSem() in sem.c for an example of how to use the
@@ -71,8 +72,8 @@ static unsigned long ShmemSize = 0;  // Current size (and default).
 
 extern VariableCache ShmemVariableCache;  // varsup.c
 
-SPINLOCK ShmemLock;       // Lock for shared memory allocation.
-SPINLOCK ShmemIndexLock;  // Lock for shmem index access.
+SpinLock ShmemLock;       // Lock for shared memory allocation.
+SpinLock ShmemIndexLock;  // Lock for shmem index access.
 
 static unsigned long* ShmemFreeStart = NULL;    // Pointer to the OFFSET of first free shared memory.
 static unsigned long* ShmemIndexOffset = NULL;  // Start of the shmem index table (for bootstrap).
