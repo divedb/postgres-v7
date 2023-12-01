@@ -1,4 +1,4 @@
-// =========================================================================
+//===----------------------------------------------------------------------===//
 //
 // ipc.h
 //  POSTGRES inter-process communication definitions.
@@ -10,15 +10,14 @@
 // $Id: ipc.h,v 1.38 2000/01/26 05:58:32 momjian Exp $
 //
 // NOTES
-//  This file is very architecture-specific.	This stuff should actually
-//  be factored into the port/ directories.
+//  This file is very architecture-specific.
+//  This stuff should actually be factored into the port/ directories.
 //
 // Some files that would normally need to include only sys/ipc.h must
 // instead included this file because on Ultrix, sys/ipc.h is not designed
 // to be included multiple times.  This file (by virtue of the ifndef IPC_H)
 // is.
-// =========================================================================
-
+//===----------------------------------------------------------------------===//
 #ifndef RDBMS_STORAGE_IPC_H_
 #define RDBMS_STORAGE_IPC_H_
 
@@ -82,39 +81,50 @@ IpcMemoryId ipc_memory_create(IpcMemoryKey mem_key, uint32 size, int permission)
 IpcMemoryId ipc_memory_id_get(IpcMemoryKey mem_key, uint32 size);
 char* ipc_memory_attach(IpcMemoryId memid);
 void ipc_memory_kill(IpcMemoryKey mem_key);
-// void create_and_init_slock_memory(IPCKey key);
-// void attach_slock_memory(IPCKey key);
+void create_and_init_slock_memory(IPCKey key);
+void attach_slock_memory(IPCKey key);
 
 #define NO_LOCK        0
 #define SHARED_LOCK    1
 #define EXCLUSIVE_LOCK 2
 
 typedef enum LockId {
-  SHMEM_LOCKID,
-  SHMEM_INDEX_LOCKID,
-  BUF_MGR_LOCKID,
-  LOCK_MGR_LOCKID,
-  SINVAL_LOCKID,
+  BUF_MGR_LOCK_ID,
+  LOCK_LOCK_ID,
+  OID_GEN_LOCK_ID,
+  XID_GEN_LOCK_ID,
+  CNTL_FILE_LOCK_ID,
+  SHMEM_LOCK_ID,
+  SHMEM_INDEX_LOCK_ID,
+  LOCK_MGR_LOCK_ID,
+  SINVAL_LOCK_ID,
 
 #ifdef STABLE_MEMORY_STORAGE
-  MMCACHELOCKID,
+  MM_CACHE_LOCK_ID,
 #endif
 
-  PROC_STRUCT_LOCKID,
-  OID_GEN_LOCKID,
-  XID_GEN_LOCKID,
-  CNTL_FILE_LOCKID,
-  FIRST_FREE_LOCKID
+  PROC_STRUCT_LOCK_ID,
+  FIRST_FREE_LOCK_ID
 } LockId;
 
-#define MAX_SPINS FIRST_FREE_LOCKID
+#define MAX_SPINS FIRST_FREE_LOCK_ID
+
+typedef struct SLock {
+  TasLock lock_lock;
+  unsigned char flag;
+  short nshlocks;
+  TasLock shlock;
+  TasLock exlock;
+  TasLock comlock;
+  struct SLock* next;
+} SLock;
 
 // Note:
 //  These must not hash to DEFAULT_IPC_KEY or PRIVATE_IPC_KEY.
 #define SYSTEM_PORT_ADDRESS_GET_IPC_KEY(address) (28597 * (address) + 17491)
 
 // These keys are originally numbered from 1 to 12 consecutively but not
-// all are used. The unused ones are removed.			- ay 4/95.
+// all are used. The unused ones are removed. - ay 4/95.
 #define IPC_KEY_GET_BUFFER_MEMORY_KEY(key)       ((key == PRIVATE_IPC_KEY) ? key : 1 + (key))
 #define IPC_KEY_GET_SI_BUFFER_MEMORY_BLOCK(key)  ((key == PRIVATE_IPC_KEY) ? key : 7 + (key))
 #define IPC_KEY_GET_SLOCK_SHARED_MEMORY_KEY(key) ((key == PRIVATE_IPC_KEY) ? key : 10 + (key))
@@ -124,7 +134,7 @@ typedef enum LockId {
 
 // NOTE: This macro must always give the highest numbered key as every backend
 // process forked off by the postmaster will be trying to acquire a semaphore
-// with a unique key value starting at key+14 and incrementing up.	Each
+// with a unique key value starting at key+14 and incrementing up. Each
 // backend uses the current key value then increments it by one.
 #define IPC_GET_PROCESS_SEMAPHORE_INIT_KEY(key) ((key == PRIVATE_IPC_KEY) ? key : 14 + (key))
 

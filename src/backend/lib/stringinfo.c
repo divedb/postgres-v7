@@ -1,4 +1,4 @@
-// =========================================================================
+//===----------------------------------------------------------------------===//
 //
 // stringinfo.c
 //
@@ -11,9 +11,10 @@
 //
 //  $Id: stringinfo.c,v 1.25 2000/04/12 17:15:11 momjian Exp $
 //
-// =========================================================================
+//===----------------------------------------------------------------------===//
+#include "rdbms/lib/stringinfo.h"
 
-#include "rdbms/utils/stringinfo.h"
+#include <stdarg.h>
 
 #include "rdbms/utils/elog.h"
 #include "rdbms/utils/palloc.h"
@@ -24,7 +25,7 @@ StringInfo make_string_info() {
   res = (StringInfo)palloc(sizeof(StringInfoData));
 
   if (res == NULL) {
-    elog(ERROR, "%s: Out of memory", __func__);
+    elog(ERROR, "%s: out of memory", __func__);
   }
 
   init_string_info(res);
@@ -38,7 +39,7 @@ void init_string_info(StringInfo str) {
   str->data = (char*)palloc(size);
 
   if (str->data == NULL) {
-    elog(ERROR, "%s: Out of memory (%d bytes requested)", size);
+    elog(ERROR, "%s: out of memory (%d bytes requested)", size);
   }
 
   str->maxlen = size;
@@ -70,7 +71,7 @@ static void enlarge_string_info(StringInfo str, int needed) {
   str->data = (char*)repalloc(str->data, newlen);
 
   if (str->data == NULL) {
-    elog(ERROR, "%s: Out of memory (%d bytes requested)", newlen);
+    elog(ERROR, "%s: out of memory (%d bytes requested)", newlen);
   }
 
   str->maxlen = newlen;

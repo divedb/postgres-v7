@@ -10,7 +10,6 @@
 // $Id: libpq.h,v 1.36 2000/04/12 17:16:36 momjian Exp $
 //
 //===----------------------------------------------------------------------===//
-
 #ifndef RDBMS_LIBPQ_LIBPQ_H_
 #define RDBMS_LIBPQ_LIBPQ_H_
 
@@ -18,6 +17,7 @@
 
 #include "rdbms/access/htup.h"
 #include "rdbms/access/tupdesc.h"
+#include "rdbms/lib/stringinfo.h"
 #include "rdbms/postgres.h"
 #include "rdbms/tcop/dest.h"
 
@@ -169,11 +169,27 @@ PortalEntry* be_new_portal(void);
 void be_type_init(PortalEntry* entry, TupleDesc attrs, int natts);
 void be_print_tup(HeapTuple tuple, TupleDesc typeinfo, DestReceiver* self);
 
-// In be-pqexec.c
+// Prototypes for functions in be-pqexec.c
 char* pq_fn(int fnid, int* result_buf, int result_len, int result_is_int, PQArgBlock* args, int nargs);
 char* pq_exec(char* query);
 int pq_test_pq_exec(char* q);
 int pq_test_pq_fn(char* q);
 int32 pq_test(struct varlena* vlena);
+
+// Prototypes for functions in pqcomm.c
+int stream_sever_port(char* hostname, unsigned short port, int* fdp);
+int stream_connection(int server_fd, Port* port);
+void stream_close(int sock);
+void pq_init();
+int pq_get_port();
+void pq_close();
+extern int pq_get_bytes(char* s, size_t len);
+extern int pq_get_string(StringInfo s);
+extern int pq_peek_byte(void);
+extern int pq_put_bytes(const char* s, size_t len);
+extern int pq_flush(void);
+extern int pq_put_message(char msg_type, const char* s, size_t len);
+extern void pq_start_copy_out(void);
+extern void pq_end_copy_out(bool error_abort);
 
 #endif  // RDBMS_LIBPQ_LIBPQ_H_

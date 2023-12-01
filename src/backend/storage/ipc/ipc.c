@@ -427,8 +427,66 @@ void ipc_memory_kill(IpcMemoryKey mem_key) {
   }
 }
 
-void create_and_init_slock_memory(IPCKey key);
-void attach_slock__memory(IPCKey key);
+// Used in spin.c
+SLock* SLockArray = NULL;
+static SLock** FreeSLockPP;
+static int* UnusedSLockIP;
+static TasLock* SLockMemoryLock;
+static IpcMemoryId SLockMemoryId = -1;
+
+typedef struct IpcDummy {
+  SLock* free;
+  int unused;
+  TasLock mem_lock;
+  SLock slocks[MAX_SPINS + 1];
+} IpcDummy;
+
+#define SLOCK_MEMORY_SIZE sizeof(IpcDummy)
+
+void create_and_init_slock_memory(IPCKey key) {
+  int id;
+  SLock* slock;
+
+  SLockMemoryId = ipc_memory_create(key, SLOCK_MEMORY_SIZE, 0700);
+  attach_slock_memory(key);
+  *FreeSLockPP = NULL;
+  *UnusedSLockIP = (int)FIRST_FREE_LOCK_ID;
+
+  for (id = 0; id < (int)FIRST_FREE_LOCK_ID; id++) {
+    slock = &(SLockArray[id]);
+    INIT_LOCK(&(slock->lock_lock));
+    slock->flag = NO_LOCK;
+    slock->nshlocks = 0;
+    INIT_LOCK(&(slock->shlock));
+    INIT_LOCK(&(slock->exlock));
+    INIT_LOCK(&(slock->comlock));
+    slock->next = NULL;
+  }
+}
+
+void attach_slock_memory(IPCKey key) {
+  struct IpcDummy* slockm;
+
+  if (SLockMemoryId == -1) {
+    SLockMemoryId = ipc_memory_id_get(key, SLOCK_MEMORY_SIZE);
+  }
+
+  if (SLockMemoryId == -1) {
+    elog(FATAL, "%s not in shared memory", __func__);
+  }
+
+  slockm = (struct IpcDummy*)ipc_memory_attach(SLockMemoryId);
+
+  if (slockm == IPC_MEM_ATTACH_FAILED) {
+    elog(FATAL, "%s: could not attach segment", __func__);
+  }
+
+  FreeSLockPP = (SLock**)&(slockm->free);
+  UnusedSLockIP = (int*)&(slockm->unused);
+  SLockMemoryLock = (TasLock*)&(slockm->mem_lock);
+  INIT_LOCK(SLockMemoryLock);
+  SLockArray = (SLock*)&(slockm->slocks[0]);
+}
 
 static void ipc_config_tip() {
   fprintf(stderr, "This type of error is usually caused by an improper\n");

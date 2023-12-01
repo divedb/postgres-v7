@@ -15,9 +15,6 @@
 #include <string.h>
 #include <time.h>
 
-#define ELOG_TIMESTAMPS
-#define USE_SYSLOG
-
 #ifdef ELOG_TIMESTAMPS
 
 #define TIMESTAMP_SIZE 28

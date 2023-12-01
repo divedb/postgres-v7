@@ -131,5 +131,7 @@ typedef struct LockMethodTable {
 // Finally since the hash function will now look at all 12 bytes of the tag
 // the padding bytes MUST be zero'd before use in hash_search() as they
 // will have random values otherwise.  Jeff 22 July 1991.
+typedef struct XidTag {
+} XidTag;
 
 #endif  // RDBMS_STORAGE_LOCK_H_

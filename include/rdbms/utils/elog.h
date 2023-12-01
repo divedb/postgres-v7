@@ -15,7 +15,7 @@
 #define RDBMS_UTILS_ELOG_H_
 
 #define NOTICE      0     // Random info - no special action.
-#define ERROR       (-1)  // User error - return to known state.
+#define ERROR       (-1)  // User error  - return to known state.
 #define FATAL       1     // Fatal error - abort process.
 #define REALLYFATAL 2     // Take down the other backends with me.
 #define STOP        REALLYFATAL
@@ -25,18 +25,13 @@
 
 #ifndef __GNUC__
 void elog(int lev, const char* fmt, ...);
-
 #else
-/* This extension allows gcc to check the format string for consistency with
-   the supplied arguments. */
+// This extension allows gcc to check the format string for consistency with the supplied arguments.
 void elog(int lev, const char* fmt, ...) __attribute__((format(printf, 2, 3)));
-
 #endif
 
 #ifndef PG_STANDALONE
-
 int debug_file_open();
-
 #endif
 
 #endif  // RDBMS_UTILS_ELOG_H_

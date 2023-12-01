@@ -57,12 +57,12 @@
 // CommandDest is a simplistic means of identifying the desired
 // destination. Someday this will probably need to be improved.
 typedef enum {
-  None,            // Results are discarded.
-  Debug,           // Results go to debugging output.
-  Local,           // Results go in local portal buffer.
-  Remote,          // Results sent to frontend process.
-  RemoteInternal,  // Results sent to frontend process in internal (binary) form.
-  SPI              // Results sent to SPI manager.
+  ENUM_NONE,             // Results are discarded.
+  ENUM_DEBUG,            // Results go to debugging output.
+  ENUM_LOCAL,            // Results go in local portal buffer.
+  ENUM_REMOTE,           // Results sent to frontend process.
+  ENUM_REMOTE_INTERNAL,  // Results sent to frontend process in internal (binary) form.
+  ENUM_SPI               // Results sent to SPI manager.
 } CommandDest;
 
 // DestReceiver is a base type for destination-specific local state.

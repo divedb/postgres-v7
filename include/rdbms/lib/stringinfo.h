@@ -1,4 +1,4 @@
-// =========================================================================
+//===----------------------------------------------------------------------===//
 //
 // stringinfo.h
 //  Declarations/definitions for "StringInfo" functions.
@@ -12,10 +12,9 @@
 //
 // $Id: stringinfo.h,v 1.18 2000/04/12 17:16:34 momjian Exp $
 //
-// =========================================================================
-
-#ifndef RDBMS_UTILS_STRING_INFO_H_
-#define RDBMS_UTILS_STRING_INFO_H_
+//===----------------------------------------------------------------------===//
+#ifndef RDBMS_LIB_STRING_INFO_H_
+#define RDBMS_LIB_STRING_INFO_H_
 
 // StringInfoData holds information about an extensible string.
 //    data      is the current buffer for the string (allocated with palloc).
@@ -82,4 +81,4 @@ void append_string_info_char(StringInfo str, char ch);
 // if necessary.
 void append_binary_string_info(StringInfo str, const char* data, int datalen);
 
-#endif  // RDBMS_UTILS_STRING_INFO_H_
+#endif  // RDBMS_LIB_STRING_INFO_H_
