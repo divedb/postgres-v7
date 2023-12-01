@@ -39,6 +39,12 @@ void index_register(char* heap, char* index, int natts, AttrNumber* attnos, uint
                     FuncIndexInfo* finfo, PredInfo* pred_info);
 
 void err_out();
-void insert_one_tuple(Oid object_id);
+void insert_one_tuple(Oid oid);
+
+#define BS_XLOG_NOP        0
+#define BS_XLOG_BOOTSTRAP  1
+#define BS_XLOG_STARTUP    2
+#define BS_XLOG_CHECKPOINT 3
+#define BS_XLOG_SHUTDOWN   4
 
 #endif  // RDBMS_BOOTSTRAP_BOOTSTRAP_H_

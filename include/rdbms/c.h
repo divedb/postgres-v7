@@ -141,6 +141,9 @@ typedef Datum* DatumPtr;
 #define SET_2_BYTES(value) (((Datum)(value)) & 0x0000ffff)
 #define SET_4_BYTES(value) (((Datum)(value)) & 0xffffffff)
 
+#define DATUM_GET_BOOL(x) ((bool)(((Datum)(x)) != 0))
+#define BOOL_GET_DATUM(x) ((Datum)((x) ? 1 : 0))
+
 // Returns character value of a datum.
 #define DATUM_GET_CHAR(x) ((char)GET_1_BYTE(x))
 
@@ -192,11 +195,18 @@ typedef Datum* DatumPtr;
 // Returns datum representation for a pointer.
 #define POINTER_GET_DATUM(x) ((Datum)(x))
 
+#define DATUM_GET_CSTRING(x) ((char*)DATUM_GET_POINTER(x))
+#define CSTRING_GET_DATUM(x) POINTER_GET_DATUM(x)
+
 // Returns name value of a datum.
 #define DATUM_GET_NAME(x) ((Name)DATUM_GET_POINTER((Datum)(x)))
 
 // Returns datum representation for a name.
 #define NAME_GET_DATUM(x) POINTER_GET_DATUM((Pointer)(x))
+
+#define DATUM_GET_INT64(x)  (*((int64*)DATUM_GET_POINTER(x)))
+#define DATUM_GET_FLOAT4(x) (*(float4*)DATUM_GET_POINTER(x))
+#define DATUM_GET_FLOAT8(x) (*(float8*)DATUM_GET_POINTER(x))
 
 // Returns 32-bit floating point value of a datum.
 // This is really a pointer, of course.
@@ -235,6 +245,21 @@ typedef Datum* DatumPtr;
 
 // Address of the element one past the last in an array.
 #define END_OF(array) (&array[LENGTH_OF(array)])
+
+// Alignment macros: align a length or address appropriately for a given type.
+//
+// There used to be some incredibly crufty platform-dependent hackery here,
+// but now we rely on the configure script to get the info for us. Much nicer.
+//
+// NOTE: TYPEALIGN will not work if ALIGNVAL is not a power of 2.
+// That case seems extremely unlikely to occur in practice, however.
+#define TYPE_ALIGN(alignment, size) (((long)(size) + (alignment - 1)) & ~(alignment - 1))
+
+#define SHORT_ALIGN(LEN)  TYPE_ALIGN(_Alignof(short), LEN)
+#define INT_ALIGN(LEN)    TYPE_ALIGN(_Alignof(int), LEN)
+#define LONG_ALIGN(LEN)   TYPE_ALIGN(_Alignof(long), LEN)
+#define DOUBLE_ALIGN(LEN) TYPE_ALIGN(_Alignof(double), LEN)
+#define MAX_ALIGN(LEN)    TYPE_ALIGN(_Alignof(max_align_t), LEN)
 
 // ================================================
 // Section 7: exception handling definitions

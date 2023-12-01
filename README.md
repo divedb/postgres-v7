@@ -31,5 +31,8 @@ trace
     lock
 
 先把bootstrap运行起来
+call stack
+    BootstrapMain
 
 
+tuple

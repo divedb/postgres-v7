@@ -1,4 +1,4 @@
-// =========================================================================
+//===----------------------------------------------------------------------===//
 //
 // miscadmin.h
 //  This file contains general postgres administration and initialization
@@ -18,8 +18,7 @@
 //  some of the information in this file will be moved to
 //  other files.
 //
-// =========================================================================
-
+//===----------------------------------------------------------------------===//
 #ifndef RDBMS_MISC_ADMIN_H_
 #define RDBMS_MISC_ADMIN_H_
 

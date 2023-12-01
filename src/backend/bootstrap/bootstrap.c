@@ -11,12 +11,19 @@
 //  $Header: /usr/local/cvsroot/pgsql/src/backend/bootstrap/bootstrap.c,v 1.81 2000/04/12 17:14:54 momjian Exp $
 //
 //===----------------------------------------------------------------------===//
+
 #include "rdbms/bootstrap/bootstrap.h"
+
+#include <unistd.h>
 
 #include "rdbms/access/htup.h"
 #include "rdbms/access/tupdesc.h"
+#include "rdbms/catalog/pg_attribute.h"
 #include "rdbms/catalog/pg_type.h"
+#include "rdbms/miscadmin.h"
+#include "rdbms/nodes/execnodes.h"
 #include "rdbms/postgres.h"
+#include "rdbms/utils/exc.h"
 #include "rdbms/utils/fmgroids.h"
 
 #define ALLOC(t, c) (t*)calloc((unsigned)(c), sizeof(t))
@@ -95,15 +102,83 @@ static struct TypeInfo ProcID[] = {
     {"_int4", 1007, INT4OID, -1, F_ARRAY_IN, F_ARRAY_OUT},
     {"_aclitem", 1034, 1033, -1, F_ARRAY_IN, F_ARRAY_OUT}};
 
+static int NTypes = sizeof(ProcID) / sizeof(struct TypeInfo);
+
+typedef struct TypeMap {
+  Oid am_oid;
+  FormData_pg_type am_type;
+} TypeMap;
+
+static struct TypeMap** Type = NULL;
+static struct TypeMap* Ap = NULL;
+static int Warnings = 0;
+static char Blanks[MAX_ATTR];
+static char* CurRelName;           // Current relation name.
+static MemoryContext NoGC = NULL;  // Special no-gc mem context.
+static Datum Values[MAX_ATTR];     // Corresponding attribute values.
+
+Form_pg_attribute AttrTypes[MAX_ATTR];  // Points to attribute info.
+int NumAttr;                            // Number of attributes for cur. rel.
+int DebugMode;
+
+extern int optind;
+extern char* optarg;
+
+// At bootstrap time, we first declare all the indices to be built, and
+// then build them.  The IndexList structure stores enough information
+// to allow us to build the indices after they've been declared.
+typedef struct IndexList {
+  char* il_heap;
+  char* il_ind;
+  IndexInfo* il_info;
+  struct IndexList* il_next;
+} IndexList;
+
+static IndexList* ILHead = NULL;
+
+// The main loop for handling the backend in bootstrap mode
+// the bootstrap mode is used to initialize the template database
+// the bootstrap backend doesn't speak SQL, but instead expects
+// commands in a special bootstrap language.
+//
+// The arguments passed in to BootstrapMain are the run-time arguments
+// without the argument '-boot', the caller is required to have
+// removed -boot from the run-time args
+int bootstrap_main(int argc, char* argv[]) {
+  int i;
+  char* dbname;
+  int flag;
+  int xlog_op = BS_XLOG_NOP;
+  char* optential_data_dir = NULL;
+
+  // Initialize globals.
+  MyProcPid = getpid();
+
+  // Fire up essential subsystems: error and memory management
+  //
+  // If we are running under the postmaster, this is done already.
+  if (!IsUnderPostmaster) {
+    enable_exception_handling(true);
+  }
+}
+
+void err_out() {
+  Warnings++;
+  clean_up();
+}
+
 // Assumes that 'oid' will not be zero.
-void insert_one_tuple(Oid object_id) {
+void insert_one_tuple(Oid oid) {
   HeapTuple tuple;
   TupleDesc tup_desc;
 
   int i;
 
+  // TODO(gc): 为什么根据oid不能得到NumAttr
   if (DebugMode) {
-    printf("%s: oid %u, %d attrs\n", __func__, object_id, numattr);
+    printf("%s: oid %u, %d attrs\n", __func__, oid, NumAttr);
     fflush(stdout);
   }
+
+  tup_desc = create_tuple_desc(NumAttr, AttrTypes);
 }

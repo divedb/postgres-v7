@@ -22,13 +22,13 @@ typedef struct attrDefault {
   char* adbin;  // nodeToString representation of expr.
 } AttrDefault;
 
-typedef struct constrCheck {
+typedef struct ConstrCheck {
   char* ccname;
   char* ccbin;  // nodeToString representation of expr.
 } ConstrCheck;
 
 // This structure contains constraints of a tuple.
-typedef struct tupleConstr {
+typedef struct TupleConstr {
   AttrDefault* defval;  // array.
   ConstrCheck* check;   // array.
   uint16 num_defval;
@@ -38,11 +38,13 @@ typedef struct tupleConstr {
 
 // This structure contains all information (i.e. from Classes
 // pg_attribute, pg_attrdef, pg_relcheck) for a tuple.
-typedef struct tupleDesc {
+typedef struct TupleDescData {
   int natts;                 // Number of attributes in the tuple.
   Form_pg_attribute* attrs;  // attrs[N] is a pointer to the description of Attribute Number N + 1.
   TupleConstr* constr;
-} * TupleDesc;
+} TupleDescData;
+
+typedef TupleDescData* TupleDesc;
 
 TupleDesc create_template_tuple_desc(int natts);
 TupleDesc create_tuple_desc(int natts, Form_pg_attribute* attrs);

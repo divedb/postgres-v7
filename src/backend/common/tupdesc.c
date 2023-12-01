@@ -48,7 +48,7 @@ TupleDesc create_tuple_desc(int natts, Form_pg_attribute* attrs) {
 
   assert(natts >= 1);
 
-  desc = (TupleDesc)palloc(sizeof(struct tupleDesc));
+  desc = (TupleDesc)palloc(sizeof(struct TupleDescData));
   desc->attrs = attrs;
   desc->natts = natts;
   desc->constr = NULL;

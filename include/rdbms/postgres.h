@@ -72,6 +72,8 @@ struct VarLena {
 
 typedef struct VarLena Bytea;
 typedef struct VarLena Text;
+typedef struct VarLena BpChar;   // Blank-padded char, ie SQL char(n).
+typedef struct VarLena VarChar;  // Var-length char, ie SQL varchar(n).
 
 typedef int2 Int2Vector[INDEX_MAX_KEYS];
 typedef Oid OidVector[INDEX_MAX_KEYS];
@@ -136,5 +138,15 @@ typedef uint32 CommandId;
 #define STATUS_NOT_DONE     (-6)
 #define STATUS_BAD_PACKET   (-7)
 #define STATUS_FOUND        (1)
+
+// ================================================
+// Section 7: exception handling definitions
+//            Assert, Trap, etc macros
+// ================================================
+
+typedef char* ExcMessage;
+typedef struct Exception {
+  ExcMessage message;
+} Exception;
 
 #endif  // RDBMS_POSTGRES_H_

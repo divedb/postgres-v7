@@ -73,10 +73,11 @@ extern long HeapSysOffset[];
 //  HeapTupleData or pointing into a buffer. Now, it could also point to
 //  a separate allocation that was done in the t_datamcxt memory context.
 typedef struct HeapTupleData {
-  uint32 t_len;            // Length of t_data.
-  ItemPointerData t_self;  // SelfItemPointer.
-  MemoryContext t_data_mcxt;
-  HeapTupleHeader t_data;
+  uint32 t_len;               // Length of t_data.
+  ItemPointerData t_self;     // SelfItemPointer.
+  Oid t_table_oid;            // Table the tuple came from.
+  MemoryContext t_data_mcxt;  // Memory context of allocation.
+  HeapTupleHeader t_data;     // Tuple header and data.
 } HeapTupleData;
 
 typedef HeapTupleData* HeapTuple;
