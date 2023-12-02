@@ -36,3 +36,15 @@ call stack
 
 
 tuple
+
+MemoryContext
+    通过MemoryContextInit初始化，底层是通过AllocSet来实现
+    TopMemoryContext是通过malloc分配内存的
+    其余的context是依赖于parent context的
+
+    context的内存分配策略是
+    1. 先看下需要分配的内存大小 如果大于max chunk size 就直接分配一个block
+    2. 否则 先看下free list中有没有合适的 如果有则直接从free list中分配
+    3. 如果freelist中没有 那么从第一个block看看 是否有足够的内存 如果没有的话
+       就把block中剩余的分配到freelist中
+    4. 最终没有的 直接分配一个block 并放在链表的第一个block

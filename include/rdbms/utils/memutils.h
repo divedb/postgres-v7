@@ -28,7 +28,8 @@
 //
 //  XXX This is deliberately chosen to correspond to the limiting size
 //  of varlena objects under TOAST. See VARATT_MASK_SIZE in postgres.h.
-#define MAX_ALLOC_SIZE ((Size)0x3fffffff)  // 1 gigabyte - 1.
+#define MAX_ALLOC_SIZE            ((Size)0x3fffffff)  // 1 gigabyte - 1.
+#define ALLOC_SIZE_IS_VALID(size) (0 < (size) && (size) <= MAX_ALLOC_SIZE)
 
 // All chunks allocated by any memory context manager are required to be
 // preceded by a StandardChunkHeader at a spacing of STANDARDCHUNKHEADERSIZE.
@@ -72,6 +73,15 @@ void memory_context_reset_and_delete_children(MemoryContext context);
 void memory_context_stats(MemoryContext context);
 void memory_context_check(MemoryContext context);
 bool memory_context_contains(MemoryContext context, void* pointer);
+
+// Originally in palloc.h
+void* memory_context_alloc(MemoryContext context, Size size);
+MemoryContext memory_context_switch_to(MemoryContext context);
+char* memory_context_strdup(MemoryContext context, const char* string);
+
+void* palloc(Size size);
+void pfree(void* pointer);
+void* repalloc(void* pointer, Size size);
 
 // This routine handles the context-type-independent part of memory
 // context creation. It's intended to be called from context-type-

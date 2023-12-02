@@ -1,7 +1,7 @@
-// =========================================================================
+//===----------------------------------------------------------------------===//
 //
 // nodes.h
-//      Definitions for tagged nodes.
+//  Definitions for tagged nodes.
 //
 //
 // Portions Copyright (c) 1996=2000, PostgreSQL, Inc
@@ -9,14 +9,13 @@
 //
 // $Id: nodes.h,v 1.67 2000/04/12 17:16:40 momjian Exp $
 //
-// =========================================================================
-
+//===----------------------------------------------------------------------===//
 #ifndef RDBMS_NODES_NODES_H_
 #define RDBMS_NODES_NODES_H_
 
 #include <stdbool.h>
 
-#include "rdbms/c.h"
+#include "rdbms/postgres.h"
 
 // The first field of every node is NodeTag. Each node created (with makeNode)
 // will have one of the following tags as the value of its first field.
@@ -26,9 +25,7 @@
 typedef enum NodeTag {
   T_Invalid = 0,
 
-  // =====================
   // TAGS FOR PLAN NODES (plannodes.h)
-  // =====================
   T_Plan = 10,
   T_Result,
   T_Append,
@@ -39,20 +36,19 @@ typedef enum NodeTag {
   T_NestLoop,
   T_MergeJoin,
   T_HashJoin,
-  T_Noname,
+  T_Limit,
   T_Material,
   T_Sort,
   T_Agg,
   T_Unique,
   T_Hash,
-  T_Choose,
+  T_SetOp,
   T_Group,
   T_SubPlan,
   T_TidScan,
+  T_SubqueryScan,
 
-  // =====================
   // TAGS FOR PRIMITIVE NODES (primnodes.h)
-  // =====================
   T_Resdom = 100,
   T_Fjoin,
   T_Expr,
@@ -63,32 +59,32 @@ typedef enum NodeTag {
   T_Aggref,
   T_SubLink,
   T_Func,
-  T_Array,
+  T_FieldSelect,
   T_ArrayRef,
   T_Iter,
   T_RelabelType,
+  T_RangeTblRef,
+  T_FromExpr,
+  T_JoinExpr,
 
-  // =====================
   // TAGS FOR PLANNER NODES (relation.h)
-  // =====================
   T_RelOptInfo = 200,
   T_Path,
   T_IndexPath,
   T_NestPath,
   T_MergePath,
   T_HashPath,
+  T_TidPath,
+  T_AppendPath,
   T_PathKeyItem,
   T_RestrictInfo,
   T_JoinInfo,
   T_Stream,
-  T_TidPath,
   T_IndexOptInfo,
 
-  // =====================
   // TAGS FOR EXECUTOR NODES (execnodes.h)
-  // =====================
   T_IndexInfo = 300,
-  T_RelationInfo,
+  T_ResultRelInfo,
   T_TupleCount,
   T_TupleTableSlot,
   T_ExprContext,
@@ -113,36 +109,31 @@ typedef enum NodeTag {
   T_UniqueState,
   T_HashState,
   T_TidScanState,
+  T_SubqueryScanState,
+  T_SetOpState,
+  T_LimitState,
 
-  // =====================
   // TAGS FOR MEMORY NODES (memnodes.h)
-  // =====================
   T_MemoryContext = 400,
-  T_GlobalMemory,
-  T_PortalMemoryContext,
-  T_PortalVariableMemory,
-  T_PortalHeapMemory,
+  T_AllocSetContext,
 
-  // =====================
   // TAGS FOR VALUE NODES (pg_list.h)
-  // =====================
   T_Value = 500,
   T_List,
   T_Integer,
   T_Float,
   T_String,
+  T_BitString,
   T_Null,
 
-  // =====================
-  // TAGS FOR PARSE TREE NODES (parsenode.h)
-  // =====================
+  // TAGS FOR PARSE TREE NODES (parsenodes.h)
   T_Query = 600,
   T_InsertStmt,
   T_DeleteStmt,
   T_UpdateStmt,
   T_SelectStmt,
   T_AlterTableStmt,
-  T_AggregateStmt,
+  T_SetOperationStmt,
   T_ChangeACLStmt,
   T_ClosePortalStmt,
   T_ClusterStmt,
@@ -160,7 +151,7 @@ typedef enum NodeTag {
   T_RemoveAggrStmt,
   T_RemoveFuncStmt,
   T_RemoveOperStmt,
-  T_RemoveStmt,
+  T_RemoveStmt_XXX,  // Not used anymore; tag# available.
   T_RenameStmt,
   T_RuleStmt,
   T_NotifyStmt,
@@ -190,6 +181,7 @@ typedef enum NodeTag {
   T_AlterGroupStmt,
   T_DropGroupStmt,
   T_ReindexStmt,
+  T_CheckPointStmt,
 
   T_A_Expr = 700,
   T_Attr,
@@ -200,7 +192,7 @@ typedef enum NodeTag {
   T_A_Indices,
   T_ResTarget,
   T_TypeCast,
-  T_RelExpr,
+  T_RangeSubselect,
   T_SortGroupBy,
   T_RangeVar,
   T_TypeName,
@@ -212,12 +204,16 @@ typedef enum NodeTag {
   T_RangeTblEntry,
   T_SortClause,
   T_GroupClause,
-  T_SubSelect,
-  T_JoinExpr,
+  T_SubSelectXXX,    // Not used anymore; tag# available.
+  T_oldJoinExprXXX,  // Not used anymore; tag# available.
   T_CaseExpr,
   T_CaseWhen,
-  T_RowMark,
-  T_FkConstraint
+  T_RowMarkXXX,  // Not used anymore; tag# available.
+  T_FkConstraint,
+
+  // TAGS FOR FUNCTION-CALL CONTEXT AND RESULTINFO NODES (see fmgr.h)
+  T_TriggerData = 800,  // In commands/trigger.h
+  T_ReturnSetInfo       // In nodes/execnodes.h
 } NodeTag;
 
 // The first field of a node of any type is guaranteed to be the NodeTag.
