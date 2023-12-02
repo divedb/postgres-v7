@@ -694,6 +694,91 @@ static void* alloc_set_realloc(MemoryContext context, void* pointer, Size size) 
   }
 }
 
-static void alloc_set_init(MemoryContext context);
-static void alloc_set_reset(MemoryContext context);
-static void alloc_set_delete(MemoryContext context);
+// This is called by MemoryContextCreate() after setting up the
+// generic MemoryContext fields and before linking the new context
+// into the context tree.  We must do whatever is needed to make the
+// new context minimally valid for deletion.  We must *not* risk
+// failure --- thus, for example, allocating more memory is not cool.
+// (AllocSetContextCreate can allocate memory when it gets control
+// back, however.)
+static void alloc_set_init(MemoryContext context) {}
+
+// Frees all memory which is allocated in the given set.
+//
+// Actually, this routine has some discretion about what to do.
+// It should mark all allocated chunks freed, but it need not
+// necessarily give back all the resources the set owns.  Our
+// actual implementation is that we hang on to any "keeper"
+// block specified for the set.
+static void alloc_set_reset(MemoryContext context) {
+  AllocSet set = (AllocSet)context;
+  AllocBlock block = set->blocks;
+
+  assert(ALLOC_SET_IS_VALID(set));
+
+#ifdef MEMORY_CONTEXT_CHECKING
+  // Check for corruption and leaks before freeing.
+  alloc_set_check(context);
+#endif
+
+  // Clear chunk freelists.
+  MEMSET(set->freelist, 0, sizeof(set->freelist));
+
+  // New blocks list is either empty or just the keeper block.
+  set->blocks = set->keeper;
+
+  while (block != NULL) {
+    AllocBlock next = block->next;
+
+    if (block == set->keeper) {
+      // Reset the block, but don't return it to malloc.
+      char* data_start = ((char*)block) + ALLOC_BLOCK_HDR_SZ;
+
+#ifdef CLOBBER_FREED_MEMORY
+      // Wipe freed memory for debugging purposes.
+      memset(data_start, 0x7F, block->freeptr - data_start);
+#endif
+      block->freeptr = data_start;
+      block->next = NULL;
+    } else {
+      // Normal case, release the block.
+#ifdef CLOBBER_FREED_MEMORY
+      memset(block, 0x7F, block->freeptr - ((char*)block));
+#endif
+      free(block);
+    }
+
+    block = next;
+  }
+}
+
+// Frees all memory which is allocated in the given set,
+// in preparation for deletion of the set.
+//
+// Unlike AllocSetReset, this *must* free all resources of the set.
+// But note we are not responsible for deleting the context node itself.
+static void alloc_set_delete(MemoryContext context) {
+  AllocSet set = (AllocSet)context;
+  AllocBlock block = set->blocks;
+
+  assert(ALLOC_SET_IS_VALID(set));
+
+#ifdef MEMORY_CONTEXT_CHECKING
+  alloc_set_check(context);
+#endif
+
+  MEMSET(set->freelist, 0, sizeof(set->freelist));
+  set->blocks = NULL;
+  set->keeper = NULL;
+
+  while (block != NULL) {
+    AllocBlock next = block->next;
+
+#ifdef CLOBBER_FREED_MEMORY
+    memset(block, 0x7F, block->freeptr - ((char*)block));
+#endif
+
+    free(block);
+    block = next;
+  }
+}
