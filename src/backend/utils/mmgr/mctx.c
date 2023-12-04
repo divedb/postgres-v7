@@ -80,7 +80,36 @@ void memory_context_reset(MemoryContext context) {
   (*context->methods->reset)(context);
 }
 
-void memory_context_delete(MemoryContext context) {}
+void memory_context_delete(MemoryContext context) {
+  assert(MEMORY_CONTEXT_IS_VALID(context));
+  assert(context != TopMemoryContext);
+  assert(context != CurrentMemoryContext);
+
+  memory_context_delete_children(context);
+
+  // We delink the context from its parent before deleting it, so that
+  // if there's an error we won't have deleted/busted contexts still
+  // attached to the context tree.  Better a leak than a crash.
+  if (context->parent) {
+    MemoryContext parent = context->parent;
+
+    if (context == parent->firstchild) {
+      parent->firstchild = context->nextchild;
+    } else {
+      MemoryContext child;
+
+      for (child = parent->firstchild; child; child = child->nextchild) {
+        if (context == child->nextchild) {
+          child->nextchild = context->nextchild;
+          break;
+        }
+      }
+    }
+  }
+
+  (*context->methods->delete)(context);
+  pfree(context);
+}
 
 // Release all space allocated within a context's descendants,
 // but don't delete the contexts themselves. The named context
@@ -93,6 +122,28 @@ void memory_context_reset_children(MemoryContext context) {
   for (child = context->firstchild; child != NULL; child = child->nextchild) {
     memory_context_reset(child);
   }
+}
+
+void memory_context_delete_children(MemoryContext context) {
+  assert(MEMORY_CONTEXT_IS_VALID(context));
+
+  // MemoryContextDelete will delink the child from me, so just iterate
+  // as long as there is a child.
+  while (context->firstchild != NULL) {
+    memory_context_delete(context->firstchild);
+  }
+}
+
+// Release all space allocated within a context and delete all
+// its descendants.
+//
+// This is a common combination case where we want to preserve the
+// specific context but get rid of absolutely everything under it.
+void memory_context_reset_and_delete_children(MemoryContext context) {
+  assert(MEMORY_CONTEXT_IS_VALID(context));
+
+  memory_context_delete_children(context);
+  (*context->methods->reset)(context);
 }
 
 // Context-type-independent part of context creation.
@@ -204,7 +255,35 @@ void memory_context_check(MemoryContext context) {
 }
 #endif
 
-bool memory_context_contains(MemoryContext context, void* pointer) {}
+// Detect whether an allocated chunk of memory belongs to a given
+// context or not.
+//
+// Caution: this test is reliable as long as 'pointer' does point to
+// a chunk of memory allocated from *some* context.  If 'pointer' points
+// at memory obtained in some other way, there is a small chance of a
+// false-positive result, since the bits right before it might look like
+// a valid chunk header by chance.
+bool memory_context_contains(MemoryContext context, void* pointer) {
+  StandardChunkHeader* header;
+
+  // Try to detect bogus pointers handed to us, poorly though we can.
+  // Presumably, a pointer that isn't MAXALIGNED isn't pointing at an
+  // allocated chunk.
+  if (pointer == NULL || pointer != (void*)MAX_ALIGN(pointer)) {
+    return false;
+  }
+
+  header = (StandardChunkHeader*)((char*)pointer - STANDARD_CHUNK_HEADER_SIZE);
+
+  // If the context link doesn't match then we certainly have a
+  // non-member chunk. Also check for a reasonable-looking size as
+  // extra guard against being fooled by bogus pointers.
+  if (header->context == context && ALLOC_SIZE_IS_VALID(header->size)) {
+    return true;
+  }
+
+  return false;
+}
 
 void* memory_context_alloc(MemoryContext context, Size size) {
   assert(MEMORY_CONTEXT_IS_VALID(context));
@@ -250,4 +329,24 @@ void pfree(void* pointer) {
   assert(MEMORY_CONTEXT_IS_VALID(header->context));
 
   (*header->context->methods->free_p)(header->context, pointer);
+}
+
+void* repalloc(void* pointer, Size size) {
+  StandardChunkHeader* header;
+
+  // Try to detect bogus pointers handed to us, poorly though we can.
+  // Presumably, a pointer that isn't MAXALIGNED isn't pointing at an
+  // allocated chunk.
+  assert(pointer != NULL);
+  assert(pointer == (void*)MAX_ALIGN(pointer));
+
+  header = (StandardChunkHeader*)((char*)pointer - STANDARD_CHUNK_HEADER_SIZE);
+
+  assert(MEMORY_CONTEXT_IS_VALID(header->context));
+
+  if (!ALLOC_SIZE_IS_VALID(size)) {
+    elog(ERROR, "%s: invalid request size %lu", __func__, (unsigned long)size);
+  }
+
+  return (*header->context->methods->realloc)(header->context, pointer, size);
 }

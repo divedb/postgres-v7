@@ -30,10 +30,6 @@ trace
     shmem hash和ipc 
     lock
 
-先把bootstrap运行起来
-call stack
-    BootstrapMain
-
 
 tuple
 
@@ -48,3 +44,8 @@ MemoryContext
     3. 如果freelist中没有 那么从第一个block看看 是否有足够的内存 如果没有的话
        就把block中剩余的分配到freelist中
     4. 最终没有的 直接分配一个block 并放在链表的第一个block
+
+
+先把bootstrap运行起来
+call stack
+    BootstrapMain

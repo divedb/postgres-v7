@@ -782,3 +782,79 @@ static void alloc_set_delete(MemoryContext context) {
     block = next;
   }
 }
+
+#ifdef MEMORY_CONTEXT_CHECKING
+// Walk through chunks and check consistency of memory.
+//
+// NOTE: report errors as NOTICE, *not* ERROR or FATAL.  Otherwise you'll
+// find yourself in an infinite loop when trouble occurs, because this
+// routine will be entered again when elog cleanup tries to release memory!
+static void alloc_set_check(MemoryContext context) {
+  AllocSet set = (AllocSet)context;
+  char* name = set->header.name;
+
+  AllocBlock block;
+
+  for (block = set->blocks; block != NULL; block = block->next) {
+    char* bpoz = ((char*)block) + ALLOC_BLOCK_HDR_SZ;
+    long blk_used = block->freeptr - bpoz;
+    long blk_data = 0;
+    long nchunks = 0;
+
+    // Empty block - empty can be keeper-block only.
+    if (!blk_used) {
+      if (set->keeper != block) {
+        elog(NOTICE, "%s: %s: empty block %p", __func__, name, block);
+      }
+    }
+
+    // Chunk walker.
+    while (bpoz < block->freeptr) {
+      AllocChunk chunk = (AllocChunk)bpoz;
+      Size chsize;
+      Size dsize;
+
+      char* chdata_end;
+      chsize = chunk->size;           // Aligned chunk size.
+      dsize = chunk->requested_size;  // Real data.
+      chdata_end = ((char*)chunk) + (ALLOC_CHUNK_HDR_SZ + dsize);
+
+      // Check chunk size.
+      if (dsize > chsize) {
+        elog(NOTICE, "%s: %s: req size > alloc size for chunk %p in block %p", __func__, name, chunk, block);
+      }
+
+      if (chsize < (1 << ALLOC_MIN_BITS)) {
+        elog(NOTICE, "%s: %s: bad size %lu for chunk %p in block %p", __func__, name, (unsigned long)chsize, chunk,
+             block);
+      }
+
+      // Single-chunk block?
+      if (chsize > ALLOC_CHUNK_LIMIT && chsize + ALLOC_CHUNK_HDR_SZ != blk_used) {
+        elog(NOTICE, "%s: %s: bad single-chunk %p in block %p", __func__, name, chunk, block);
+      }
+
+      // If chunk is allocated, check for correct aset pointer. (If
+      // it's free, the aset is the freelist pointer, which we can't
+      // check as easily...)
+      if (dsize > 0 && chunk->aset != (void*)set) {
+        elog(NOTICE, "%s: %s: bogus aset link in block %p, chunk %p", __func__, name, block, chunk);
+      }
+
+      // Check for overwrite of "unallocated" space in chunk
+      if (dsize > 0 && dsize < chsize && *chdata_end != 0x7E) {
+        elog(NOTICE, "%s: %s: detected write past chunk end in block %p, chunk %p", __func__, name, block, chunk);
+      }
+
+      blk_data += chsize;
+      nchunks++;
+
+      bpoz += ALLOC_CHUNK_HDR_SZ + chsize;
+    }
+
+    if ((blk_data + (nchunks * ALLOC_CHUNK_HDR_SZ)) != blk_used) {
+      elog(NOTICE, "%s: %s: found inconsistent memory block %p", __func__, name, block);
+    }
+  }
+}
+#endif
