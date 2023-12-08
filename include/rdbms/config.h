@@ -66,4 +66,9 @@
 
 #define MAX_PG_PATH 1024
 
+// Memory context debug.
+#define MEMORY_CONTEXT_CHECKING
+#define HAVE_ALLOC_INFO
+#define CLOBBER_FREED_MEMORY
+
 #endif  // RDBMS_CONFIG_H_

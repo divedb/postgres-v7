@@ -1,7 +1,7 @@
 add_subdirectory(misc)
 add_subdirectory(mmgr)
 add_subdirectory(error)
-add_subdirectory(adt)
+# add_subdirectory(adt)
 add_subdirectory(init)
 
 add_library(utils INTERFACE)

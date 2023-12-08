@@ -140,7 +140,7 @@ typedef struct AllocBlockData {
 // NB: this MUST match StandardChunkHeader as defined by utils/memutils.h
 typedef struct AllocChunkData {
   void* aset;  // aset is the owning aset if allocated, or the freelist link if free.
-  Size size;   //  size is always the size of the usable space in the chunk.
+  Size size;   // size is always the size of the usable space in the chunk.
 
 #ifdef MEMORY_CONTEXT_CHECKING
   // When debugging memory usage, also store actual requested size
@@ -179,9 +179,9 @@ static MemoryContextMethods AllocSetMethods = {alloc_set_alloc, alloc_set_free, 
 
 #ifdef HAVE_ALLOC_INFO
 #define ALLOC_FREE_INFO(cxt, chunk) \
-  fprintf(stderr, "%s: %s: %p, %d\n", __func__, (cxt)->header.name, (chunk), (chunk)->size)
+  fprintf(stderr, "%s: %s: %p, %ld\n", __func__, (cxt)->header.name, (chunk), (chunk)->size)
 #define ALLOC_ALLOC_INFO(cxt, chunk) \
-  fprintf(stderr, "%s: %s: %p, %d\n", __func__, (cxt)->header.name, (chunk), (chunk)->size)
+  fprintf(stderr, "%s: %s: %p, %ld\n", __func__, (cxt)->header.name, (chunk), (chunk)->size)
 #else
 #define ALLOC_FREE_INFO(cxt, chunk)
 #define ALLOC_ALLOC_INFO(cxt, chunk)
@@ -361,7 +361,7 @@ static void* alloc_set_alloc(MemoryContext context, Size size) {
   assert(chunk_size >= size);
 
   // If there is enough room in the active allocation block, we will put
-  // the chunk into that block.  Else must start a new one.
+  // the chunk into that block. Else must start a new one.
   if ((block = set->blocks) != NULL) {
     Size avail_space = block->endptr - block->freeptr;
 
@@ -479,7 +479,7 @@ static void* alloc_set_alloc(MemoryContext context, Size size) {
 
 #ifdef MEMORY_CONTEXT_CHECKING
   chunk->requested_size = size;
-  /* set mark to catch clobber of "unused" space */
+  // Set mark to catch clobber of "unused" space.
   if (size < chunk->size) {
     ((char*)ALLOC_CHUNK_GET_POINTER(chunk))[size] = 0x7E;
   }
@@ -524,10 +524,10 @@ static void alloc_set_free(MemoryContext context, void* pointer) {
       elog(ERROR, "%s: cannot find block containing chunk %p", __func__, chunk);
     }
 
-    // let's just make sure chunk is the only one in the block.
+    // Let's just make sure chunk is the only one in the block.
     assert(block->freeptr == ((char*)block) + (chunk->size + ALLOC_BLOCK_HDR_SZ + ALLOC_CHUNK_HDR_SZ));
 
-    // OK, remove block from aset's list and free it.
+    // Remove block from aset's list and free it.
     if (prev_block == NULL) {
       set->blocks = block->next;
     } else {
@@ -539,7 +539,6 @@ static void alloc_set_free(MemoryContext context, void* pointer) {
     memset(block, 0x7F, block->freeptr - ((char*)block));
 #endif
 
-    // TODO(gc): why free here?
     free(block);
   } else {
     // Normal case, put the chunk into appropriate freelist.
@@ -569,8 +568,8 @@ static void* alloc_set_realloc(MemoryContext context, void* pointer, Size size) 
   Size old_size = chunk->size;
 
 #ifdef MEMORY_CONTEXT_CHECKING
-  /* Test for someone scribbling on unused space in chunk */
-  if (chunk->requested_size < oldsize) {
+  // Test for someone scribbling on unused space in chunk.
+  if (chunk->requested_size < old_size) {
     if (((char*)pointer)[chunk->requested_size] != 0x7E) {
       elog(NOTICE, "%s: detected write past chunk end in %s %p", __func__, set->header.name, chunk);
     }
@@ -584,7 +583,7 @@ static void* alloc_set_realloc(MemoryContext context, void* pointer, Size size) 
 #ifdef MEMORY_CONTEXT_CHECKING
     chunk->requested_size = size;
 
-    if (size < oldsize) {
+    if (size < old_size) {
       ((char*)pointer)[size] = 0x7E;
     }
 #endif

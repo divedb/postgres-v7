@@ -45,6 +45,13 @@ MemoryContext
        就把block中剩余的分配到freelist中
     4. 最终没有的 直接分配一个block 并放在链表的第一个block
 
+AllocSet分配策略
+    超过8K的，直接malloc分配
+
+AllocSet释放策略
+    >8K的，直接free 归还给操作系统
+    <=8K的 放到freelist中
+
 
 先把bootstrap运行起来
 call stack

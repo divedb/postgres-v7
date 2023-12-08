@@ -221,19 +221,6 @@ error/fast:
 .PHONY : error/fast
 
 #=============================================================================
-# Target rules for targets named adt
-
-# Build rule for target.
-adt: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 adt
-.PHONY : adt
-
-# fast build rule for target.
-adt/fast:
-	$(MAKE) $(MAKESILENT) -f src/backend/utils/adt/CMakeFiles/adt.dir/build.make src/backend/utils/adt/CMakeFiles/adt.dir/build
-.PHONY : adt/fast
-
-#=============================================================================
 # Target rules for targets named enbl
 
 # Build rule for target.
@@ -293,7 +280,6 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... adt"
 	@echo "... aset"
 	@echo "... buffer"
 	@echo "... enbl"

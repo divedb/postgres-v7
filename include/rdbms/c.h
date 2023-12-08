@@ -152,11 +152,11 @@ typedef NameData* Name;
 // That case seems extremely unlikely to occur in practice, however.
 #define TYPE_ALIGN(alignment, size) (((long)(size) + (alignment - 1)) & ~(alignment - 1))
 
-#define SHORT_ALIGN(LEN)  TYPE_ALIGN(_Alignof(short), LEN)
-#define INT_ALIGN(LEN)    TYPE_ALIGN(_Alignof(int), LEN)
-#define LONG_ALIGN(LEN)   TYPE_ALIGN(_Alignof(long), LEN)
-#define DOUBLE_ALIGN(LEN) TYPE_ALIGN(_Alignof(double), LEN)
-#define MAX_ALIGN(LEN)    TYPE_ALIGN(_Alignof(max_align_t), LEN)
+#define SHORT_ALIGN(size)  TYPE_ALIGN(_Alignof(short), size)
+#define INT_ALIGN(size)    TYPE_ALIGN(_Alignof(int), size)
+#define LONG_ALIGN(size)   TYPE_ALIGN(_Alignof(long), size)
+#define DOUBLE_ALIGN(size) TYPE_ALIGN(_Alignof(double), size)
+#define MAX_ALIGN(size)    TYPE_ALIGN(_Alignof(max_align_t), size)
 
 //===----------------------------------------------------------------------===//
 // Section 6: widely useful macros

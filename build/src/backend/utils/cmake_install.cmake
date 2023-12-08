@@ -42,7 +42,6 @@ if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   include("/Users/zlh/Documents/Git/postgres-v7/build/src/backend/utils/misc/cmake_install.cmake")
   include("/Users/zlh/Documents/Git/postgres-v7/build/src/backend/utils/mmgr/cmake_install.cmake")
   include("/Users/zlh/Documents/Git/postgres-v7/build/src/backend/utils/error/cmake_install.cmake")
-  include("/Users/zlh/Documents/Git/postgres-v7/build/src/backend/utils/adt/cmake_install.cmake")
   include("/Users/zlh/Documents/Git/postgres-v7/build/src/backend/utils/init/cmake_install.cmake")
 
 endif()

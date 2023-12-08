@@ -1,6 +1,3 @@
-#define MEMORY_CONTEXT_CHECKING
-#define HAVE_ALLOC_INFO
-
 #include "../template.h"
 #include "rdbms/utils/memutils.h"
 
@@ -19,11 +16,12 @@ static void test_alloc_and_free() {
   for (int i = 0; i < LENGTH_OF(sizes); i++) {
     pfree(pointers[i]);
   }
+
+  alloc_set_reset(TopMemoryContext);
+
+  free(TopMemoryContext);
 }
 
-static void register_test() {
-  TEST("Test alloc and free.", test_alloc_and_free);
-  // TEST("Test alloc and free.", test_alloc_and_free);
-}
+static void register_test() { TEST("Test alloc and free.", test_alloc_and_free); }
 
 MAIN("Memory Context")

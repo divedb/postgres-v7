@@ -26,9 +26,6 @@
 /Users/zlh/Documents/Git/postgres-v7/build/src/backend/utils/error/CMakeFiles/error.dir
 /Users/zlh/Documents/Git/postgres-v7/build/src/backend/utils/error/CMakeFiles/edit_cache.dir
 /Users/zlh/Documents/Git/postgres-v7/build/src/backend/utils/error/CMakeFiles/rebuild_cache.dir
-/Users/zlh/Documents/Git/postgres-v7/build/src/backend/utils/adt/CMakeFiles/adt.dir
-/Users/zlh/Documents/Git/postgres-v7/build/src/backend/utils/adt/CMakeFiles/edit_cache.dir
-/Users/zlh/Documents/Git/postgres-v7/build/src/backend/utils/adt/CMakeFiles/rebuild_cache.dir
 /Users/zlh/Documents/Git/postgres-v7/build/src/backend/utils/init/CMakeFiles/enbl.dir
 /Users/zlh/Documents/Git/postgres-v7/build/src/backend/utils/init/CMakeFiles/globals.dir
 /Users/zlh/Documents/Git/postgres-v7/build/src/backend/utils/init/CMakeFiles/edit_cache.dir
