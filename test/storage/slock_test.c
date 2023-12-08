@@ -8,7 +8,7 @@
 #define ADD_TEST_MACRO(suite, description, func)         \
   do {                                                   \
     if (NULL == CU_add_test(suite, description, func)) { \
-      goto CLEANUP;                                      \
+      goto clean_up;                                     \
     }                                                    \
   } while (0)
 
@@ -67,7 +67,7 @@ int main() {
   CU_pSuite suite = CU_add_suite("SLock", NULL, NULL);
 
   if (suite == NULL) {
-    goto CLEANUP;
+    goto clean_up;
   }
 
   ADD_TEST_MACRO(suite, "Test lock and unlock with 4 threads.", test_lock_and_unlock);
@@ -75,7 +75,7 @@ int main() {
   CU_basic_set_mode(CU_BRM_VERBOSE);
   CU_basic_run_tests();
 
-CLEANUP:
+clean_up:
   CU_cleanup_registry();
 
   return CU_get_error();

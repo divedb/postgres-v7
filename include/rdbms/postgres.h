@@ -1,32 +1,17 @@
 //===----------------------------------------------------------------------===//
 // postgres.h
-//  definition of (and support for) postgres system types.
-//  this file is included by almost every .c in the system
+//  Primary include file for PostgreSQL server .c files
 //
-// Portions Copyright (c) 1996-2000, PostgreSQL, Inc
+// This should be the first file included by PostgreSQL backend modules.
+// Client-side code should include postgres_fe.h instead.
+//
+//
+// Portions Copyright (c) 1996-2001, PostgreSQL Global Development Group
 // Portions Copyright (c) 1995, Regents of the University of California
 //
-// $Id: postgres.h,v 1.38 2000/04/12 17:16:24 momjian Exp $
+// $Id: postgres.h,v 1.48 2001/03/23 18:26:01 tgl Exp $
+//
 //===----------------------------------------------------------------------===//
-
-// This file will eventually contain the definitions for the
-// following (and perhaps other) system types:
-//
-//  int2    int4    float4    float8
-//  Oid     regproc RegProcedure
-//  aclitem
-//  struct VarLena
-//  int2vector    oidvector
-//  bytea    text
-//  NameData   Name
-//
-//  TABLE OF CONTENTS
-//    1) simple type definitions
-//    2) VarLena and array types
-//    3) TransactionId and CommandId
-//    4) genbki macros used by catalog/pg_xxx.h files
-//    5) random stuff
-
 #ifndef RDBMS_POSTGRES_H_
 #define RDBMS_POSTGRES_H_
 
@@ -34,78 +19,200 @@
 #include "rdbms/config.h"
 #include "rdbms/postgres_ext.h"
 
-// ================================================
-// Section 1: simple type definitions
-// ================================================
+//===----------------------------------------------------------------------===//
+// Section 1: variable-length datatypes (TOAST support)
+//===----------------------------------------------------------------------===//
+// Struct varattrib is the header of a varlena object that may have been TOASTed.
+#define TUPLE_TOASTER_ACTIVE
 
-typedef int16 int2;
-typedef int32 int4;
-typedef float float4;
-typedef double float8;
+typedef struct VarAttrib {
+  int32 va_header; /* External/compressed storage */
+  /* flags and item size */
+  union {
+    struct {
+      int32 va_rawsize;  // Plain data size.
+      char va_data[1];   // Compressed data.
+    } va_compressed;     // Compressed stored attribute.
 
-typedef int4 aclitem;
+    struct {
+      int32 va_rawsize;   // Plain data size.
+      int32 va_extsize;   // External saved size.
+      Oid va_valueid;     // Unique identifier of value.
+      Oid va_toastrelid;  // RelID where to find chunks.
+      Oid va_toastidxid;  // Main tables row Oid.
+      Oid va_rowid;       // Referencing row Oid.
+      int16 va_attno;     // Main tables attno.
+    } va_external;        // External stored attribute.
 
-#define INVALID_OID             0
-#define OID_IS_VALID(object_id) ((bool)((object_id) != INVALID_OID))
+    char va_data[1];  // Plain stored attribute.
+  } va_content;
+} VarAttrib;
 
-// Unfortunately, both regproc and RegProcedure are used
-typedef Oid regproc;
-typedef Oid RegProcedure;
+#define VARATT_FLAG_EXTERNAL   0x80000000
+#define VARATT_FLAG_COMPRESSED 0x40000000
+#define VARATT_MASK_FLAGS      0xc0000000
+#define VARATT_MASK_SIZE       0x3fffffff
 
-// Pointer to func returning (char *)
-typedef char*((*func_ptr)());
+#define VARATT_SIZEP(ptr) (((VarAttrib*)(ptr))->va_header)
+#define VARATT_SIZE(ptr)  (VARATT_SIZEP(ptr) & VARATT_MASK_SIZE)
+#define VARATT_DATA(ptr)  (((VarAttrib*)(ptr))->va_content.va_data)
+#define VARATT_CDATA(ptr) (((VarAttrib*)(ptr))->va_content.va_compressed.va_data)
 
-#define REG_PROCEDURE_IS_VALID(p) OID_IS_VALID(p)
+#define VARSIZE(ptr) VARATT_SIZE(ptr)
+#define VARDATA(ptr) VARATT_DATA(ptr)
 
-// ================================================
-// Section 2: variable length and array types
-// ================================================
+#define VARATT_IS_EXTENDED(ptr)   ((VARATT_SIZEP(ptr) & VARATT_MASK_FLAGS) != 0)
+#define VARATT_IS_EXTERNAL(ptr)   ((VARATT_SIZEP(ptr) & VARATT_FLAG_EXTERNAL) != 0)
+#define VARATT_IS_COMPRESSED(ptr) ((VARATT_SIZEP(ptr) & VARATT_FLAG_COMPRESSED) != 0)
 
-struct VarLena {
-  int32 vl_len;
-  char vl_dat[1];
-};
+//===----------------------------------------------------------------------===//
+// Section 2: datum type + support macros
+//===----------------------------------------------------------------------===//
+// Port Notes:
+//  Postgres makes the following assumption about machines:
+//
+//  sizeof(Datum) == sizeof(long) >= sizeof(void *) >= 4
+//
+//  Postgres also assumes that
+//
+//  sizeof(char) == 1
+//
+//  and that
+//
+//  sizeof(short) == 2
+//
+//  If your machine meets these requirements, Datums should also be checked
+//  to see if the positioning is correct.
+typedef unsigned long Datum;  // XXX sizeof(long) >= sizeof(void *)
+typedef Datum* DatumPtr;
 
-#define VARSIZE(ptr) (((struct VarLena*)(ptr))->vl_len)
-#define VARDATA(ptr) (((struct VarLena*)(ptr))->vl_dat)
-#define VARHDRSZ     ((int32)sizeof(int32))
+#define GET_1_BYTE(datum)  (((Datum)(datum)) & 0x000000ff)
+#define GET_2_BYTES(datum) (((Datum)(datum)) & 0x0000ffff)
+#define GET_4_BYTES(datum) (((Datum)(datum)) & 0xffffffff)
+#define SET_1_BYTE(value)  (((Datum)(value)) & 0x000000ff)
+#define SET_2_BYTES(value) (((Datum)(value)) & 0x0000ffff)
+#define SET_4_BYTES(value) (((Datum)(value)) & 0xffffffff)
 
-typedef struct VarLena Bytea;
-typedef struct VarLena Text;
-typedef struct VarLena BpChar;   // Blank-padded char, ie SQL char(n).
-typedef struct VarLena VarChar;  // Var-length char, ie SQL varchar(n).
+#define DATUM_GET_BOOL(x)        ((bool)(((Datum)(x)) != 0))
+#define BOOL_GET_DATUM(x)        ((Datum)((x) ? 1 : 0))
+#define DATUM_GET_CHAR(x)        ((char)GET_1_BYTE(x))
+#define CHAR_GET_DATUM(x)        ((Datum)SET_1_BYTE(x))
+#define INT8_GET_DATUM(x)        ((Datum)SET_1_BYTE(x))
+#define DATUM_GET_UINT8(x)       ((uint8)GET_1_BYTE(x))
+#define UINT8_GET_DATUM(x)       ((Datum)SET_1_BYTE(x))
+#define DATUM_GET_INT16(x)       ((int16)GET_2_BYTES(x))
+#define INT16_GET_DATUM(x)       ((Datum)SET_2_BYTES(x))
+#define DATUM_GET_UINT16(x)      ((uint16)GET_2_BYTES(x))
+#define UINT16_GET_DATUM(x)      ((Datum)SET_2_BYTES(x))
+#define DATUM_GET_INT32(x)       ((int32)GET_4_BYTES(x))
+#define INT32_GET_DATUM(x)       ((Datum)SET_4_BYTES(x))
+#define DATUM_GET_UINT32(x)      ((uint32)GET_4_BYTES(x))
+#define UINT32_GET_DATUM(x)      ((Datum)SET_4_BYTES(x))
+#define DATUM_GET_OBJECT_ID(x)   ((Oid)GET_4_BYTES(x))
+#define OBJECT_ID_GET_DATUM(x)   ((Datum)SET_4_BYTES(x))
+#define DATUM_GET_POINTER(x)     ((Pointer)(x))
+#define POINTER_GET_DATUM(x)     ((Datum)(x))
+#define DATUM_GET_CSTRING(x)     ((char*)DATUM_GET_POINTER(x))
+#define CSTRING_GET_DATUM(x)     POINTER_GET_DATUM(x)
+#define DATUM_GET_NAME(x)        ((Name)DATUM_GET_POINTER((Datum)(x)))
+#define NAME_GET_DATUM(x)        POINTER_GET_DATUM((Pointer)(x))
+#define DATUM_GET_INT64(x)       (*((int64*)DATUM_GET_POINTER(x)))
+#define DATUM_GET_FLOAT4(x)      (*(float4*)DATUM_GET_POINTER(x))
+#define DATUM_GET_FLOAT8(x)      (*(float8*)DATUM_GET_POINTER(x))
+#define DATUM_GET_FLOAT32(x)     ((float32)DATUM_GET_POINTER(x))
+#define FLOAT32_GET_DATUM(x)     POINTER_GET_DATUM((Pointer)(x))
+#define DATUM_GET_FLOAT64(x)     ((float64)DATUM_GET_POINTER(x))
+#define FLOAT64_GET_DATUM(x)     POINTER_GET_DATUM((Pointer)(x))
+#define INT64_GET_DATUM_FAST(x)  POINTER_GET_DATUM(&(x))
+#define FLOAT4_GET_DATUM_FAST(x) POINTER_GET_DATUM(&(x))
+#define FLOAT8_GET_DATUM_FAST(x) POINTER_GET_DATUM(&(x))
 
-typedef int2 Int2Vector[INDEX_MAX_KEYS];
-typedef Oid OidVector[INDEX_MAX_KEYS];
+//===----------------------------------------------------------------------===//
+// Section 3: exception handling definitions
+//            Assert, Trap, etc macros
+//===----------------------------------------------------------------------===//
+typedef char* ExcMessage;
+typedef struct Exception {
+  ExcMessage message;
+} Exception;
 
-// We want NameData to have length NAMEDATALEN and int alignment,
-// because that's how the data type 'name' is defined in pg_type.
-// Use a union to make sure the compiler agrees.
-// TODO(gc): does alignment_dummy makes sense here?
-typedef union NameData {
-  char data[NAME_DATA_LEN];
-  int alignment_dummy;
-} NameData;
+extern Exception FailedAssertion;
+extern Exception BadArg;
+extern Exception BadState;
 
-typedef NameData* Name;
+extern bool AssertEnabled;
 
-#define NAME_STR(name) ((name).data)
+// Generates an exception if the given condition is true.
+#define TRAP(condition, exception)                                                                    \
+  do {                                                                                                \
+    if ((AssertEnabled) && (condition))                                                               \
+      exceptional_condition(CPP_AS_STRING(condition), &(exception), (char*)NULL, __FILE__, __LINE__); \
+  } while (0)
 
-// ================================================
-// Section 3: TransactionId and CommandId
-// ================================================
+// TrapMacro is the same as Trap but it's intended for use in macros:
+//
+//  #define foo(x) (AssertM(x != 0) && bar(x))
+//
+// Isn't CPP fun?
+#define TRAP_MACRO(condition, exception)      \
+  ((bool)((!AssertEnabled) || !(condition) || \
+          (exceptional_condition(CPP_AS_STRING(condition), &(exception), (char*)NULL, __FILE__, __LINE__))))
 
-typedef uint32 TransactionId;
-#define INVALID_TRANSACTION_ID 0
+#ifndef USE_ASSERT_CHECKING
+#define ASSERT(condition)
+#define ASSERT_MACRO(condition) ((void)true)
+#define ASSERT_ARG(condition)
+#define ASSERT_STATE(condition)
+#define AssertEnabled 0
+#else
+#define ASSERT(condition)       TRAP(!(condition), FailedAssertion)
+#define ASSERT_MACRO(condition) ((void)TRAP_MACRO(!(condition), FailedAssertion))
+#define ASSERT_ARG(condition)   TRAP(!(condition), BadArg)
+#define ASSERT_STATE(condition) TRAP(!(condition), BadState)
+#endif
 
-typedef uint32 CommandId;
-#define FIRST_COMMAND_ID 0
+// Generates an exception with a message if the given condition is true.
+#define LOG_TRAP(condition, exception, print_args)                                                                 \
+  do {                                                                                                             \
+    if ((AssertEnabled) && (condition))                                                                            \
+      exceptional_condition(CPP_AS_STRING(condition), &(exception), vararg_format print_args, __FILE__, __LINE__); \
+  } while (0)
 
-// ================================================
-// Section 4: genbki macros used by the
-//            catalog/pg_xxx.h files
-// ================================================
+// This is the same as LogTrap but it's intended for use in macros:
+//
+//  #define foo(x) (LogAssertMacro(x != 0, "yow!") && bar(x))
+#define LOG_TRAP_MACRO(condition, exception, print_args)                                                     \
+  ((bool)((!AssertEnabled) || !(condition) ||                                                                \
+          (exceptional_condition(CPP_AS_STRING(condition), &(exception), vararg_format print_args, __FILE__, \
+                                 __LINE__))))
 
+extern int exceptional_condition(char* condition_name, Exception* exceptionp, char* details, char* filename,
+                                 int line_number);
+extern char* vararg_format(const char* fmt, ...);
+
+#ifndef USE_ASSERT_CHECKING
+
+#define LOG_ASSERT(condition, print_args)
+#define LOG_ASSERT_MACRO(condition, print_args) true
+#define LOG_ASSERT_ARG(condition, print_args)
+#define LOG_ASSERT_STATE(condition, print_args)
+
+#else
+
+#define LOG_ASSERT(condition, print_args)       LOG_TRAP_(!(condition), FailedAssertion, print_args)
+#define LOG_ASSERT_MACRO(condition, print_args) LOG_TRAP_MACRO(!(condition), FailedAssertion, print_args)
+#define LOG_ASSERT_ARG(condition, print_args)   LOG_TRAP_(!(condition), BadArg, print_args)
+#define LOG_ASSERT_STATE(condition, print_args) LOG_TRAP_(!(condition), BadState, print_args)
+
+#ifdef ASSERT_CHECKING_TEST
+extern int assert_test(int val);
+#endif
+
+#endif
+
+//===----------------------------------------------------------------------===//
+// Section 4: genbki macros used by catalog/pg_xxx.h files
+//===----------------------------------------------------------------------===//
 #define CATALOG(x) typedef struct CPP_CONCAT(FormData_, x)
 
 #define DATA(x)                 extern int errno
@@ -119,34 +226,6 @@ typedef uint32 CommandId;
 #define BKI_BEGIN
 #define BKI_END
 
-// ================================================
-// Section 5: random stuff
-//            CSIGNBIT, STATUS...
-// ================================================
-
-// msb for int/unsigned
-#define ISIGNBIT (0x80000000)
-#define WSIGNBIT (0x8000)
-#define CSIGNBIT (0x80)
-
-#define STATUS_OK           (0)
-#define STATUS_ERROR        (-1)
-#define STATUS_NOT_FOUND    (-2)
-#define STATUS_INVALID      (-3)
-#define STATUS_UNCATALOGUED (-4)
-#define STATUS_REPLACED     (-5)
-#define STATUS_NOT_DONE     (-6)
-#define STATUS_BAD_PACKET   (-7)
-#define STATUS_FOUND        (1)
-
-// ================================================
-// Section 7: exception handling definitions
-//            Assert, Trap, etc macros
-// ================================================
-
-typedef char* ExcMessage;
-typedef struct Exception {
-  ExcMessage message;
-} Exception;
+typedef int4 AclItem;  // PHONY definition for catalog use only.
 
 #endif  // RDBMS_POSTGRES_H_

@@ -177,7 +177,7 @@ static MemoryContextMethods AllocSetMethods = {alloc_set_alloc, alloc_set_free, 
 #endif
                                                alloc_set_stats};
 
-#ifdef HAVE_ALLOCINFO
+#ifdef HAVE_ALLOC_INFO
 #define ALLOC_FREE_INFO(cxt, chunk) \
   fprintf(stderr, "%s: %s: %p, %d\n", __func__, (cxt)->header.name, (chunk), (chunk)->size)
 #define ALLOC_ALLOC_INFO(cxt, chunk) \

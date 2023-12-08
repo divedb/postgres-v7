@@ -1,3 +1,20 @@
+//===----------------------------------------------------------------------===//
+//
+// c.h
+//  Fundamental C definitions.  This is included by every .c file in
+//  PostgreSQL (via either postgres.h or postgres_fe.h, as appropriate).
+//
+//  Note that the definitions here are not intended to be exposed to clients of
+//  the frontend interface libraries --- so we don't worry much about polluting
+//  the namespace with lots of stuff...
+//
+//
+// Portions Copyright (c) 1996-2001, PostgreSQL Global Development Group
+// Portions Copyright (c) 1994, Regents of the University of California
+//
+// $Id: c.h,v 1.92 2001/03/22 04:00:24 momjian Exp $
+//
+//===----------------------------------------------------------------------===//
 #ifndef RDBMS_C_H_
 #define RDBMS_C_H_
 
@@ -9,242 +26,118 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
-// ================================================
-// Section 1: bool, true, false, TRUE, FALSE, NULL
-// ================================================
-
-#ifndef TRUE
-#define TRUE 1
-#endif
-
-#ifndef FALSE
-#define FALSE 0
-#endif
-
-typedef bool* BoolPtr;
-
-// ================================================
-// Section 2: non-ansi C definitions
-// ================================================
-
+//===----------------------------------------------------------------------===//
+// Section 1: hacks to cope with non-ANSI C compilers
+//
+// Type prefixes (const, signed, volatile, inline) are now handled in config.h.
+//===----------------------------------------------------------------------===//
 #define CPP_AS_STRING(identifier) #identifier
 #define CPP_CONCAT(x, y)          x##y
+#define DUMMY_RET                 void
 
-// ================================================
+//===----------------------------------------------------------------------===//
+// Section 2: bool, true, false, TRUE, FALSE, NULL
+//===----------------------------------------------------------------------===//
+typedef bool* BoolPtr;
+
+//===----------------------------------------------------------------------===//
 // Section 3: standard system types
-// ================================================
-
+//===----------------------------------------------------------------------===//
 typedef char* Pointer;
 
-// intN
-//  Signed integer, EXACTLY N BITS IN SIZE,
-//  used for numerical computations and the
-//  frontend/backend protocol.
 typedef int8_t int8;
 typedef int16_t int16;
 typedef int32_t int32;
-
-// uintN
-//  Unsigned integer, EXACTLY N BITS IN SIZE,
-//  used for numerical computations and the
-//  frontend/backend protocol.
 typedef uint8_t uint8;
 typedef uint16_t uint16;
 typedef uint32_t uint32;
-
-// floatN
-//  Floating point number, AT LEAST N BITS IN SIZE,
-//  used for numerical computations.
-//
-//  Since sizeof(floatN) may be > sizeof(char *), always pass
-//  floatN by reference.
+typedef uint8 bool8;
+typedef uint16 bool16;
+typedef uint32 bool32;
+typedef uint8 bits8;
+typedef uint16 bits16;
+typedef uint32 bits32;
+typedef uint8 word8;
+typedef uint16 word16;
+typedef uint32 word32;
 typedef float float32data;
 typedef double float64data;
 typedef float* float32;
 typedef double* float64;
+typedef long int int64;
+typedef unsigned long int uint64;
 
-// boolN
-//  Boolean value, AT LEAST N BITS IN SIZE.
-typedef uint8 bool8;
-typedef uint16 bool16;
-typedef uint32 bool32;
-
-// bitsN
-//  Unit of bitwise operation, AT LEAST N BITS IN SIZE.
-typedef uint8 bits8;
-typedef uint16 bits16;
-typedef uint32 bits32;
-
-// wordN
-//  Unit of storage, AT LEAST N BITS IN SIZE,
-//  used to fetch/store data.
-typedef uint8 word8;
-typedef uint16 word16;
-typedef uint32 word32;
-
-// Size
-//  Size of any memory resident object, as returned by sizeof.
 typedef size_t Size;
-
-// Index
-//  Index into any memory resident array.
-// Note:
-//  Indices are non negative.
 typedef unsigned int Index;
-
-#define MAXDIM 6
-typedef struct {
-  int indx[MAXDIM];
-} IntArray;
-
-// Offset
-//  Offset into any memory resident array.
-//
-// Note:
-//  This differs from an Index in that an Index is always
-//  non negative, whereas Offset may be negative.
 typedef signed int Offset;
 
-// ================================================
-// Section 4: datum type + support macros
-// ================================================
+typedef int16 int2;
+typedef int32 int4;
+typedef float float4;
+typedef double float8;
 
-// datum.h
-//  POSTGRES abstract data type datum representation definitions.
-//
-// Note:
-//
-// Port Notes:
-//  Postgres makes the following assumption about machines:
-//
-//  sizeof(Datum) == sizeof(long) >= sizeof(void *) >= 4
-//
-//  Postgres also assumes that
-//
-//  sizeof(char) == 1
-//
-//  and that
-//
-//  sizeof(short) == 2
-//
-//  If your machine meets these requirements, Datums should also be checked
-//  to see if the positioning is correct.
+// Unfortunately, both regproc and RegProcedure are used.
+typedef Oid RegProc;
+typedef Oid RegProcedure;
 
-typedef unsigned long Datum;
-typedef Datum* DatumPtr;
+typedef uint32 TransactionId;
 
-#define GET_1_BYTE(datum)  (((Datum)(datum)) & 0x000000ff)
-#define GET_2_BYTES(datum) (((Datum)(datum)) & 0x0000ffff)
-#define GET_4_BYTES(datum) (((Datum)(datum)) & 0xffffffff)
-#define SET_1_BYTE(value)  (((Datum)(value)) & 0x000000ff)
-#define SET_2_BYTES(value) (((Datum)(value)) & 0x0000ffff)
-#define SET_4_BYTES(value) (((Datum)(value)) & 0xffffffff)
+#define INVALID_TRANSACTION_ID 0
 
-#define DATUM_GET_BOOL(x) ((bool)(((Datum)(x)) != 0))
-#define BOOL_GET_DATUM(x) ((Datum)((x) ? 1 : 0))
+typedef uint32 CommandId;
 
-// Returns character value of a datum.
-#define DATUM_GET_CHAR(x) ((char)GET_1_BYTE(x))
+#define FIRST_COMMAND_ID 0
 
-// Returns datum representation for a character.
-#define CHAR_GET_DATUM(x) ((Datum)SET_1_BYTE(x))
+#define MAX_DIM 6
 
-// Returns datum representation for an 8-bit integer.
-#define INT8_GET_DATUM(x) ((Datum)SET_1_BYTE(x))
+typedef struct {
+  int indx[MAX_DIM];
+} IntArray;
 
-// Returns 8-bit unsigned integer value of a datum.
-#define DATUM_GET_UINT8(x) ((uint8)GET_1_BYTE(x))
+struct VarLena {
+  int32 vl_len;
+  char vl_dat[1];
+};
 
-// Returns datum representation for an 8-bit unsigned integer.
-#define UINT8_GET_DATUM(x) ((Datum)SET_1_BYTE(x))
+#define VAR_HDR_SZ ((int32)sizeof(int32))
 
-// Returns 16-bit integer value of a datum.fj_always_done
-#define DATUM_GET_INT16(x) ((int16)GET_2_BYTES(x))
+typedef struct VarLena Bytea;
+typedef struct VarLena Text;
+typedef struct VarLena BpChar;  // Blank-padded char, ie SQL char(n)
+typedef struct VarLena VarChar;
 
-// Returns datum representation for a 16-bit integer.
-#define INT16_GET_DATUM(x) ((Datum)SET_2_BYTES(x))
+typedef int2 Int2Vector[INDEX_MAX_KEYS];
+typedef Oid OidVector[INDEX_MAX_KEYS];
 
-// Returns 16-bit unsigned integer value of a datum.
-#define DATUM_GET_UINT16(x) ((uint16)GET_2_BYTES(x))
+// We want NameData to have length NAMEDATALEN and int alignment,
+// because that's how the data type 'name' is defined in pg_type.
+// Use a union to make sure the compiler agrees.
+typedef union NameData {
+  char data[NAME_DATA_LEN];
+  int alignment_dummy;
+} NameData;
 
-// Returns datum representation for a 16-bit unsigned integer.
-#define UINT16_GET_DATUM(x) ((Datum)SET_2_BYTES(x))
+typedef NameData* Name;
 
-// Returns 32-bit integer value of a datum.
-#define DATUM_GET_INT32(x) ((int32)GET_4_BYTES(x))
+#define NAME_STR(name) ((name).data)
 
-// Returns datum representation for a 32-bit integer.
-#define INT32_GET_DATUM(x) ((Datum)SET_4_BYTES(x))
-
-// Returns 32-bit unsigned integer value of a datum.
-#define DATUM_GET_UINT32(x) ((uint32)GET_4_BYTES(x))
-
-// Returns datum representation for a 32-bit unsigned integer.
-#define UINT32_GET_DATUM(x) ((Datum)SET_4_BYTES(x))
-
-// Returns object identifier value of a datum.
-#define DATUM_GET_OBJECT_ID(x) ((Oid)GET_4_BYTES(x))
-
-// Returns datum representation for an object identifier.
-#define OBJECT_ID_GET_DATUM(x) ((Datum)SET_4_BYTES(x))
-
-// Returns pointer value of a datum.
-#define DATUM_GET_POINTER(x) ((Pointer)(x))
-
-// Returns datum representation for a pointer.
-#define POINTER_GET_DATUM(x) ((Datum)(x))
-
-#define DATUM_GET_CSTRING(x) ((char*)DATUM_GET_POINTER(x))
-#define CSTRING_GET_DATUM(x) POINTER_GET_DATUM(x)
-
-// Returns name value of a datum.
-#define DATUM_GET_NAME(x) ((Name)DATUM_GET_POINTER((Datum)(x)))
-
-// Returns datum representation for a name.
-#define NAME_GET_DATUM(x) POINTER_GET_DATUM((Pointer)(x))
-
-#define DATUM_GET_INT64(x)  (*((int64*)DATUM_GET_POINTER(x)))
-#define DATUM_GET_FLOAT4(x) (*(float4*)DATUM_GET_POINTER(x))
-#define DATUM_GET_FLOAT8(x) (*(float8*)DATUM_GET_POINTER(x))
-
-// Returns 32-bit floating point value of a datum.
-// This is really a pointer, of course.
-#define DATUM_GET_FLOAT32(x) ((float32)DATUM_GET_POINTER(x))
-
-// Returns datum representation for a 32-bit floating point number.
-// This is really a pointer, of course.
-#define FLOAT32_GET_DATUM(x) POINTER_GET_DATUM((Pointer)(x))
-
-// Returns 64-bit floating point value of a datum.
-// This is really a pointer, of course.
-#define DATUM_GET_FLOAT64(x) ((float64)DATUM_GET_POINTER(x))
-
-// Returns datum representation for a 64-bit floating point number.
-// This is really a pointer, of course.
-#define FLOAT64_GET_DATUM(x) POINTER_GET_DATUM((Pointer)(x))
-
-// ================================================
-// Section 5: IsValid macros for system types
-// ================================================
-
+//===----------------------------------------------------------------------===//
+// Section 4: IsValid macros for system types
+//===----------------------------------------------------------------------===//
 #define BOOL_IS_VALID(boolean)            ((boolean) == false || (boolean) == true)
 #define POINTER_IS_VALID(pointer)         ((void*)(pointer) != NULL)
 #define POINTER_IS_ALIGNED(pointer, type) (((long)(pointer) % (sizeof(type))) == 0)
+#define OID_IS_VALID(oid)                 ((oid) != INVALID_OID)
+#define REG_PROCEDURE_IS_VALID(p)         OID_IS_VALID(p)
 
-// ================================================
-// Section 6: offsetof, lengthof, endof
-// ================================================
-
-#ifndef offsetof
-#define offsetof(type, field) ((long)&((type*)0)->field)
-#endif
-
-// Number of elements in an array.
-#define LENGTH_OF(array) (sizeof(array) / sizeof((array)[0]))
-
-// Address of the element one past the last in an array.
-#define END_OF(array) (&array[LENGTH_OF(array)])
+//===----------------------------------------------------------------------===//
+// Section 5: offsetof, lengthof, endof, alignment
+//===----------------------------------------------------------------------===//
+#define OFFSET_OF(type, field) ((long)&((type*)0)->field)
+#define LENGTH_OF(array)       (sizeof(array) / sizeof((array)[0]))
+#define END_OF(array)          (&array[LENGTH_OF(array)])
 
 // Alignment macros: align a length or address appropriately for a given type.
 //
@@ -261,33 +154,44 @@ typedef Datum* DatumPtr;
 #define DOUBLE_ALIGN(LEN) TYPE_ALIGN(_Alignof(double), LEN)
 #define MAX_ALIGN(LEN)    TYPE_ALIGN(_Alignof(max_align_t), LEN)
 
-// ================================================
-// Section 7: exception handling definitions
-//            Assert, Trap, etc macros
-// ================================================
+//===----------------------------------------------------------------------===//
+// Section 6: widely useful macros
+//===----------------------------------------------------------------------===//
+#define MAX(x, y) ((x) > (y) ? (x) : (y))
+#define MIN(x, y) ((x) < (y) ? (x) : (y))
+#define ABS(x)    ((x) >= 0 ? (x) : -(x))
 
-// Exception Handling definitions.
-typedef char* ExcMessage;
-typedef struct Exception {
-  ExcMessage message;
-} Exception;
-
-// USE_ASSERT_CHECKING, if defined, turns on all the assertions.
-// - plai  9/5/90
+// Like standard library function strncpy(), except that result string
+// is guaranteed to be null-terminated --- that is, at most N-1 bytes
+// of the source string will be kept.
+// Also, the macro returns no result (too hard to do that without
+// evaluating the arguments multiple times, which seems worse).
 //
-// It should _NOT_ be defined in releases or in benchmark copies
-
-// Trap
-//  Generates an exception if the given condition is true.
+// BTW: when you need to copy a non-null-terminated string (like a text
+// datum) and add a null, do not do it with StrNCpy(..., len+1).  That
+// might seem to work, but it fetches one byte more than there is in the
+// text object.  One fine day you'll have a SIGSEGV because there isn't
+// another byte before the end of memory. Don't laugh, we've had real
+// live bug reports from real live users over exactly this mistake.
+// Do it honestly with "memcpy(dst,src,len); dst[len] = '\0';", instead.
+#define STR_N_CPY(dst, src, len)  \
+  do {                            \
+    char* _dst = (dst);           \
+    Size _len = (len);            \
+                                  \
+    if (_len > 0) {               \
+      strncpy(_dst, (src), _len); \
+      _dst[_len - 1] = '\0';      \
+    }                             \
+  } while (0)
 
 // Get a bit mask of the bits set in non-int32 aligned addresses.
 #define INT_ALIGN_MASK (sizeof(int32) - 1)
 
-// MemSet
-//   Exactly the same as standard library function memset(), but considerably
-//   faster for zeroing small word-aligned structures (such as parsetree nodes).
-//   This has to be a macro because the main point is to avoid function-call
-//   overhead.
+// Exactly the same as standard library function memset(), but considerably
+// faster for zeroing small word-aligned structures (such as parsetree nodes).
+// This has to be a macro because the main point is to avoid function-call
+// overhead.
 //
 // We got the 64 number by testing this against the stock memset() on
 // BSD/OS 3.0. Larger values were slower. bjm 1997/09/11
@@ -310,14 +214,29 @@ typedef struct Exception {
 
 #define MEMSET_LOOP_LIMIT 64
 
-// ================================================
-// Section 11: system-specific hacks
+//===----------------------------------------------------------------------===//
+// Section 7: random stuff
+//===----------------------------------------------------------------------===//
+#define STATUS_OK           (0)
+#define STATUS_ERROR        (-1)
+#define STATUS_NOT_FOUND    (-2)
+#define STATUS_INVALID      (-3)
+#define STATUS_UNCATALOGUED (-4)
+#define STATUS_REPLACED     (-5)
+#define STATUS_NOT_DONE     (-6)
+#define STATUS_BAD_PACKET   (-7)
+#define STATUS_FOUND        (1)
+
+//===----------------------------------------------------------------------===//
+// Section 8: system-specific hacks
 //
-//  This should be limited to things that absolutely have to be
-// included in every source file. The changes should be factored
-// into a separate file so that changes to one port don't require
-// changes to c.h (and everyone recompiling their whole system).
-// ================================================
+// This should be limited to things that absolutely have to be
+// included in every source file. The port-specific header file
+// is usually a better place for this sort of thing.
+//===----------------------------------------------------------------------===//
+#define PG_BINARY   0
+#define PG_BINARY_R "r"
+#define PG_BINARY_W "w"
 
 // These are for things that are one way on Unix and another on NT.
 #define NULL_DEV "/dev/null"
