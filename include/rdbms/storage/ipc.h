@@ -28,6 +28,16 @@
 #include "rdbms/postgres.h"
 #include "rdbms/storage/s_lock.h"
 
+#ifdef __linux__
+
+union semun {
+  int val;
+  struct semid_ds* buf;
+  unsigned short* array;
+};
+
+#endif
+
 typedef uint16 SystemPortAddress;
 
 // Semaphore definitions.

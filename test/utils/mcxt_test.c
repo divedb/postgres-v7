@@ -17,7 +17,7 @@ static void test_alloc_and_free() {
     pfree(pointers[i]);
   }
 
-  alloc_set_reset(TopMemoryContext);
+  memory_context_reset(TopMemoryContext);
 
   free(TopMemoryContext);
 }
