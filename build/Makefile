@@ -143,6 +143,123 @@ ipc/fast:
 .PHONY : ipc/fast
 
 #=============================================================================
+# Target rules for targets named fstack
+
+# Build rule for target.
+fstack: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 fstack
+.PHONY : fstack
+
+# fast build rule for target.
+fstack/fast:
+	$(MAKE) $(MAKESILENT) -f src/backend/utils/misc/CMakeFiles/fstack.dir/build.make src/backend/utils/misc/CMakeFiles/fstack.dir/build
+.PHONY : fstack/fast
+
+#=============================================================================
+# Target rules for targets named trace
+
+# Build rule for target.
+trace: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 trace
+.PHONY : trace
+
+# fast build rule for target.
+trace/fast:
+	$(MAKE) $(MAKESILENT) -f src/backend/utils/misc/CMakeFiles/trace.dir/build.make src/backend/utils/misc/CMakeFiles/trace.dir/build
+.PHONY : trace/fast
+
+#=============================================================================
+# Target rules for targets named aset
+
+# Build rule for target.
+aset: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 aset
+.PHONY : aset
+
+# fast build rule for target.
+aset/fast:
+	$(MAKE) $(MAKESILENT) -f src/backend/utils/mmgr/CMakeFiles/aset.dir/build.make src/backend/utils/mmgr/CMakeFiles/aset.dir/build
+.PHONY : aset/fast
+
+#=============================================================================
+# Target rules for targets named palloc
+
+# Build rule for target.
+palloc: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 palloc
+.PHONY : palloc
+
+# fast build rule for target.
+palloc/fast:
+	$(MAKE) $(MAKESILENT) -f src/backend/utils/mmgr/CMakeFiles/palloc.dir/build.make src/backend/utils/mmgr/CMakeFiles/palloc.dir/build
+.PHONY : palloc/fast
+
+#=============================================================================
+# Target rules for targets named mctx
+
+# Build rule for target.
+mctx: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 mctx
+.PHONY : mctx
+
+# fast build rule for target.
+mctx/fast:
+	$(MAKE) $(MAKESILENT) -f src/backend/utils/mmgr/CMakeFiles/mctx.dir/build.make src/backend/utils/mmgr/CMakeFiles/mctx.dir/build
+.PHONY : mctx/fast
+
+#=============================================================================
+# Target rules for targets named error
+
+# Build rule for target.
+error: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 error
+.PHONY : error
+
+# fast build rule for target.
+error/fast:
+	$(MAKE) $(MAKESILENT) -f src/backend/utils/error/CMakeFiles/error.dir/build.make src/backend/utils/error/CMakeFiles/error.dir/build
+.PHONY : error/fast
+
+#=============================================================================
+# Target rules for targets named adt
+
+# Build rule for target.
+adt: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 adt
+.PHONY : adt
+
+# fast build rule for target.
+adt/fast:
+	$(MAKE) $(MAKESILENT) -f src/backend/utils/adt/CMakeFiles/adt.dir/build.make src/backend/utils/adt/CMakeFiles/adt.dir/build
+.PHONY : adt/fast
+
+#=============================================================================
+# Target rules for targets named enbl
+
+# Build rule for target.
+enbl: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 enbl
+.PHONY : enbl
+
+# fast build rule for target.
+enbl/fast:
+	$(MAKE) $(MAKESILENT) -f src/backend/utils/init/CMakeFiles/enbl.dir/build.make src/backend/utils/init/CMakeFiles/enbl.dir/build
+.PHONY : enbl/fast
+
+#=============================================================================
+# Target rules for targets named globals
+
+# Build rule for target.
+globals: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 globals
+.PHONY : globals
+
+# fast build rule for target.
+globals/fast:
+	$(MAKE) $(MAKESILENT) -f src/backend/utils/init/CMakeFiles/globals.dir/build.make src/backend/utils/init/CMakeFiles/globals.dir/build
+.PHONY : globals/fast
+
+#=============================================================================
 # Target rules for targets named slock_test
 
 # Build rule for target.
@@ -155,6 +272,19 @@ slock_test/fast:
 	$(MAKE) $(MAKESILENT) -f test/storage/CMakeFiles/slock_test.dir/build.make test/storage/CMakeFiles/slock_test.dir/build
 .PHONY : slock_test/fast
 
+#=============================================================================
+# Target rules for targets named mcxt_test
+
+# Build rule for target.
+mcxt_test: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 mcxt_test
+.PHONY : mcxt_test
+
+# fast build rule for target.
+mcxt_test/fast:
+	$(MAKE) $(MAKESILENT) -f test/utils/CMakeFiles/mcxt_test.dir/build.make test/utils/CMakeFiles/mcxt_test.dir/build
+.PHONY : mcxt_test/fast
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -163,9 +293,19 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
+	@echo "... adt"
+	@echo "... aset"
 	@echo "... buffer"
+	@echo "... enbl"
+	@echo "... error"
+	@echo "... fstack"
+	@echo "... globals"
 	@echo "... ipc"
+	@echo "... mctx"
+	@echo "... mcxt_test"
+	@echo "... palloc"
 	@echo "... slock_test"
+	@echo "... trace"
 .PHONY : help
 
 

@@ -18,6 +18,7 @@
 #ifndef RDBMS_C_H_
 #define RDBMS_C_H_
 
+#include <assert.h>
 #include <errno.h>
 #include <stdarg.h>
 #include <stdbool.h>
@@ -27,6 +28,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+
+#include "rdbms/config.h"
+#include "rdbms/postgres_ext.h"
 
 //===----------------------------------------------------------------------===//
 // Section 1: hacks to cope with non-ANSI C compilers
@@ -79,7 +83,7 @@ typedef float float4;
 typedef double float8;
 
 // Unfortunately, both regproc and RegProcedure are used.
-typedef Oid RegProc;
+typedef Oid regproc;
 typedef Oid RegProcedure;
 
 typedef uint32 TransactionId;

@@ -1,5 +1,5 @@
 add_subdirectory(storage)
-# add_subdirectory(utils)
+add_subdirectory(utils)
 # add_subdirectory(nodes)
 
 add_library(postgres INTERFACE)

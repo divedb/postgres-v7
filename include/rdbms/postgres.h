@@ -16,8 +16,6 @@
 #define RDBMS_POSTGRES_H_
 
 #include "rdbms/c.h"
-#include "rdbms/config.h"
-#include "rdbms/postgres_ext.h"
 
 //===----------------------------------------------------------------------===//
 // Section 1: variable-length datatypes (TOAST support)
@@ -226,6 +224,6 @@ extern int assert_test(int val);
 #define BKI_BEGIN
 #define BKI_END
 
-typedef int4 AclItem;  // PHONY definition for catalog use only.
+typedef int4 aclitem;  // PHONY definition for catalog use only.
 
 #endif  // RDBMS_POSTGRES_H_

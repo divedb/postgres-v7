@@ -23,7 +23,7 @@
 #include "rdbms/utils/trace.h"
 
 extern int errno;
-extern int sys_nerr;
+extern const int sys_nerr;
 
 extern CommandDest WhereToSendOutput;
 

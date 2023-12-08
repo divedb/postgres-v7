@@ -16,7 +16,7 @@
 
 #include "rdbms/postgres.h"
 #include "rdbms/storage/itemptr.h"
-#include "rdbms/utils/mctx.h"
+#include "rdbms/utils/memutils.h"
 
 #define MIN_HEAL_TUPLE_BIT_MAP_SIZE 32  // 8 * 4
 

@@ -157,7 +157,7 @@ typedef struct AllocChunkData {
 
 // These functions implement the MemoryContext API for AllocSet contexts.
 static void* alloc_set_alloc(MemoryContext context, Size size);
-static void* alloc_set_free(MemoryContext context, void* pointer);
+static void alloc_set_free(MemoryContext context, void* pointer);
 static void* alloc_set_realloc(MemoryContext context, void* pointer, Size size);
 static void alloc_set_init(MemoryContext context);
 static void alloc_set_reset(MemoryContext context);
@@ -247,8 +247,21 @@ MemoryContext alloc_set_context_create(MemoryContext parent, const char* name, S
     block = (AllocBlock)malloc(blk_size);
 
     if (block == NULL) {
+      memory_context_stats(TopMemoryContext);
+      elog(ERROR, "Memory exhausted in %s(%lu)", __func__, (unsigned long)min_context_size);
     }
+
+    block->aset = context;
+    block->freeptr = ((char*)block) + ALLOC_BLOCK_HDR_SZ;
+    block->endptr = ((char*)block) + blk_size;
+    block->next = context->blocks;
+    context->blocks = block;
+
+    // Mark block as not to be released at reset time.
+    context->keeper = block;
   }
+
+  return (MemoryContext)context;
 }
 
 // Returns pointer to allocated memory of given size; memory is added to the set.
@@ -477,7 +490,7 @@ static void* alloc_set_alloc(MemoryContext context, Size size) {
   return ALLOC_CHUNK_GET_POINTER(chunk);
 }
 
-static void* alloc_set_free(MemoryContext context, void* pointer) {
+static void alloc_set_free(MemoryContext context, void* pointer) {
   AllocSet set = (AllocSet)context;
   AllocChunk chunk = ALLOC_POINTER_GET_CHUNK(pointer);
 
@@ -781,6 +794,34 @@ static void alloc_set_delete(MemoryContext context) {
     free(block);
     block = next;
   }
+}
+
+// Displays stats about memory consumption of an allocset.
+static void alloc_set_stats(MemoryContext context) {
+  AllocSet set = (AllocSet)context;
+  long nblocks = 0;
+  long nchunks = 0;
+  long total_space = 0;
+  long free_space = 0;
+  AllocBlock block;
+  AllocChunk chunk;
+  int fidx;
+
+  for (block = set->blocks; block != NULL; block = block->next) {
+    nblocks++;
+    total_space += block->endptr - ((char*)block);
+    free_space += block->endptr - block->freeptr;
+  }
+
+  for (fidx = 0; fidx < ALLOC_SET_NUM_FREELISTS; fidx++) {
+    for (chunk = set->freelist[fidx]; chunk != NULL; chunk = (AllocChunk)chunk->aset) {
+      nchunks++;
+      free_space += chunk->size + ALLOC_CHUNK_HDR_SZ;
+    }
+  }
+
+  fprintf(stderr, "%s: %ld total in %ld blocks; %ld free (%ld chunks); %ld used\n", set->header.name, total_space,
+          nblocks, free_space, nchunks, total_space - free_space);
 }
 
 #ifdef MEMORY_CONTEXT_CHECKING

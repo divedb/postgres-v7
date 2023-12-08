@@ -2,11 +2,12 @@ src/backend/utils/misc/CMakeFiles/fstack.dir/fstack.c.o: \
   /Users/zlh/Documents/Git/postgres-v7/src/backend/utils/misc/fstack.c \
   /Users/zlh/Documents/Git/postgres-v7/include/rdbms/utils/fstack.h \
   /Users/zlh/Documents/Git/postgres-v7/include/rdbms/c.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/errno.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/sys/errno.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/assert.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/sys/cdefs.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/sys/_symbol_aliasing.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/sys/_posix_availability.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/errno.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/sys/errno.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/sys/_types/_errno_t.h \
   /Library/Developer/CommandLineTools/usr/lib/clang/14.0.3/include/stdarg.h \
   /Library/Developer/CommandLineTools/usr/lib/clang/14.0.3/include/stdbool.h \
@@ -87,4 +88,25 @@ src/backend/utils/misc/CMakeFiles/fstack.dir/fstack.c.o: \
   /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/strings.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/secure/_strings.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/secure/_string.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/assert.h
+  /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/unistd.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/sys/unistd.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/sys/_types/_posix_vdisable.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/sys/_types/_seek_set.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/sys/_types/_gid_t.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/sys/_types/_useconds_t.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/sys/select.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/sys/_types/_fd_def.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/sys/_types/_timespec.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/sys/_types/_time_t.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/sys/_types/_suseconds_t.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/sys/_types/_fd_setsize.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/sys/_types/_fd_set.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/sys/_types/_fd_clr.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/sys/_types/_fd_isset.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/sys/_types/_fd_zero.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/sys/_types/_fd_copy.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/sys/_select.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/sys/_types/_uuid_t.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/gethostuuid.h \
+  /Users/zlh/Documents/Git/postgres-v7/include/rdbms/config.h \
+  /Users/zlh/Documents/Git/postgres-v7/include/rdbms/postgres_ext.h

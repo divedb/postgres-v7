@@ -117,156 +117,42 @@ depend:
 .PHONY : depend
 
 # Convenience name for target.
-test/utils/CMakeFiles/fstack_test.dir/rule:
-	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test/utils/CMakeFiles/fstack_test.dir/rule
-.PHONY : test/utils/CMakeFiles/fstack_test.dir/rule
+test/utils/CMakeFiles/mcxt_test.dir/rule:
+	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test/utils/CMakeFiles/mcxt_test.dir/rule
+.PHONY : test/utils/CMakeFiles/mcxt_test.dir/rule
 
 # Convenience name for target.
-fstack_test: test/utils/CMakeFiles/fstack_test.dir/rule
-.PHONY : fstack_test
+mcxt_test: test/utils/CMakeFiles/mcxt_test.dir/rule
+.PHONY : mcxt_test
 
 # fast build rule for target.
-fstack_test/fast:
-	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f test/utils/CMakeFiles/fstack_test.dir/build.make test/utils/CMakeFiles/fstack_test.dir/build
-.PHONY : fstack_test/fast
+mcxt_test/fast:
+	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f test/utils/CMakeFiles/mcxt_test.dir/build.make test/utils/CMakeFiles/mcxt_test.dir/build
+.PHONY : mcxt_test/fast
 
-# Convenience name for target.
-test/utils/CMakeFiles/oset_test.dir/rule:
-	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test/utils/CMakeFiles/oset_test.dir/rule
-.PHONY : test/utils/CMakeFiles/oset_test.dir/rule
-
-# Convenience name for target.
-oset_test: test/utils/CMakeFiles/oset_test.dir/rule
-.PHONY : oset_test
-
-# fast build rule for target.
-oset_test/fast:
-	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f test/utils/CMakeFiles/oset_test.dir/build.make test/utils/CMakeFiles/oset_test.dir/build
-.PHONY : oset_test/fast
-
-# Convenience name for target.
-test/utils/CMakeFiles/aset_test.dir/rule:
-	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test/utils/CMakeFiles/aset_test.dir/rule
-.PHONY : test/utils/CMakeFiles/aset_test.dir/rule
-
-# Convenience name for target.
-aset_test: test/utils/CMakeFiles/aset_test.dir/rule
-.PHONY : aset_test
-
-# fast build rule for target.
-aset_test/fast:
-	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f test/utils/CMakeFiles/aset_test.dir/build.make test/utils/CMakeFiles/aset_test.dir/build
-.PHONY : aset_test/fast
-
-# Convenience name for target.
-test/utils/CMakeFiles/trace_test.dir/rule:
-	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test/utils/CMakeFiles/trace_test.dir/rule
-.PHONY : test/utils/CMakeFiles/trace_test.dir/rule
-
-# Convenience name for target.
-trace_test: test/utils/CMakeFiles/trace_test.dir/rule
-.PHONY : trace_test
-
-# fast build rule for target.
-trace_test/fast:
-	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f test/utils/CMakeFiles/trace_test.dir/build.make test/utils/CMakeFiles/trace_test.dir/build
-.PHONY : trace_test/fast
-
-aset_test.o: aset_test.c.o
-.PHONY : aset_test.o
+mcxt_test.o: mcxt_test.c.o
+.PHONY : mcxt_test.o
 
 # target to build an object file
-aset_test.c.o:
-	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f test/utils/CMakeFiles/aset_test.dir/build.make test/utils/CMakeFiles/aset_test.dir/aset_test.c.o
-.PHONY : aset_test.c.o
+mcxt_test.c.o:
+	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f test/utils/CMakeFiles/mcxt_test.dir/build.make test/utils/CMakeFiles/mcxt_test.dir/mcxt_test.c.o
+.PHONY : mcxt_test.c.o
 
-aset_test.i: aset_test.c.i
-.PHONY : aset_test.i
-
-# target to preprocess a source file
-aset_test.c.i:
-	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f test/utils/CMakeFiles/aset_test.dir/build.make test/utils/CMakeFiles/aset_test.dir/aset_test.c.i
-.PHONY : aset_test.c.i
-
-aset_test.s: aset_test.c.s
-.PHONY : aset_test.s
-
-# target to generate assembly for a file
-aset_test.c.s:
-	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f test/utils/CMakeFiles/aset_test.dir/build.make test/utils/CMakeFiles/aset_test.dir/aset_test.c.s
-.PHONY : aset_test.c.s
-
-fstack_test.o: fstack_test.c.o
-.PHONY : fstack_test.o
-
-# target to build an object file
-fstack_test.c.o:
-	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f test/utils/CMakeFiles/fstack_test.dir/build.make test/utils/CMakeFiles/fstack_test.dir/fstack_test.c.o
-.PHONY : fstack_test.c.o
-
-fstack_test.i: fstack_test.c.i
-.PHONY : fstack_test.i
+mcxt_test.i: mcxt_test.c.i
+.PHONY : mcxt_test.i
 
 # target to preprocess a source file
-fstack_test.c.i:
-	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f test/utils/CMakeFiles/fstack_test.dir/build.make test/utils/CMakeFiles/fstack_test.dir/fstack_test.c.i
-.PHONY : fstack_test.c.i
+mcxt_test.c.i:
+	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f test/utils/CMakeFiles/mcxt_test.dir/build.make test/utils/CMakeFiles/mcxt_test.dir/mcxt_test.c.i
+.PHONY : mcxt_test.c.i
 
-fstack_test.s: fstack_test.c.s
-.PHONY : fstack_test.s
-
-# target to generate assembly for a file
-fstack_test.c.s:
-	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f test/utils/CMakeFiles/fstack_test.dir/build.make test/utils/CMakeFiles/fstack_test.dir/fstack_test.c.s
-.PHONY : fstack_test.c.s
-
-oset_test.o: oset_test.c.o
-.PHONY : oset_test.o
-
-# target to build an object file
-oset_test.c.o:
-	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f test/utils/CMakeFiles/oset_test.dir/build.make test/utils/CMakeFiles/oset_test.dir/oset_test.c.o
-.PHONY : oset_test.c.o
-
-oset_test.i: oset_test.c.i
-.PHONY : oset_test.i
-
-# target to preprocess a source file
-oset_test.c.i:
-	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f test/utils/CMakeFiles/oset_test.dir/build.make test/utils/CMakeFiles/oset_test.dir/oset_test.c.i
-.PHONY : oset_test.c.i
-
-oset_test.s: oset_test.c.s
-.PHONY : oset_test.s
+mcxt_test.s: mcxt_test.c.s
+.PHONY : mcxt_test.s
 
 # target to generate assembly for a file
-oset_test.c.s:
-	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f test/utils/CMakeFiles/oset_test.dir/build.make test/utils/CMakeFiles/oset_test.dir/oset_test.c.s
-.PHONY : oset_test.c.s
-
-trace_test.o: trace_test.c.o
-.PHONY : trace_test.o
-
-# target to build an object file
-trace_test.c.o:
-	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f test/utils/CMakeFiles/trace_test.dir/build.make test/utils/CMakeFiles/trace_test.dir/trace_test.c.o
-.PHONY : trace_test.c.o
-
-trace_test.i: trace_test.c.i
-.PHONY : trace_test.i
-
-# target to preprocess a source file
-trace_test.c.i:
-	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f test/utils/CMakeFiles/trace_test.dir/build.make test/utils/CMakeFiles/trace_test.dir/trace_test.c.i
-.PHONY : trace_test.c.i
-
-trace_test.s: trace_test.c.s
-.PHONY : trace_test.s
-
-# target to generate assembly for a file
-trace_test.c.s:
-	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f test/utils/CMakeFiles/trace_test.dir/build.make test/utils/CMakeFiles/trace_test.dir/trace_test.c.s
-.PHONY : trace_test.c.s
+mcxt_test.c.s:
+	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f test/utils/CMakeFiles/mcxt_test.dir/build.make test/utils/CMakeFiles/mcxt_test.dir/mcxt_test.c.s
+.PHONY : mcxt_test.c.s
 
 # Help Target
 help:
@@ -276,22 +162,10 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... aset_test"
-	@echo "... fstack_test"
-	@echo "... oset_test"
-	@echo "... trace_test"
-	@echo "... aset_test.o"
-	@echo "... aset_test.i"
-	@echo "... aset_test.s"
-	@echo "... fstack_test.o"
-	@echo "... fstack_test.i"
-	@echo "... fstack_test.s"
-	@echo "... oset_test.o"
-	@echo "... oset_test.i"
-	@echo "... oset_test.s"
-	@echo "... trace_test.o"
-	@echo "... trace_test.i"
-	@echo "... trace_test.s"
+	@echo "... mcxt_test"
+	@echo "... mcxt_test.o"
+	@echo "... mcxt_test.i"
+	@echo "... mcxt_test.s"
 .PHONY : help
 
 

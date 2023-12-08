@@ -48,11 +48,11 @@
 // $Id: dest.h,v 1.23 2000/01/26 05:58:35 momjian Exp $
 //
 //===----------------------------------------------------------------------===//
-
 #ifndef RDBMS_TCOP_DEST_H_
 #define RDBMS_TCOP_DEST_H_
 
 #include "rdbms/access/htup.h"
+#include "rdbms/access/tupdesc.h"
 
 // CommandDest is a simplistic means of identifying the desired
 // destination. Someday this will probably need to be improved.

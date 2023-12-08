@@ -25,7 +25,7 @@
 
 #include "rdbms/catalog/catname.h"
 #include "rdbms/catalog/indexing.h"
-#include "rdbms/libpq/libpq-be.h"  // struct Port
+#include "rdbms/libpq/libpq_be.h"  // struct Port
 #include "rdbms/libpq/pqcomm.h"
 #include "rdbms/miscadmin.h"
 #include "rdbms/postgres.h"
@@ -78,8 +78,7 @@ char FloatFormat[20] = "%f";
 bool AllowSystemTableMods = false;
 int SortMem = 512;
 
-char* IndexedCatalogNames[] = {ATTRIBUTE_RELATION_NAME, PROCEDURE_RELATION_NAME, TYPE_RELATION_NAME,
-                               RELATION_RELATION_NAME, NULL};
+char* IndexedCatalogNames[] = {AttributeRelationName, ProcedureRelationName, TypeRelationName, RelationRelationName, 0};
 
 // ps status buffer.
 #ifndef linux
@@ -100,6 +99,5 @@ char PsStatusBuffer[1024];
 // is done on it in catalog.c!
 //
 // XXX this is a serious hack which should be fixed -cim 1/26/90
-char* SharedSystemRelationNames[] = {
-    DATABASE_RELATION_NAME, GROUP_RELATION_NAME,  GROUP_NAME_INDEX,       GROUP_SYSID_INDEX,
-    LOG_RELATION_NAME,      SHADOW_RELATION_NAME, VARIABLE_RELATION_NAME, NULL};
+char* SharedSystemRelationNames[] = {DatabaseRelationName, GroupRelationName,  GroupNameIndex,       GroupSysidIndex,
+                                     LogRelationName,      ShadowRelationName, VariableRelationName, 0};

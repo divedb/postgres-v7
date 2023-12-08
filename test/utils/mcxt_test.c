@@ -1,49 +1,29 @@
-#include <CUnit/Basic.h>
-
 #define MEMORY_CONTEXT_CHECKING
 #define HAVE_ALLOC_INFO
 
+#include "../template.h"
 #include "rdbms/utils/memutils.h"
 
-#define ADD_TEST_MACRO(suite, description, func)         \
-  do {                                                   \
-    if (NULL == CU_add_test(suite, description, func)) { \
-      goto clean_up;                                     \
-    }                                                    \
-  } while (0)
-
-void test_alloc_and_free() {
+static void test_alloc_and_free() {
   memory_context_init();
 
-  int[] sizes = {1, 1e1, 1e2, 1e3, 1e4, 1e5, 1e6};
+  int sizes[] = {1, 1e1, 1e2, 1e3, 1e4, 1e5, 1e6};
+  void* pointers[LENGTH_OF(sizes)];
 
-  for (int sz : sizes) {
-    palloc(sz);
+  for (int i = 0; i < LENGTH_OF(sizes); i++) {
+    pointers[i] = palloc(sizes[i]);
   }
 
-  for (int sz : sizes) {
-    pfree(sz);
+  memory_context_stats(TopMemoryContext);
+
+  for (int i = 0; i < LENGTH_OF(sizes); i++) {
+    pfree(pointers[i]);
   }
 }
 
-int main() {
-  if (CUE_SUCCESS != CU_initialize_registry()) {
-    return CU_get_error();
-  }
-
-  CU_pSuite suite = CU_add_suite("Memory Context", NULL, NULL);
-
-  if (suite == NULL) {
-    goto clean_up;
-  }
-
-  ADD_TEST_MACRO(suite, "Test alloc and free.", test_alloc_and_free);
-
-  CU_basic_set_mode(CU_BRM_VERBOSE);
-  CU_basic_run_tests();
-
-clean_up:
-  CU_cleanup_registry();
-
-  return CU_get_error();
+static void register_test() {
+  TEST("Test alloc and free.", test_alloc_and_free);
+  // TEST("Test alloc and free.", test_alloc_and_free);
 }
+
+MAIN("Memory Context")
