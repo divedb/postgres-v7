@@ -1,9 +1,9 @@
 //===----------------------------------------------------------------------===//
 //
 // lock.h
+//  POSTGRES low-level lock mechanism
 //
-//
-// Portions Copyright (c) 1996-2000, PostgreSQL, Inc
+// Portions Copyright (c) 1996-2001, PostgreSQL Global Development Group
 // Portions Copyright (c) 1994, Regents of the University of California
 //
 // $Id: lock.h,v 1.37 2000/04/12 17:16:51 momjian Exp $
@@ -12,11 +12,9 @@
 #ifndef RDBMS_STORAGE_LOCK_H_
 #define RDBMS_STORAGE_LOCK_H_
 
-#include "rdbms/postgres.h"
-#include "rdbms/storage/block.h"
-#include "rdbms/storage/off.h"
-#include "rdbms/storage/spin.h"
-#include "rdbms/utils/hsearch.h"
+#include "rdbms/storage/ipc.h"
+#include "rdbms/storage/itemptr.h"
+#include "rdbms/storage/shmem.h"
 
 extern SpinLock LockMgrLock;
 

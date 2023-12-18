@@ -1,58 +1,84 @@
-// =========================================================================
+//===----------------------------------------------------------------------===//
 //
 // ipc.c
-//   POSTGRES inter=process communication definitions.
+//  POSTGRES inter-process communication definitions.
 //
-// Portions Copyright (c) 1996=2000, PostgreSQL, Inc
+// Portions Copyright (c) 1996-2001, PostgreSQL Global Development Group
 // Portions Copyright (c) 1994, Regents of the University of California
 //
 //
 // IDENTIFICATION
-//   $Header: /usr/local/cvsroot/pgsql/src/backend/storage/ipc/ipc.c,v 1.46 2000/04/12 17:15:36 momjian Exp $
+//  $Header: /home/projects/pgsql/cvsroot/pgsql/src/backend/storage/ipc/ipc.c,v 1.66 2001/03/23 04:49:54 momjian
+// Exp $
 //
 // NOTES
 //
-//   Currently, semaphores are used (my understanding anyway) in two
-//   different ways:
-//      1. as mutexes on machines that don't have test-and-set (eg.
-//      mips R3000).
-//      2. for putting processes to sleep when waiting on a lock
-//      and waking them up when the lock is free.
-//      The number of semaphores in (1) is fixed and those are shared
-//      among all backends. In (2), there is 1 semaphore per process and those
-//      are not shared with anyone else.
-//                                                                   -ay4/95
-//
-// =========================================================================
+//  Currently, semaphores are used (my understanding anyway) in two
+//  different ways:
+//  1. as mutexes on machines that don't have test-and-set (eg.
+//     mips R3000).
+//  2. for putting processes to sleep when waiting on a lock
+//     and waking them up when the lock is free.
+//  The number of semaphores in (1) is fixed and those are shared
+//  among all backends. In (2), there is 1 semaphore per process and those
+//  are not shared with anyone else.
+//                                                                      -ay 4/95
+//===----------------------------------------------------------------------===//
+
 #include "rdbms/storage/ipc.h"
 
 #include <errno.h>
+#include <signal.h>
 #include <stdlib.h>
+#include <sys/file.h>
 #include <sys/ipc.h>
 #include <sys/sem.h>
 #include <sys/shm.h>
+#include <sys/types.h>
+#include <unistd.h>
 
-#include "rdbms/utils/elog.h"
-#include "rdbms/utils/trace.h"
+#include "rdbms/miscadmin.h"
+#include "rdbms/postgres.h"
+#include "rdbms/utils/memutils.h"
 
 // This flag is set during proc_exit() to change elog()'s behavior,
 // so that an elog() from an on_proc_exit routine cannot get us out
 // of the exit procedure. We do NOT want to go back to the idle loop...
 bool ProcExitInprogress = false;
 
-static int UsePrivateMemory = 0;
-static int OnProcExitIndex;
-static int OnShmemExitIndex;
+static IpcSemaphoreId internal_ipc_semaphore_create(IpcSemaphoreKey sem_key, int num_sems, int permission,
+                                                    int sem_start_value, bool remove_on_exit);
+static void callback_semaphore_kill(int status, Datum sem_id);
+static void* internal_ipc_memory_create(IpcMemoryKey mem_key, uint32 size, int permission);
+static void ipc_memory_detach(int status, Datum shm_addr);
+static void ipc_memory_delete(int status, Datum shm_id);
+static void* private_memory_create(uint32 size);
+static void private_memory_delete(int status, Datum mem_addr);
 
-static void ipc_memory_detach(int status, char* shmaddr);
-static void ipc_config_tip();
-
+// exit() handling stuff
+//
+// These functions are in generally the same spirit as atexit(2),
+// but provide some additional features we need --- in particular,
+// we want to register callbacks to invoke when we are disconnecting
+// from a broken shared-memory context but not exiting the postmaster.
+//
+// Callback functions can take zero, one, or two args: the first passed
+// arg is the integer exitcode, the second is the Datum supplied when
+// the callback was registered.
+//
+// XXX these functions probably ought to live in some other module.
 #define MAX_ON_EXITS 20
 
 static struct OnExit {
   void (*function)();
   caddr_t arg;
 } OnProcExitList[MAX_ON_EXITS], OnShmemExitList[MAX_ON_EXITS];
+
+static int OnProcExitIndex;
+static int OnShmemExitIndex;
+
+static void ipc_memory_detach(int status, char* shmaddr);
+static void ipc_config_tip();
 
 typedef struct PrivateMemStruct {
   int id;

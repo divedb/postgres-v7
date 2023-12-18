@@ -10,11 +10,9 @@
 // $Id: shmem.h,v 1.22 2000/01/26 05:58:33 momjian Exp $
 //
 //===----------------------------------------------------------------------===//
-
 #ifndef RDBMS_STORAGE_SHMEM_H_
 #define RDBMS_STORAGE_SHMEM_H_
 
-#include "rdbms/storage/shmem_def.h"
 #include "rdbms/storage/spin.h"
 #include "rdbms/utils/hsearch.h"
 

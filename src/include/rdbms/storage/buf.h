@@ -10,7 +10,6 @@
 // $Id: buf.h,v 1.7 2000/01/26 05:58:32 momjian Exp $
 //
 //===----------------------------------------------------------------------===//
-
 #ifndef RDBMS_STORAGE_BUF_H_
 #define RDBMS_STORAGE_BUF_H_
 
@@ -24,7 +23,6 @@ typedef long Buffer;
 #define BUFFER_IS_LOCAL(buffer)   ((buffer) < 0)
 
 // If NO_BUFFERISVALID is defined, all error checking using BufferIsValid()
-// are suppressed.	Decision-making using BufferIsValid is not affected.
 // This should be set only if one is sure there will be no errors.
 //  - plai 9/10/90
 #undef NO_BUFFER_IS_VALID

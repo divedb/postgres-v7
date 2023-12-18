@@ -65,8 +65,8 @@
 #include "rdbms/utils/memutils.h"
 
 // Shared memory global variables.
-
-unsigned long ShmemBase = 0;         // Start address of shared memory.
+static PgShmemHeader* ShmemSegHdr;   // Shared mem segment header
+unsigned long ShmemBase = 0;         // Start address of shared memory
 static unsigned long ShmemEnd = 0;   // End address of shared memory.
 static unsigned long ShmemSize = 0;  // Current size (and default).
 

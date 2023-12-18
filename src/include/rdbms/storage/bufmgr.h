@@ -13,7 +13,9 @@
 #ifndef RDBMS_STORAGE_BUFMGR_H_
 #define RDBMS_STORAGE_BUFMGR_H_
 
-#include "rdbms/storage/block.h"
+#include "rdbms/access/xlogdefs.h"
+#include "rdbms/storage/buf.h"
+#include "rdbms/storage/lock.h"
 
 // The maximum size of a disk block for any possible installation.
 //
