@@ -56,3 +56,9 @@ AllocSet释放策略
 先把bootstrap运行起来
 call stack
     BootstrapMain
+
+cost的计算方式
+
+
+2023/12/18
+尝试先复现executor

@@ -159,7 +159,14 @@ int bootstrap_main(int argc, char* argv[]) {
   // If we are running under the postmaster, this is done already.
   if (!IsUnderPostmaster) {
     enable_exception_handling(true);
+    memory_context_init();
   }
+
+  // Process command arguments.
+  // Set defaults, to be overriden by explicit options below.
+  Quiet = false;
+  Noversion = false;
+  dbname = NULL;
 }
 
 void err_out() {
