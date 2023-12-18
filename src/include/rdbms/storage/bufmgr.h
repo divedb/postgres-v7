@@ -1,16 +1,15 @@
-// =========================================================================
+//===----------------------------------------------------------------------===//
 //
 // bufmgr.h
 //  POSTGRES buffer manager definitions.
 //
 //
-// Portions Copyright (c) 1996=2000, PostgreSQL, Inc
+// Portions Copyright (c) 1996-2001, PostgreSQL Global Development Group
 // Portions Copyright (c) 1994, Regents of the University of California
 //
 // $Id: bufmgr.h,v 1.37 2000/04/12 17:16:51 momjian Exp $
 //
-// =========================================================================
-
+//===----------------------------------------------------------------------===//
 #ifndef RDBMS_STORAGE_BUFMGR_H_
 #define RDBMS_STORAGE_BUFMGR_H_
 
