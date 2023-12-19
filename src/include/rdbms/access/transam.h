@@ -109,14 +109,14 @@ typedef struct VariableCacheData {
 
 typedef VariableCacheData* VariableCache;
 
-// Prototypes for functions in transam/transam.c.
+// transam/transam.c
 void initialize_transaction_log();
 bool transaction_id_did_commit(TransactionId xid);
 bool transaction_id_did_abort(TransactionId xid);
 void transaction_id_commit(TransactionId xid);
 void transaction_id_abort(TransactionId xid);
 
-// In transam/transsup.c.
+// transam/transsup.c
 void ami_transaction_override(bool flag);
 void trans_compute_block_number(Relation relation, TransactionId xid, BlockNumber* block_number_outp);
 XidStatus trans_block_number_get_xid_status(Relation relation, BlockNumber block_number, TransactionId xid,
@@ -124,15 +124,16 @@ XidStatus trans_block_number_get_xid_status(Relation relation, BlockNumber block
 void trans_block_number_set_xid_status(Relation relation, BlockNumber block_number, TransactionId xid,
                                        XidStatus xstatus, bool* failp);
 
-// In transam/varsup.c.
+// transam/varsup.c
 void variable_relation_put_next_xid(TransactionId xid);
 void get_next_transaction_id(TransactionId* xid);
 void read_new_transaction_id(Oid* oid_return);
+void get_new_object_id(Oid* oid_return);
 void check_max_object_id(Oid assigned_oid);
 
 // Global variable extern declarations.
 
-// In transam.c.
+// transam.c
 extern Relation LogRelation;
 extern Relation VariableRelation;
 
@@ -145,10 +146,12 @@ extern TransactionId FirstTransactionId;
 
 extern int RecoveryCheckingEnableState;
 
-// In transsup.c.
+// transsup.c
 extern bool AmiOverride;
 
-// In varsup.c.
-extern int OidGenLockId;
+// varsup.c
+extern SpinLock OidGenLockId;
+extern SpinLock XidGenLockId;
+extern VariableCache ShmemVariableCache;
 
 #endif  // RDBMS_ACCESS_TRANSAM_H_

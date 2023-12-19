@@ -33,6 +33,7 @@
         "sstream": "c",
         "streambuf": "c",
         "ratio": "c",
-        "iosfwd": "c"
+        "iosfwd": "c",
+        "functional": "cpp"
     }
 }

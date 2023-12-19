@@ -1,4 +1,4 @@
-// =========================================================================
+//===----------------------------------------------------------------------===//
 //
 // hsearch.h
 //  for hash tables, particularly hash tables in shared memory
@@ -9,8 +9,7 @@
 //
 // $Id: hsearch.h,v 1.15 2000/04/12 17:16:55 momjian Exp $
 //
-// =========================================================================
-
+//===----------------------------------------------------------------------===//
 #ifndef RDBMS_UTILS_HSEARCH_H_
 #define RDBMS_UTILS_HSEARCH_H_
 
@@ -34,58 +33,61 @@
 #define DEF_DIRSIZE       256
 #define DEF_FFACTOR       1  // Default fill factor
 
+#define PRIME1 37  // For the hash function
+#define PRIME2 1048583
+
 // Hash bucket is actually bigger than this. Key field can have
 // variable length and a variable length data field follows it.
-typedef struct element {
+typedef struct Element {
   unsigned long next;  // Secret from user.
   long key;
-} ELEMENT;
+} Element;
 
-typedef unsigned long BUCKET_INDEX;
+typedef unsigned long BucketIndex;
 
 // Segment is an array of bucket pointers.
-typedef BUCKET_INDEX* SEGMENT;
-typedef unsigned long SEG_OFFSET;
+typedef BucketIndex* Segment;
+typedef unsigned long SegOffset;
 
-typedef struct hashhdr {
-  long dsize;                      // Directory size.
-  long ssize;                      // Segment size, must be power of 2.
-  long sshift;                     // Segment shift.
-  long max_bucket;                 // ID of maximum bucket in use.
-  long high_mask;                  // Mask to modulo into entire table.
-  long low_mask;                   // Mask to modulo into lower half of table.
-  long ffactor;                    // Fill factor.
-  long nkeys;                      // Number of keys in hash table.
-  long nsegs;                      // Number of allocated segments.
-  long keysize;                    // Hash key length in bytes.
-  long datasize;                   // Element data length in bytes.
-  long max_dsize;                  // 'dsize' limit if directory is fixed size.
-  BUCKET_INDEX free_bucket_index;  // Index of first free bucket.
+typedef struct HashHeader {
+  long dsize;                     // Directory size.
+  long ssize;                     // Segment size, must be power of 2.
+  long sshift;                    // Segment shift.
+  long max_bucket;                // ID of maximum bucket in use.
+  long high_mask;                 // Mask to modulo into entire table.
+  long low_mask;                  // Mask to modulo into lower half of table.
+  long ffactor;                   // Fill factor.
+  long nkeys;                     // Number of keys in hash table.
+  long nsegs;                     // Number of allocated segments.
+  long keysize;                   // Hash key length in bytes.
+  long datasize;                  // Element data length in bytes.
+  long max_dsize;                 // 'dsize' limit if directory is fixed size.
+  BucketIndex free_bucket_index;  // Index of first free bucket.
   long accesses;
   long collisions;
-} HHDR;
+} HashHeader;
 
-typedef struct htab {
-  HHDR* hctl;        // Shared control information.
-  long (*hash)();    // Hash function.
-  char* segbase;     // Segment base addres for calculating pointer values.
-  SEG_OFFSET* dir;   // 'directory' of segm starts.
-  long* (*alloc)();  // Memory allocator (long* for alignment reasons).
-} HTAB;
+typedef struct HashTable {
+  HashHeader* hctl;      // Shared control information.
+  long (*hash)();        // Hash function.
+  char* segbase;         // Segment base addres for calculating pointer values.
+  SegOffset* dir;        // 'directory' of segm starts.
+  void* (*alloc)(Size);  // Memory allocator
+} HashTable;
 
-typedef struct hashctl {
-  long ssize;        // Segment size.
-  long dsize;        // Dirsize size.
-  long ffactor;      // Fill factor.
-  long (*hash)();    // Hash function.
-  long keysize;      // Hash key length in bytes.
-  long datasize;     // Element data length in bytes.
-  long max_dsize;    // Limit to dsize if directory size is limited.
-  long* segbase;     // Base for calculating bucket + seg ptrs
-  long* (*alloc)();  // Memory allocation function.
-  long* dir;         // Directory if allocated already.
-  long* hctl;        // Location of header information in shared memory.
-} HASHCTL;
+typedef struct HashCtrl {
+  long ssize;            // Segment size.
+  long dsize;            // Dirsize size.
+  long ffactor;          // Fill factor.
+  long (*hash)();        // Hash function.
+  long keysize;          // Hash key length in bytes.
+  long datasize;         // Element data length in bytes.
+  long max_dsize;        // Limit to dsize if directory size is limited.
+  long* segbase;         // Base for calculating bucket + seg ptrs
+  void* (*alloc)(Size);  // Memory allocation function.s
+  long* dir;             // Directory if allocated already.
+  long* hctl;            // Location of header information in shared memory.
+} HashCtrl;
 
 // Flags to indicate action for hctl.
 #define HASH_SEGMENT    0x002  // Setting segment size.
@@ -105,13 +107,23 @@ typedef struct hashctl {
 #define BUCKET_ALLOC_INCR (30)
 
 // hash_search operations.
-typedef enum { HASH_FIND, HASH_ENTER, HASH_REMOVE, HASH_FIND_SAVE, HASH_REMOVE_SAVED } HASHACTION;
+typedef enum { HASH_FIND, HASH_ENTER, HASH_REMOVE, HASH_FIND_SAVE, HASH_REMOVE_SAVED } HashAction;
 
-HTAB* hash_create(int nelem, HASHCTL* info, int flags);
-void hash_destroy(HTAB* hashp);
-void hash_stats(char* where, HTAB* hashp);
-long* hash_search(HTAB* hashp, char* key_ptr, HASHACTION action, bool* found_ptr);
-long* hash_seq(HTAB* hashp);
+// hash_seq status (should be considered an opaque type by callers).
+typedef struct {
+  HashTable* hashp;
+  long cur_bucket;
+  BucketIndex cur_index;
+} HashSeqStatus;
+
+// dynahash.c
+HashTable* hash_create(int nelem, HashCtrl* info, int flags);
+void hash_destroy(HashTable* hashp);
+void hash_stats(char* where, HashTable* hashp);
+long* hash_search(HashTable* hashp, char* key_ptr, HashAction action, bool* found_ptr);
+long* hash_seq(HashTable* hashp);
+void hash_seq_init(HashSeqStatus* status, HashTable* hashp);
+long* hash_seq_search(HashSeqStatus* status);
 long hash_estimate_size(long num_entries, long keysize, long datasize);
 long hash_select_dirsize(long num_entries);
 

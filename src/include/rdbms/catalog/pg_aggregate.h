@@ -1,86 +1,69 @@
-/*-------------------------------------------------------------------------
- *
- * pg_aggregate.h
- *	  definition of the system "aggregate" relation (pg_aggregate)
- *	  along with the relation's initial contents.
- *
- *
- * Portions Copyright (c) 1996-2001, PostgreSQL Global Development Group
- * Portions Copyright (c) 1994, Regents of the University of California
- *
- * $Id: pg_aggregate.h,v 1.29.2.1 2001/05/18 16:00:11 tgl Exp $
- *
- * NOTES
- *	  the genbki.sh script reads this file and generates .bki
- *	  information from the DATA() statements.
- *
- *-------------------------------------------------------------------------
- */
-#ifndef PG_AGGREGATE_H
-#define PG_AGGREGATE_H
+//===----------------------------------------------------------------------===//
+//
+// pg_aggregate.h
+//  definition of the system "aggregate" relation (pg_aggregate)
+//  along with the relation's initial contents.
+//
+//
+// Portions Copyright (c) 1996-2001, PostgreSQL Global Development Group
+// Portions Copyright (c) 1994, Regents of the University of California
+//
+// $Id: pg_aggregate.h,v 1.29.2.1 2001/05/18 16:00:11 tgl Exp $
+//
+// NOTES
+//  the genbki.sh script reads this file and generates .bki
+//  information from the DATA() statements.
+//
+//===----------------------------------------------------------------------===//
+#ifndef RDBMS_CATALOG_AGGREGATE_H_
+#define RDBMS_CATALOG_AGGREGATE_H_
 
-/* ----------------
- *		postgres.h contains the system type definitions and the
- *		CATALOG(), BOOTSTRAP and DATA() sugar words so this file
- *		can be read by both genbki.sh and the C compiler.
- * ----------------
- */
+// postgres.h contains the system type definitions and the
+// CATALOG(), BOOTSTRAP and DATA() sugar words so this file
+// can be read by both genbki.sh and the C compiler.
 
-/* ----------------------------------------------------------------
- *		pg_aggregate definition.
- *
- *		cpp turns this into typedef struct FormData_pg_aggregate
- *
- *	aggname				name of the aggregate
- *	aggowner			owner (creator) of the aggregate
- *	aggtransfn			transition function
- *	aggfinalfn			final function
- *	aggbasetype			type of data on which aggregate operates
- *	aggtranstype		type of aggregate's transition (state) data
- *	aggfinaltype		type of aggregate's final result
- *	agginitval			initial value for transition state
- * ----------------------------------------------------------------
- */
-CATALOG(pg_aggregate)
-{
-	NameData	aggname;
-	int4		aggowner;
-	regproc		aggtransfn;
-	regproc		aggfinalfn;
-	Oid			aggbasetype;
-	Oid			aggtranstype;
-	Oid			aggfinaltype;
-	text		agginitval;		/* VARIABLE LENGTH FIELD */
-} FormData_pg_aggregate;
+// pg_aggregate definition.
+//
+//  cpp turns this into typedef struct FormData_pg_aggregate
+//
+// aggname          name of the aggregate
+// aggowner         owner (creator) of the aggregate
+// aggtransfn       transition function
+// aggfinalfn       final function
+// aggbasetype      type of data on which aggregate operates
+// aggtranstype     type of aggregate's transition (state) data
+// aggfinaltype     type of aggregate's final result
+// agginitval       initial value for transition state
 
-/* ----------------
- *		Form_pg_aggregate corresponds to a pointer to a tuple with
- *		the format of pg_aggregate relation.
- * ----------------
- */
-typedef FormData_pg_aggregate *Form_pg_aggregate;
+CATALOG(pg_aggregate) {
+  NameData aggname;
+  int4 aggowner;
+  regproc aggtransfn;
+  regproc aggfinalfn;
+  Oid aggbasetype;
+  Oid aggtranstype;
+  Oid aggfinaltype;
+  text agginitval;  // VARIABLE LENGTH FIELD
+}
+FormData_pg_aggregate;
 
-/* ----------------
- *		compiler constants for pg_aggregate
- * ----------------
- */
+// Form_pg_aggregate corresponds to a pointer to a tuple with
+// the format of pg_aggregate relation.
+typedef FormData_pg_aggregate* Form_pg_aggregate;
 
-#define Natts_pg_aggregate				8
-#define Anum_pg_aggregate_aggname		1
-#define Anum_pg_aggregate_aggowner		2
-#define Anum_pg_aggregate_aggtransfn	3
-#define Anum_pg_aggregate_aggfinalfn	4
-#define Anum_pg_aggregate_aggbasetype	5
-#define Anum_pg_aggregate_aggtranstype	6
-#define Anum_pg_aggregate_aggfinaltype	7
-#define Anum_pg_aggregate_agginitval	8
+// Compiler constants for pg_aggregate
+#define NATTS_PG_AGGREGATE             8
+#define ANUM_PG_AGGREGATE_AGGNAME      1
+#define ANUM_PG_AGGREGATE_AGGOWNER     2
+#define ANUM_PG_AGGREGATE_AGGTRANSFN   3
+#define ANUM_PG_AGGREGATE_AGGFINALFN   4
+#define ANUM_PG_AGGREGATE_AGGBASETYPE  5
+#define ANUM_PG_AGGREGATE_AGGTRANSTYPE 6
+#define ANUM_PG_AGGREGATE_AGGFINALTYPE 7
+#define ANUM_PG_AGGREGATE_AGGINITVAL   8
 
-
-/* ----------------
- * initial contents of pg_aggregate
- * ---------------
- */
-
+// Initial contents of pg_aggregate.
+// clang-format off
 DATA(insert OID = 0 ( avg	PGUID int8_accum	numeric_avg		20	 1231 1700 "{0,0,0}" ));
 DATA(insert OID = 0 ( avg	PGUID int4_accum	numeric_avg		23	 1231 1700 "{0,0,0}" ));
 DATA(insert OID = 0 ( avg	PGUID int2_accum	numeric_avg		21	 1231 1700 "{0,0,0}" ));
@@ -128,10 +111,9 @@ DATA(insert OID = 0 ( min	PGUID interval_smaller	- 1186 1186 1186 _null_ ));
 DATA(insert OID = 0 ( min	PGUID text_smaller		-	25	 25   25 _null_ ));
 DATA(insert OID = 0 ( min	PGUID numeric_smaller	- 1700 1700 1700 _null_ ));
 
-/*
- * Using int4inc for count() is cheating a little, since it really only
- * takes 1 parameter not 2, but nodeAgg.c won't complain ...
- */
+// Using int4inc for count() is cheating a little, since it really only
+// takes 1 parameter not 2, but nodeAgg.c won't complain ...
+ 
 DATA(insert OID = 0 ( count PGUID int4inc			- 0 23 23 0 ));
 
 DATA(insert OID = 0 ( variance	PGUID int8_accum	numeric_variance	20	 1231 1700 "{0,0,0}" ));
@@ -147,18 +129,11 @@ DATA(insert OID = 0 ( stddev	PGUID int2_accum	numeric_stddev		21	 1231 1700 "{0,
 DATA(insert OID = 0 ( stddev	PGUID float4_accum	float8_stddev		700  1022 701 "{0,0,0}" ));
 DATA(insert OID = 0 ( stddev	PGUID float8_accum	float8_stddev		701  1022 701 "{0,0,0}" ));
 DATA(insert OID = 0 ( stddev	PGUID numeric_accum  numeric_stddev		1700 1231 1700 "{0,0,0}" ));
+// clang-format on
 
-/*
- * prototypes for functions in pg_aggregate.c
- */
-extern void AggregateCreate(char *aggName,
-				char *aggtransfnName,
-				char *aggfinalfnName,
-				char *aggbasetypeName,
-				char *aggtranstypeName,
-				char *agginitval);
+// pg_aggregate.c
+extern void aggregate_create(char* agg_name, char* agg_trans_fn_name, char* agg_final_fn_name, char* agg_base_type_name,
+                             char* agg_trans_type_name, char* agg_init_val);
+extern Datum agg_name_get_init_val(char* agg_name, Oid base_type, bool* is_null);
 
-extern Datum AggNameGetInitVal(char *aggName, Oid basetype,
-				  bool *isNull);
-
-#endif	 /* PG_AGGREGATE_H */
+#endif  // RDBMS_CATALOG_AGGREGATE_H_
