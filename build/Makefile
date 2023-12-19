@@ -169,43 +169,17 @@ trace/fast:
 .PHONY : trace/fast
 
 #=============================================================================
-# Target rules for targets named aset
+# Target rules for targets named mmgr
 
 # Build rule for target.
-aset: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 aset
-.PHONY : aset
+mmgr: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 mmgr
+.PHONY : mmgr
 
 # fast build rule for target.
-aset/fast:
-	$(MAKE) $(MAKESILENT) -f src/backend/utils/mmgr/CMakeFiles/aset.dir/build.make src/backend/utils/mmgr/CMakeFiles/aset.dir/build
-.PHONY : aset/fast
-
-#=============================================================================
-# Target rules for targets named palloc
-
-# Build rule for target.
-palloc: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 palloc
-.PHONY : palloc
-
-# fast build rule for target.
-palloc/fast:
-	$(MAKE) $(MAKESILENT) -f src/backend/utils/mmgr/CMakeFiles/palloc.dir/build.make src/backend/utils/mmgr/CMakeFiles/palloc.dir/build
-.PHONY : palloc/fast
-
-#=============================================================================
-# Target rules for targets named mctx
-
-# Build rule for target.
-mctx: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 mctx
-.PHONY : mctx
-
-# fast build rule for target.
-mctx/fast:
-	$(MAKE) $(MAKESILENT) -f src/backend/utils/mmgr/CMakeFiles/mctx.dir/build.make src/backend/utils/mmgr/CMakeFiles/mctx.dir/build
-.PHONY : mctx/fast
+mmgr/fast:
+	$(MAKE) $(MAKESILENT) -f src/backend/utils/mmgr/CMakeFiles/mmgr.dir/build.make src/backend/utils/mmgr/CMakeFiles/mmgr.dir/build
+.PHONY : mmgr/fast
 
 #=============================================================================
 # Target rules for targets named error
@@ -247,30 +221,17 @@ globals/fast:
 .PHONY : globals/fast
 
 #=============================================================================
-# Target rules for targets named slock_test
+# Target rules for targets named ipc_test
 
 # Build rule for target.
-slock_test: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 slock_test
-.PHONY : slock_test
+ipc_test: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 ipc_test
+.PHONY : ipc_test
 
 # fast build rule for target.
-slock_test/fast:
-	$(MAKE) $(MAKESILENT) -f test/storage/CMakeFiles/slock_test.dir/build.make test/storage/CMakeFiles/slock_test.dir/build
-.PHONY : slock_test/fast
-
-#=============================================================================
-# Target rules for targets named mcxt_test
-
-# Build rule for target.
-mcxt_test: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 mcxt_test
-.PHONY : mcxt_test
-
-# fast build rule for target.
-mcxt_test/fast:
-	$(MAKE) $(MAKESILENT) -f test/utils/CMakeFiles/mcxt_test.dir/build.make test/utils/CMakeFiles/mcxt_test.dir/build
-.PHONY : mcxt_test/fast
+ipc_test/fast:
+	$(MAKE) $(MAKESILENT) -f test/storage/CMakeFiles/ipc_test.dir/build.make test/storage/CMakeFiles/ipc_test.dir/build
+.PHONY : ipc_test/fast
 
 # Help Target
 help:
@@ -280,17 +241,14 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... aset"
 	@echo "... buffer"
 	@echo "... enbl"
 	@echo "... error"
 	@echo "... fstack"
 	@echo "... globals"
 	@echo "... ipc"
-	@echo "... mctx"
-	@echo "... mcxt_test"
-	@echo "... palloc"
-	@echo "... slock_test"
+	@echo "... ipc_test"
+	@echo "... mmgr"
 	@echo "... trace"
 .PHONY : help
 

@@ -23,7 +23,6 @@ set(CMAKE_MAKEFILE_DEPENDS
   "/Users/zlh/Documents/Git/postgres-v7/src/backend/utils/mmgr/CMakeLists.txt"
   "/Users/zlh/Documents/Git/postgres-v7/test/CMakeLists.txt"
   "/Users/zlh/Documents/Git/postgres-v7/test/storage/CMakeLists.txt"
-  "/Users/zlh/Documents/Git/postgres-v7/test/utils/CMakeLists.txt"
   "/usr/local/Cellar/cmake/3.27.4/share/cmake/Modules/CMakeCInformation.cmake"
   "/usr/local/Cellar/cmake/3.27.4/share/cmake/Modules/CMakeCommonLanguageInclude.cmake"
   "/usr/local/Cellar/cmake/3.27.4/share/cmake/Modules/CMakeGenericSystem.cmake"
@@ -67,7 +66,6 @@ set(CMAKE_MAKEFILE_PRODUCTS
   "src/backend/utils/init/CMakeFiles/CMakeDirectoryInformation.cmake"
   "test/CMakeFiles/CMakeDirectoryInformation.cmake"
   "test/storage/CMakeFiles/CMakeDirectoryInformation.cmake"
-  "test/utils/CMakeFiles/CMakeDirectoryInformation.cmake"
   )
 
 # Dependency information for all targets:
@@ -76,12 +74,9 @@ set(CMAKE_DEPEND_INFO_FILES
   "src/backend/storage/ipc/CMakeFiles/ipc.dir/DependInfo.cmake"
   "src/backend/utils/misc/CMakeFiles/fstack.dir/DependInfo.cmake"
   "src/backend/utils/misc/CMakeFiles/trace.dir/DependInfo.cmake"
-  "src/backend/utils/mmgr/CMakeFiles/aset.dir/DependInfo.cmake"
-  "src/backend/utils/mmgr/CMakeFiles/palloc.dir/DependInfo.cmake"
-  "src/backend/utils/mmgr/CMakeFiles/mctx.dir/DependInfo.cmake"
+  "src/backend/utils/mmgr/CMakeFiles/mmgr.dir/DependInfo.cmake"
   "src/backend/utils/error/CMakeFiles/error.dir/DependInfo.cmake"
   "src/backend/utils/init/CMakeFiles/enbl.dir/DependInfo.cmake"
   "src/backend/utils/init/CMakeFiles/globals.dir/DependInfo.cmake"
-  "test/storage/CMakeFiles/slock_test.dir/DependInfo.cmake"
-  "test/utils/CMakeFiles/mcxt_test.dir/DependInfo.cmake"
+  "test/storage/CMakeFiles/ipc_test.dir/DependInfo.cmake"
   )

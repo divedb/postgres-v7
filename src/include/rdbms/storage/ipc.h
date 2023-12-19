@@ -26,7 +26,6 @@
 #include <sys/types.h>
 
 #include "rdbms/postgres.h"
-#include "rdbms/storage/s_lock.h"
 
 #ifdef __linux__
 
@@ -38,24 +37,22 @@ union semun {
 
 #endif
 
-typedef uint16 SystemPortAddress;
-
 // Semaphore definitions.
-#define IPC_PROTECTION (0600)    // Access/modify by user only
-typedef uint32 IpcSemaphoreKey;  // Semaphore key.
+#define IPC_PROTECTION (0600)  // Access/modify by user only
+#define IPC_NMAX_SEM   32      // Maximum number of semaphores
+#define PG_SEMA_MAGIC  537     // Must be less than SEMVMX
+
+typedef uint32 IpcSemaphoreKey;
 typedef int IpcSemaphoreId;
 
-#define IPC_NMAX_SEM  32   // Maximum number of semaphores
-#define PG_SEMA_MAGIC 537  // Must be less than SEMVMX
-
 // Shared memory definitions.
-typedef uint32 IpcMemoryKey;  // Shared memory key
+typedef uint32 IpcMemoryKey;
 typedef int IpcMemoryId;
 
 typedef struct {
   int32 magic;  // Magic # to identify Postgres segments
 
-#define PGShmemMagic 679834892
+#define PG_SHMEM_MAGIC 679834892
 
   pid_t creator_pid;   // PID of creating process
   uint32 total_size;   // Total size of segment
@@ -86,13 +83,12 @@ extern bool ProcExitInprogress;
 
 void proc_exit(int code);
 void shmem_exit(int code);
-int on_proc_exit(void (*function)(), caddr_t arg);
-int on_shmem_exit(void (*function)(), caddr_t arg);
+void on_proc_exit(void (*function)(), Datum arg);
+void on_shmem_exit(void (*function)(), Datum arg);
 void on_exit_reset();
 
 void ipc_init_key_assignment(int port);
-
-IpcSemaphoreId ipc_semaphore_create(int sem_num, int permission, int sem_start_value, bool remove_on_exit);
+IpcSemaphoreId ipc_semaphore_create(int num_sems, int permission, int sem_start_value, bool remove_on_exit);
 void ipc_semaphore_kill(IpcSemaphoreId sem_id);
 void ipc_semaphore_lock(IpcSemaphoreId sem_id, int sem, bool interrupt_ok);
 void ipc_semaphore_unlock(IpcSemaphoreId sem_id, int sem);

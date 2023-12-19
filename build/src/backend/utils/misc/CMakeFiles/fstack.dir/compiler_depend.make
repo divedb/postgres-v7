@@ -108,17 +108,15 @@ src/backend/utils/misc/CMakeFiles/fstack.dir/fstack.c.o: /Users/zlh/Documents/Gi
   /Library/Developer/CommandLineTools/usr/lib/clang/14.0.3/include/stdbool.h \
   /Library/Developer/CommandLineTools/usr/lib/clang/14.0.3/include/stddef.h \
   /Library/Developer/CommandLineTools/usr/lib/clang/14.0.3/include/stdint.h \
-  /Users/zlh/Documents/Git/postgres-v7/include/rdbms/c.h \
-  /Users/zlh/Documents/Git/postgres-v7/include/rdbms/config.h \
-  /Users/zlh/Documents/Git/postgres-v7/include/rdbms/postgres_ext.h \
-  /Users/zlh/Documents/Git/postgres-v7/include/rdbms/utils/fstack.h
+  /Users/zlh/Documents/Git/postgres-v7/src/include/rdbms/c.h \
+  /Users/zlh/Documents/Git/postgres-v7/src/include/rdbms/config.h \
+  /Users/zlh/Documents/Git/postgres-v7/src/include/rdbms/postgres_ext.h \
+  /Users/zlh/Documents/Git/postgres-v7/src/include/rdbms/utils/fstack.h
 
 
-/Users/zlh/Documents/Git/postgres-v7/include/rdbms/postgres_ext.h:
+/Users/zlh/Documents/Git/postgres-v7/src/include/rdbms/utils/fstack.h:
 
-/Users/zlh/Documents/Git/postgres-v7/include/rdbms/config.h:
-
-/Users/zlh/Documents/Git/postgres-v7/include/rdbms/c.h:
+/Users/zlh/Documents/Git/postgres-v7/src/include/rdbms/postgres_ext.h:
 
 /Library/Developer/CommandLineTools/usr/lib/clang/14.0.3/include/stddef.h:
 
@@ -238,8 +236,6 @@ src/backend/utils/misc/CMakeFiles/fstack.dir/fstack.c.o: /Users/zlh/Documents/Gi
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/stdio.h:
 
-/Users/zlh/Documents/Git/postgres-v7/include/rdbms/utils/fstack.h:
-
 /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/stdint.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/secure/_string.h:
@@ -249,6 +245,8 @@ src/backend/utils/misc/CMakeFiles/fstack.dir/fstack.c.o: /Users/zlh/Documents/Gi
 /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/secure/_stdio.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/secure/_common.h:
+
+/Users/zlh/Documents/Git/postgres-v7/src/include/rdbms/c.h:
 
 /Library/Developer/CommandLineTools/usr/lib/clang/14.0.3/include/stdarg.h:
 
@@ -317,6 +315,8 @@ src/backend/utils/misc/CMakeFiles/fstack.dir/fstack.c.o: /Users/zlh/Documents/Gi
 /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/alloca.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/Availability.h:
+
+/Users/zlh/Documents/Git/postgres-v7/src/include/rdbms/config.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/sys/_types/_sigset_t.h:
 

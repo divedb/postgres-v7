@@ -1,7 +1,7 @@
 src/backend/utils/misc/CMakeFiles/fstack.dir/fstack.c.o: \
   /Users/zlh/Documents/Git/postgres-v7/src/backend/utils/misc/fstack.c \
-  /Users/zlh/Documents/Git/postgres-v7/include/rdbms/utils/fstack.h \
-  /Users/zlh/Documents/Git/postgres-v7/include/rdbms/c.h \
+  /Users/zlh/Documents/Git/postgres-v7/src/include/rdbms/utils/fstack.h \
+  /Users/zlh/Documents/Git/postgres-v7/src/include/rdbms/c.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/assert.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/sys/cdefs.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/sys/_symbol_aliasing.h \
@@ -108,5 +108,5 @@ src/backend/utils/misc/CMakeFiles/fstack.dir/fstack.c.o: \
   /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/sys/_select.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/sys/_types/_uuid_t.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/gethostuuid.h \
-  /Users/zlh/Documents/Git/postgres-v7/include/rdbms/config.h \
-  /Users/zlh/Documents/Git/postgres-v7/include/rdbms/postgres_ext.h
+  /Users/zlh/Documents/Git/postgres-v7/src/include/rdbms/config.h \
+  /Users/zlh/Documents/Git/postgres-v7/src/include/rdbms/postgres_ext.h

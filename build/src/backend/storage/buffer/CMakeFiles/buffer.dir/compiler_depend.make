@@ -99,8 +99,10 @@ src/backend/storage/buffer/CMakeFiles/buffer.dir/s_lock.c.o: /Users/zlh/Document
   /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/time.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/unistd.h \
   /Library/Developer/CommandLineTools/usr/lib/clang/14.0.3/include/stdint.h \
-  /Users/zlh/Documents/Git/postgres-v7/include/rdbms/storage/s_lock.h
+  /Users/zlh/Documents/Git/postgres-v7/src/include/rdbms/storage/s_lock.h
 
+
+/Users/zlh/Documents/Git/postgres-v7/src/include/rdbms/storage/s_lock.h:
 
 /Library/Developer/CommandLineTools/usr/lib/clang/14.0.3/include/stdint.h:
 
@@ -269,8 +271,6 @@ src/backend/storage/buffer/CMakeFiles/buffer.dir/s_lock.c.o: /Users/zlh/Document
 /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/i386/types.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/alloca.h:
-
-/Users/zlh/Documents/Git/postgres-v7/include/rdbms/storage/s_lock.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/AvailabilityInternal.h:
 

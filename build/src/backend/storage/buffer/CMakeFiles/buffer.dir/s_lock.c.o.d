@@ -1,6 +1,6 @@
 src/backend/storage/buffer/CMakeFiles/buffer.dir/s_lock.c.o: \
   /Users/zlh/Documents/Git/postgres-v7/src/backend/storage/buffer/s_lock.c \
-  /Users/zlh/Documents/Git/postgres-v7/include/rdbms/storage/s_lock.h \
+  /Users/zlh/Documents/Git/postgres-v7/src/include/rdbms/storage/s_lock.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/stdio.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/_stdio.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/sys/cdefs.h \

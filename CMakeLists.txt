@@ -5,7 +5,7 @@ project(rdbms C)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS OFF)
 set(CMAKE_C_FLAGS "${CMKAE_C_FLAGS} -g -Wall")
-set(RDBMS_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
+set(RDBMS_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/src/include)
 
 find_package(CUNIT QUIET)
 

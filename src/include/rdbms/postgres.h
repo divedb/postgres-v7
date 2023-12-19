@@ -156,8 +156,9 @@ extern bool AssertEnabled;
   ((bool)((!AssertEnabled) || !(condition) || \
           (exceptional_condition(CPP_AS_STRING(condition), &(exception), (char*)NULL, __FILE__, __LINE__))))
 
+// TODO(gc): fix assert
 #ifndef USE_ASSERT_CHECKING
-#define ASSERT(condition)
+#define ASSERT(condition)       assert(condition)
 #define ASSERT_MACRO(condition) ((void)true)
 #define ASSERT_ARG(condition)
 #define ASSERT_STATE(condition)
