@@ -1,5 +1,5 @@
 BasedOnStyle: google
-ColumnLimit: 120
+ColumnLimit: 80
 DerivePointerAlignment: false
 PointerAlignment: Left
 AlignConsecutiveMacros: true

@@ -1,17 +1,16 @@
-// =========================================================================
+//===----------------------------------------------------------------------===//
 //
 // strat.h
 //  index strategy type definitions
 //  (separated out from original istrat.h to avoid circular refs)
 //
 //
-// Portions Copyright (c) 1996=2000, PostgreSQL, Inc
+// Portions Copyright (c) 1996-2001, PostgreSQL Global Development Group
 // Portions Copyright (c) 1994, Regents of the University of California
 //
-// $Id: strat.h,v 1.18 2000/04/12 17:16:26 momjian Exp $
+// $Id: strat.h,v 1.21 2001/03/22 06:16:20 momjian Exp $
 //
-// =========================================================================
-
+//===----------------------------------------------------------------------===//
 #ifndef RDBMS_ACCESS_STRAT_H_
 #define RDBMS_ACCESS_STRAT_H_
 

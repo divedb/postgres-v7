@@ -34,7 +34,7 @@ typedef uint32 BlockNumber;
 
 // BlockId:
 //
-// This is a storage type for BlockNumber.	in other words, this type
+// This is a storage type for BlockNumber. in other words, this type
 // is used for on-disk structures (e.g., in HeapTupleData) whereas
 // BlockNumber is the type on which calculations are performed (e.g.,
 // in access method code).
@@ -55,7 +55,8 @@ typedef BlockIdData* BlockId;
 
 // BlockNumberIsValid
 //  True iff blockNumber is valid.
-#define BLOCK_NUMBER_IS_VALID(block_number) ((bool)((BlockNumber)(block_number) != INVALID_BLOCK_NUMBER))
+#define BLOCK_NUMBER_IS_VALID(block_number) \
+  ((bool)((BlockNumber)(block_number) != INVALID_BLOCK_NUMBER))
 
 // BlockIdIsValid
 //  True iff the block identifier is valid.
@@ -63,24 +64,29 @@ typedef BlockIdData* BlockId;
 
 // BlockIdSet
 //  Sets a block identifier to the specified value.
-#define BLOCK_ID_SET(block_id, block_number)                                     \
-  (assert(POINTER_IS_VALID(block_id)), (block_id)->bi_hi = (block_number) >> 16, \
+#define BLOCK_ID_SET(block_id, block_number) \
+  (assert(POINTER_IS_VALID(block_id)),       \
+   (block_id)->bi_hi = (block_number) >> 16, \
    (block_id)->bi_lo = (block_number)&0xffff)
 
 // BlockIdCopy
 //  Copy a block identifier.
-#define BLOCK_ID_COPY(to_block_id, from_block_id)                                  \
-  (assert(POINTER_IS_VALID(to_block_id)), assert(POINTER_IS_VALID(from_block_id)), \
-   (to_block_id)->bi_hi = (from_block_id)->bi_hi, (to_block_id)->bi_lo = (from_block_id)->bi_lo)
+#define BLOCK_ID_COPY(to_block_id, from_block_id) \
+  (assert(POINTER_IS_VALID(to_block_id)),         \
+   assert(POINTER_IS_VALID(from_block_id)),       \
+   (to_block_id)->bi_hi = (from_block_id)->bi_hi, \
+   (to_block_id)->bi_lo = (from_block_id)->bi_lo)
 
 // BlockIdEquals
 //  Check for block number equality.
-#define BLOCK_ID_EQUALS(block_id1, block_id2) \
-  ((block_id1)->bi_hi == (block_id2)->bi_hi && (block_id1)->bi_lo == (block_id2)->bi_lo)
+#define BLOCK_ID_EQUALS(block_id1, block_id2)  \
+  ((block_id1)->bi_hi == (block_id2)->bi_hi && \
+   (block_id1)->bi_lo == (block_id2)->bi_lo)
 
 // BlockIdGetBlockNumber
 //  Retrieve the block number from a block identifier.
 #define BLOCK_ID_GET_BLOCK_NUMBER(block_id) \
-  (assert(BLOCK_ID_IS_VALID(block_id)), (BlockNumber)(((block_id)->bi_hi << 16) | ((uint16)(block_id)->bi_lo)))
+  (assert(BLOCK_ID_IS_VALID(block_id)),     \
+   (BlockNumber)(((block_id)->bi_hi << 16) | ((uint16)(block_id)->bi_lo)))
 
 #endif  // RDBMS_STORAGE_BLOCK_H_

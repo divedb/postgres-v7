@@ -34,6 +34,10 @@
         "streambuf": "c",
         "ratio": "c",
         "iosfwd": "c",
-        "functional": "cpp"
+        "functional": "cpp",
+        "memory_resource": "c",
+        "charconv": "cpp",
+        "type_traits": "cpp",
+        "limits": "cpp"
     }
 }

@@ -137,7 +137,7 @@ void init_shmem_allocation(PGShmemHeader* seg_hdr) {
 // Assumes ShmemLock and ShmemSegHdr are initialized.
 //
 // Returns: real pointer to memory or NULL if we are out
-// of space.  Has to return a real pointer in order
+// of space. Has to return a real pointer in order
 // to be compatible with malloc().
 void* shmem_alloc(Size size) {
   uint32 new_free;
@@ -146,7 +146,7 @@ void* shmem_alloc(Size size) {
   // Ensure all space is adequately aligned.
   size = MAX_ALIGN(size);
 
-  Assert(ShmemSegHdr);
+  ASSERT(ShmemSegHdr);
 
   spin_acquire(ShmemLock);
   new_free = ShmemSegHdr->free_offset + size;

@@ -1,20 +1,40 @@
+//===----------------------------------------------------------------------===//
+//
+// md.c
+// This code manages relations that reside on magnetic disk.
+//
+// Portions Copyright (c) 1996-2001, PostgreSQL Global Development Group
+// Portions Copyright (c) 1994, Regents of the University of California
+//
+//
+// IDENTIFICATION
+//  $Header:
+//  /home/projects/pgsql/cvsroot/pgsql/src/backend/storage/smgr/md.c
+//  v 1.83 2001/04/02 23:20:24 tgl Exp $
+//
+//===----------------------------------------------------------------------===//
+#include <errno.h>
 #include <fcntl.h>
+#include <sys/file.h>
+#include <unistd.h>
 
 #include "rdbms/catalog/catalog.h"
 #include "rdbms/miscadmin.h"
 #include "rdbms/postgres.h"
 #include "rdbms/storage/smgr.h"
 #include "rdbms/utils/elog.h"
-#include "rdbms/utils/mctx.h"
+#include "rdbms/utils/memutils.h"
 #include "rdbms/utils/rel.h"
+
+#undef DIAGNOSTIC
 
 // These are the assigned bits in mdfd_flags:.
 #define MD_FD_FREE (1 << 0)  // Unused entry.
 
 // The magnetic disk storage manager keeps track of open file descriptors
-// in its own descriptor pool.  This happens for two reasons.	First, at
+// in its own descriptor pool. This happens for two reasons. First, at
 // transaction boundaries, we walk the list of descriptors and flush
-// anything that we've dirtied in the current transaction.  Second, we want
+// anything that we've dirtied in the current transaction. Second, we want
 // to support relations larger than the OS' file size limit (often 2GBytes).
 // In order to do that, we break relations up into chunks of < 2GBytes
 // and store one chunk in each of several files that represent the relation.
@@ -26,30 +46,31 @@
 // When a relation is broken into multiple chunks, only the first chunk
 // has its own entry in the Md_fdvec array; the remaining chunks have
 // palloc'd MdfdVec objects that are chained onto the first chunk via the
-// mdfd_chain links.  All chunks except the last MUST have size exactly
+// mdfd_chain links. All chunks except the last MUST have size exactly
 // equal to RELSEG_SIZE blocks --- see mdnblocks() and mdtruncate().
 typedef struct MdfdVec {
-  int md_fd_vfd;        // fd number in vfd pool.
-  int md_fd_flags;      // fd status flags.
-  int md_fd_lst_bcnt;   // Most recent block count.
-  int md_fd_next_free;  // Next free vector.
+  int md_fd_vfd;        // fd number in vfd pool
+  int md_fd_flags;      // fd status flags
+  int md_fd_lst_bcnt;   // Most recent block count
+  int md_fd_next_free;  // Next free vector
 
 #ifndef LET_OS_MANAGE_FILESIZE
-  struct MdfdVec* md_fd_chain;  // For large relations.
+  struct MdfdVec* md_fd_chain;  // For large relations
 #endif
 } MdfdVec;
 
-static int Nfds = 100;  // Initial/current size of Md_fdvec array.
+static int Nfds = 100;  // Initial/current size of Md_fdvec array
 static MdfdVec* Md_fdvec = NULL;
-static int MdFree = -1;      // Head of freelist of unused fdvec entries.
-static int CurFd = 0;        // First never-used fdvec index.
-static MemoryContext MdCxt;  // Context for all my allocations.
+static int MdFree = -1;      // Head of freelist of unused fdvec entries
+static int CurFd = 0;        // First never-used fdvec index
+static MemoryContext MdCxt;  // Context for all my allocations
 
 static void md_close_fd(int fd);
 static int md_fd_get_reln_fd(Relation relation);
 static MdfdVec* md_fd_open_seg(Relation relation, int seg_no, int oflags);
 static MdfdVec* md_fd_get_seg(Relation relation, int blk_no);
-static int md_fd_blind_get_seg(char* db_name, char* rel_name, Oid db_id, Oid rel_id, int blk_no);
+static int md_fd_blind_get_seg(char* db_name, char* rel_name, Oid db_id,
+                               Oid rel_id, int blk_no);
 static int fdvec_alloc();
 static int fdvec_free(int);
 static BlockNumber md_nblocks_aux(File file, Size blck_sz);
@@ -67,12 +88,10 @@ int md_init() {
   MemoryContext old_cxt;
   int i;
 
-  MdCxt = (MemoryContext)create_global_memory("MdSmgr");
-
-  if (MdCxt == NULL) {
-    return SM_FAIL;
-  }
-
+  MdCxt = AllocSetContextCreate(
+      TopMemoryContext, "MdSmgr", ALLOCSET_DEFAULT_MIN_SIZE,
+      ALLOCSET_DEFAULT_INIT_SIZE, ALLOCSET_DEFAULT_MAX_SIZE);
+  Md_fdvec = (MdfdVec*)memory_context_alloc(MdCxt, Nfds * sizeof(MdfdVec));
   MEMSET(Md_fdvec, 0, Nfds * sizeof(MdfdVec));
 
   // Set free list.
@@ -88,54 +107,43 @@ int md_init() {
 }
 
 int md_create(Relation relation) {
+  char* path;
   int fd;
   int vfd;
-  char* path;
 
-  assert(relation->rd_unlinked && relation->rd_fd < 0);
+  ASSERT(relation->rd_fd < 0);
 
-  path = relpath(RELATION_GET_PHYSICAL_RELATION_NAME(relation));
-  fd = file_name_open_file(path, O_RDWR | O_CREAT | O_EXCL, 0600);
+  path = relpath(relation->rd_node);
+  fd = file_name_open_file(path, O_RDWR | O_CREAT | O_EXCL | PG_BINARY, 0600);
 
   // During bootstrap processing, we skip that check, because pg_time,
   // pg_variable, and pg_log get created before their .bki file entries
   // are processed.
   //
-  // For cataloged relations, pg_class is guaranteed to have an unique
-  // record with the same relname by the unique index. So we are able to
-  // reuse existent files for new catloged relations. Currently we reuse
-  // them in the following cases. 1. they are empty. 2. they are used
-  // for Index relations and their size == BLCKSZ * 2.
-  if (fd < 0) {
-    if (!IS_BOOTSTRAP_PROCESSING_MODE() && relation->rd_rel->relkind == RELKIND_UNCATALOGED) {
-      return -1;
-    }
 
-    fd = file_name_open_file(path, O_RDWR, 0600);
+  if (fd < 0) {
+    int save_errno = errno;
+
+    // During bootstrap, there are cases where a system relation will
+    // be accessed (by internal backend processes) before the
+    // bootstrap script nominally creates it.  Therefore, allow the
+    // file to exist already, but in bootstrap mode only.  (See also
+    // mdopen)
+    if (IS_BOOTSTRAP_PROCESSING_MODE()) {
+      fd = file_name_open_file(path, O_RDWR | PG_BINARY, 0600);
+    }
 
     if (fd < 0) {
+      pfree(path);
+      // Be sure to return the error reported by create, not open.
+      errno = save_errno;
       return -1;
     }
 
-    if (!IS_BOOTSTRAP_PROCESSING_MODE()) {
-      bool reuse = false;
-      int len = file_seek(fd, 0L, SEEK_END);
-
-      if (len == 0) {
-        reuse = true;
-      } else if (relation->rd_rel->relkind == RELKIND_INDEX && len == BLCKSZ * 2) {
-        reuse = true;
-      }
-
-      if (!reuse) {
-        file_close(fd);
-
-        return -1;
-      }
-    }
+    errno = 0;
   }
 
-  relation->rd_unlinked = false;
+  pfree(path);
   vfd = fdvec_alloc();
 
   if (vfd < 0) {
@@ -144,16 +152,11 @@ int md_create(Relation relation) {
 
   Md_fdvec[vfd].md_fd_vfd = fd;
   Md_fdvec[vfd].md_fd_flags = 0;
-
-#ifndef LET_OS_MANAGE_FILESIZE
-
-  Md_fdvec[vfd].md_fd_chain = NULL;
-
-#endif
-
   Md_fdvec[vfd].md_fd_lst_bcnt = 0;
 
-  pfree(path);
+#ifndef LET_OS_MANAGE_FILESIZE
+  Md_fdvec[vfd].md_fd_chain = NULL;
+#endif
 
   return vfd;
 }
@@ -266,7 +269,8 @@ int md_extend(Relation relation, char* buffer) {
 
 #ifdef DIAGNOSTIC
 
-  if (md_nblocks_aux(v->md_fd_vfd, BLCKSZ) > RELSEG_SIZE || v->md_fd_lst_bcnt > RELSEG_SIZE) {
+  if (md_nblocks_aux(v->md_fd_vfd, BLCKSZ) > RELSEG_SIZE ||
+      v->md_fd_lst_bcnt > RELSEG_SIZE) {
     elog(FATAL, "segment too big!");
   }
 
@@ -286,9 +290,11 @@ int md_open(Relation relation) {
   int fd;
   int vfd;
 
-  assert(relation->rd_fd < 0);
+  // 确认这张表还没打开
+  ASSERT(relation->rd_fd < 0);
 
-  path = rel_path(RELATION_GET_PHYSICAL_RELATION_NAME(relation));
+  // 找到这张表路径
+  path = rel_path(relation->rd_node);
   fd = file_name_open_file(path, O_RDWR, 0600);
 
   if (fd < 0) {
@@ -299,15 +305,13 @@ int md_open(Relation relation) {
 
     if (fd < 0) {
       elog(NOTICE, "%s: couldn't open %s", __func__, path);
-      // Mark relation closed and unlinked.
-      relation->rd_fd = -1;
-      relation->rd_unlinked = true;
+      pfree(path);
 
       return -1;
     }
   }
 
-  relation->rd_unlinked = false;
+  pfree(path);
   vfd = fdvec_alloc();
 
   if (vfd < 0) {
@@ -331,8 +335,6 @@ int md_open(Relation relation) {
 #endif
 
 #endif
-
-  pfree(path);
 
   return vfd;
 }
@@ -480,15 +482,16 @@ int md_flush(Relation relation, BlockNumber block_num, char* buffer) {
   // Write and sync the block.
   status = SM_SUCCESS;
 
-  if (file_write(v->md_fd_vfd, buffer, BLCKSZ) != BLCKSZ || file_sync(v->md_fd_vfd) < 0) {
+  if (file_write(v->md_fd_vfd, buffer, BLCKSZ) != BLCKSZ ||
+      file_sync(v->md_fd_vfd) < 0) {
     status = SM_FAIL;
   }
 
   return status;
 }
 
-int md_blind_wrt(char* db_name, char* rel_name, Oid db_id, Oid rel_id, BlockNumber block_num, char* buffer,
-                 bool do_fsync) {
+int md_blind_wrt(char* db_name, char* rel_name, Oid db_id, Oid rel_id,
+                 BlockNumber block_num, char* buffer, bool do_fsync) {
   int status;
   long seek_pos;
   int fd;
@@ -594,7 +597,8 @@ int md_nblocks(Relation relation) {
         v->md_fd_chain = md_fd_open_seg(relation, seg_no, O_CREAT);
 
         if (v->md_fd_chain == NULL) {
-          elog(ERROR, "cannot count blocks for %s -- open failed", RELATION_GET_RELATION_NAME(relation));
+          elog(ERROR, "cannot count blocks for %s -- open failed",
+               RELATION_GET_RELATION_NAME(relation));
         }
       }
 
@@ -765,9 +769,6 @@ int md_abort() {
 
 static void md_close_fd(int fd) {
   MdfdVec* v;
-  MemoryContext old_cxt;
-
-  old_cxt = memory_context_switch_to(MdCxt);
 
 #ifndef LET_OS_MANAGE_FILESIZE
 
@@ -787,12 +788,13 @@ static void md_close_fd(int fd) {
     // Now free vector.
     v = v->md_fd_chain;
 
+    // TODO(gc): 第一个指针始终有效么
     if (ov != &Md_fdvec[fd]) {
       pfree(ov);
     }
-
-    Md_fdvec[fd].md_fd_chain = NULL;
   }
+
+  Md_fdvec[fd].md_fd_chain = NULL;
 
 #else
 
@@ -807,8 +809,6 @@ static void md_close_fd(int fd) {
 
 #endif
 
-  memory_context_switch_to(old_cxt);
-
   fdvec_free(fd);
 }
 
@@ -820,7 +820,8 @@ static int md_fd_get_reln_fd(Relation relation) {
 
   if (fd < 0) {
     if ((fd = md_open(relation)) < 0) {
-      elog(ERROR, "%s cannot open relation %s", __func__, RELATION_GET_RELATION_NAME(relation));
+      elog(ERROR, "%s cannot open relation %s", __func__,
+           RELATION_GET_RELATION_NAME(relation));
     }
 
     relation->rd_fd = fd;
@@ -890,12 +891,14 @@ static MdfdVec* md_fd_get_seg(Relation relation, int block_num) {
 
 #ifndef LET_OS_MANAGE_FILESIZE
 
-  for (v = &Md_fdvec[fd], seg_no = block_num / RELSEG_SIZE, i = 1; seg_no > 0; i++, seg_no--) {
+  for (v = &Md_fdvec[fd], seg_no = block_num / RELSEG_SIZE, i = 1; seg_no > 0;
+       i++, seg_no--) {
     if (v->md_fd_chain == NULL) {
       v->md_fd_chain = md_fd_open_seg(relation, i, O_CREAT);
 
       if (v->md_fd_chain == NULL) {
-        elog(ERROR, "%s: cannot open segment %d of relation %s", __func__, i, RELATION_GET_RELATION_NAME(relation));
+        elog(ERROR, "%s: cannot open segment %d of relation %s", __func__, i,
+             RELATION_GET_RELATION_NAME(relation));
       }
     }
 
@@ -911,7 +914,8 @@ static MdfdVec* md_fd_get_seg(Relation relation, int block_num) {
   return v;
 }
 
-static int md_fd_blind_get_seg(char* db_name, char* rel_name, Oid db_id, Oid rel_id, int block_num) {
+static int md_fd_blind_get_seg(char* db_name, char* rel_name, Oid db_id,
+                               Oid rel_id, int block_num) {
   char* path;
   int fd;
 
@@ -949,19 +953,17 @@ static int fdvec_alloc() {
   int fdvec;
   int i;
 
-  MemoryContext old_cxt;
-
   // Get from free list.
   if (MdFree >= 0) {
     fdvec = MdFree;
     MdFree = Md_fdvec[fdvec].md_fd_next_free;
 
-    assert(Md_fdvec[fdvec].md_fd_flags == MD_FD_FREE);
+    ASSERT(Md_fdvec[fdvec].md_fd_flags == MD_FD_FREE);
 
     Md_fdvec[fdvec].md_fd_flags = 0;
 
     if (fdvec >= CurFd) {
-      assert(fdvec == CurFd);
+      ASSERT(fdvec == CurFd);
       CurFd++;
     }
 
@@ -974,14 +976,10 @@ static int fdvec_alloc() {
   }
 
   Nfds *= 2;
-  old_cxt = memory_context_switch_to(MdCxt);
-
-  nvec = (MdfdVec*)palloc(Nfds * sizeof(MdfdVec));
+  nvec = memory_context_alloc(MdCxt, Nfds * sizeof(MdfdVec));
   MEMSET(nvec, 0, Nfds * sizeof(MdfdVec));
   memmove(nvec, (char*)Md_fdvec, CurFd * sizeof(MdfdVec));
   pfree(Md_fdvec);
-
-  MemoryContextSwitchTo(old_cxt);
 
   Md_fdvec = nvec;
 

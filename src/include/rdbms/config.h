@@ -71,4 +71,17 @@
 #define HAVE_ALLOC_INFO
 #define CLOBBER_FREED_MEMORY
 
+// Part 2: feature symbols and limits that are user-configurable, but
+// only by editing this file ... there's no configure support for them.
+//
+// Editing this file and doing a full rebuild (and an initdb if noted)
+// should be sufficient to change any of these.
+
+// Hard limit on number of backend server processes per postmaster.
+// Increasing this costs about 32 bytes per process slot as of v 6.5.
+#define DEF_MAXBACKENDS 32
+#define MAX_BACKENDS    (DEF_MAXBACKENDS > 1024 ? DEF_MAXBACKENDS : 1024)
+
+#define SIZEOF_DATUM 8
+
 #endif  // RDBMS_CONFIG_H_

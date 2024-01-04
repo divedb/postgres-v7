@@ -43,8 +43,9 @@ typedef struct HeapTupleHeaderData {
 typedef HeapTupleHeaderData* HeapTupleHeader;
 
 // TODO(gc): why add extra sizeof(char).
-#define MIN_TUPLE_SIZE \
-  (MAXALIGN(sizeof(PageHeaderData)) + MAXALIGN(sizeof(HeapTupleHeaderData)) + MAXALIGN(sizeof(char)))
+#define MIN_TUPLE_SIZE                                                        \
+  (MAXALIGN(sizeof(PageHeaderData)) + MAXALIGN(sizeof(HeapTupleHeaderData)) + \
+   MAXALIGN(sizeof(char)))
 
 #define MAX_TUPLE_SIZE (BLCKSZ - MIN_TUPLE_SIZE)
 #define MAX_ATTR_SIZE  (MAX_TUPLE_SIZE - MAXALIGN(sizeof(HeapTupleHeaderData)))
@@ -73,7 +74,7 @@ extern long HeapSysOffset[];
 //  HeapTupleData or pointing into a buffer. Now, it could also point to
 //  a separate allocation that was done in the t_datamcxt memory context.
 typedef struct HeapTupleData {
-  uint32 t_len;               // Length of t_data.
+  uint32 t_len;               // Length of *t_data.
   ItemPointerData t_self;     // SelfItemPointer.
   Oid t_table_oid;            // Table the tuple came from.
   MemoryContext t_data_mcxt;  // Memory context of allocation.
@@ -84,15 +85,18 @@ typedef HeapTupleData* HeapTuple;
 
 #define HEAP_TUPLE_SIZE MAXALIGN(sizeof(HeapTupleData))
 
-#define GET_STRUCT(tuple) (((char*)((HeapTuple)(tuple))->t_data) + ((HeapTuple)(tuple))->t_data->t_hoff)
+#define GET_STRUCT(tuple) \
+  (((char*)((HeapTuple)(tuple))->t_data) + ((HeapTuple)(tuple))->t_data->t_hoff)
 
 // Computes minimum size of bitmap given number of domains.
-#define BIT_MAP_LEN(natts) \
-  ((((((int)(natts)-1) >> 3) + 4 - (MIN_HEAL_TUPLE_BIT_MAP_SIZE >> 3)) & ~03) + (MIN_HEAL_TUPLE_BIT_MAP_SIZE >> 3))
+#define BIT_MAP_LEN(natts)                                               \
+  ((((((int)(natts)-1) >> 3) + 4 - (MIN_HEAL_TUPLE_BIT_MAP_SIZE >> 3)) & \
+    ~03) +                                                               \
+   (MIN_HEAL_TUPLE_BIT_MAP_SIZE >> 3))
 
 #define HEAP_TUPLE_IS_VALID(tuple) POINTER_IS_VALID(tuple)
 
-// Information stored in t_infomask:
+// Information stored in t_info_mask:
 #define HEAP_HASNULL           0x0001  // Has null attribute(s).
 #define HEAP_HASVARLENA        0x0002  // Has variable length  attribute(s).
 #define HEAP_HASEXTERNAL       0x0004  // Has external stored attribute(s).
@@ -108,10 +112,15 @@ typedef HeapTupleData* HeapTuple;
 #define HEAP_MOVED_IN          0x8000  // moved from another place by vacuum.
 #define HEAP_XACT_MASK         0xFF00
 
-#define HEAP_TUPLE_NO_NULLS(tuple)       (!(((HeapTuple)(tuple))->t_data->t_infomask & HEAP_HASNULL))
-#define HEAP_TUPLE_ALL_FIXED(tuple)      (!(((HeapTuple)(tuple))->t_data->t_infomask & HEAP_HASVARLENA))
-#define HEAP_TUPLE_HAS_EXTERNAL(tuple)   ((((HeapTuple)(tuple))->t_data->t_infomask & HEAP_HASEXTERNAL) != 0)
-#define HEAP_TUPLE_HAS_COMPRESSED(tuple) ((((HeapTuple)(tuple))->t_data->t_infomask & HEAP_HASCOMPRESSED) != 0)
-#define HEAP_TUPLE_HAS_EXTENDED(tuple)   ((((HeapTuple)(tuple))->t_data->t_infomask & HEAP_HASEXTENDED) != 0)
+#define HEAP_TUPLE_NO_NULLS(tuple) \
+  (!(((HeapTuple)(tuple))->t_data->t_info_mask & HEAP_HASNULL))
+#define HEAP_TUPLE_ALL_FIXED(tuple) \
+  (!(((HeapTuple)(tuple))->t_data->t_info_mask & HEAP_HASVARLENA))
+#define HEAP_TUPLE_HAS_EXTERNAL(tuple) \
+  ((((HeapTuple)(tuple))->t_data->t_info_mask & HEAP_HASEXTERNAL) != 0)
+#define HEAP_TUPLE_HAS_COMPRESSED(tuple) \
+  ((((HeapTuple)(tuple))->t_data->t_info_mask & HEAP_HASCOMPRESSED) != 0)
+#define HEAP_TUPLE_HAS_EXTENDED(tuple) \
+  ((((HeapTuple)(tuple))->t_data->t_info_mask & HEAP_HASEXTENDED) != 0)
 
 #endif  // RDBMS_ACCESS_HTUP_H_

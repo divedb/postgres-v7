@@ -19,6 +19,8 @@
 #ifndef PG_CLASS_H
 #define PG_CLASS_H
 
+// clang-format off
+
 /* ----------------
  *		postgres.h contains the system type definintions and the
  *		CATALOG(), BOOTSTRAP and DATA() sugar words so this file

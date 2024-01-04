@@ -41,10 +41,8 @@ extern SPINLOCK BufMgrLock;
   (assert((bf->free_next == INVALID_DESCRIPTOR)), assert((bf->free_prev == INVALID_DESCRIPTOR)), \
    assert(!(bf->flags & BM_FREE)))
 
-// AddBufferToFreelist
-//
 // In theory, this is the only routine that needs to be changed
-// if the buffer replacement strategy changes.	Just change
+// if the buffer replacement strategy changes. Just change
 // the manner in which buffers are added to the freelist queue.
 // Currently, they are added on an LRU basis.
 void add_buffer_to_freelist(BufferDesc* buf_desc) {

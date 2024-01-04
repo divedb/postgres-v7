@@ -132,8 +132,10 @@ DATA(insert OID = 0 ( stddev	PGUID numeric_accum  numeric_stddev		1700 1231 1700
 // clang-format on
 
 // pg_aggregate.c
-extern void aggregate_create(char* agg_name, char* agg_trans_fn_name, char* agg_final_fn_name, char* agg_base_type_name,
+extern void aggregate_create(char* agg_name, char* agg_trans_fn_name,
+                             char* agg_final_fn_name, char* agg_base_type_name,
                              char* agg_trans_type_name, char* agg_init_val);
-extern Datum agg_name_get_init_val(char* agg_name, Oid base_type, bool* is_null);
+extern Datum agg_name_get_init_val(char* agg_name, Oid base_type,
+                                   bool* is_null);
 
 #endif  // RDBMS_CATALOG_AGGREGATE_H_

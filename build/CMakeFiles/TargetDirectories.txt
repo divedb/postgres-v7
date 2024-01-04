@@ -28,6 +28,9 @@
 /Users/zlh/Documents/Git/postgres-v7/build/src/backend/utils/init/CMakeFiles/globals.dir
 /Users/zlh/Documents/Git/postgres-v7/build/src/backend/utils/init/CMakeFiles/edit_cache.dir
 /Users/zlh/Documents/Git/postgres-v7/build/src/backend/utils/init/CMakeFiles/rebuild_cache.dir
+/Users/zlh/Documents/Git/postgres-v7/build/src/backend/tcop/CMakeFiles/pg.dir
+/Users/zlh/Documents/Git/postgres-v7/build/src/backend/tcop/CMakeFiles/edit_cache.dir
+/Users/zlh/Documents/Git/postgres-v7/build/src/backend/tcop/CMakeFiles/rebuild_cache.dir
 /Users/zlh/Documents/Git/postgres-v7/build/test/CMakeFiles/edit_cache.dir
 /Users/zlh/Documents/Git/postgres-v7/build/test/CMakeFiles/rebuild_cache.dir
 /Users/zlh/Documents/Git/postgres-v7/build/test/storage/CMakeFiles/ipc_test.dir

@@ -221,6 +221,19 @@ globals/fast:
 .PHONY : globals/fast
 
 #=============================================================================
+# Target rules for targets named pg
+
+# Build rule for target.
+pg: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 pg
+.PHONY : pg
+
+# fast build rule for target.
+pg/fast:
+	$(MAKE) $(MAKESILENT) -f src/backend/tcop/CMakeFiles/pg.dir/build.make src/backend/tcop/CMakeFiles/pg.dir/build
+.PHONY : pg/fast
+
+#=============================================================================
 # Target rules for targets named ipc_test
 
 # Build rule for target.
@@ -249,6 +262,7 @@ help:
 	@echo "... ipc"
 	@echo "... ipc_test"
 	@echo "... mmgr"
+	@echo "... pg"
 	@echo "... trace"
 .PHONY : help
 

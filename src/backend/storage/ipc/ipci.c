@@ -1,24 +1,34 @@
-// =========================================================================
-//
-// ipci.c
-//  POSTGRES inter=process communication initialization code.
-//
-// Portions Copyright (c) 1996=2000, PostgreSQL, Inc
-// Portions Copyright (c) 1994, Regents of the University of California
-//
-//
-// IDENTIFICATION
-//  $Header: /usr/local/cvsroot/pgsql/src/backend/storage/ipc/ipci.c,v 1.33 2000/04/12 17:15:37 momjian Exp $
-//
-// =========================================================================
+/*-------------------------------------------------------------------------
+ *
+ * ipci.c
+ *	  POSTGRES inter-process communication initialization code.
+ *
+ * Portions Copyright (c) 1996-2001, PostgreSQL Global Development Group
+ * Portions Copyright (c) 1994, Regents of the University of California
+ *
+ *
+ * IDENTIFICATION
+ *	  $Header: /home/projects/pgsql/cvsroot/pgsql/src/backend/storage/ipc/ipci.c,v 1.40 2001/03/22 03:59:45 momjian
+ *Exp $
+ *
+ *-------------------------------------------------------------------------
+ */
 
 #include "rdbms/storage/ipc.h"
 
-// Returns a memory key given a port address.
-IPCKey system_port_address_create_ipc_key(SystemPortAddress address) {
-  assert(address < 32768);
+// Creates and initializes shared memory and semaphores.
+//
+// This is called by the postmaster or by a standalone backend.
+// It is NEVER called by a backend forked from the postmaster;
+// for such a backend, the shared memory is already ready-to-go.
+//
+// If "make_private" is true then we only need private memory, not shared
+// memory. This is true for a standalone backend, false for a postmaster.
+void create_shared_memory_and_semaphores(bool make_private, int max_backends) {
+  int size;
+  PGShmemHeader* seg_hdr;
 
-  return SystemPortAddressGetIPCKey(address);
+  // Size of the Postgres shared-memory block is estimated via
+  // moderately-accurate estimates for the big hogs, plus 100K for the
+  // stuff that's too small to bother with estimating.
 }
-
-void create_shared_memory_and_semaphores(IPCKey key, int max_backends) {}

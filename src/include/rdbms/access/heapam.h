@@ -16,6 +16,8 @@
 #include <time.h>
 
 #include "rdbms/access/relscan.h"
+#include "rdbms/access/tupmacs.h"
+#include "rdbms/access/xlogdefs.h"
 #include "rdbms/storage/lock.h"
 #include "rdbms/utils/rel.h"
 
@@ -73,46 +75,115 @@ typedef struct HeapAccessStatisticsData {
 
 typedef HeapAccessStatisticsData* HeapAccessStatistics;
 
-// In heapam.c
-extern Relation heap_open(Oid relationId, LockMode lockmode);
-extern Relation heap_openr(const char* relationName, LockMode lockmode);
-extern Relation heap_open_nofail(Oid relationId);
-extern Relation heap_openr_nofail(const char* relationName);
-extern void heap_close(Relation relation, LockMode lockmode);
-extern HeapScanDesc heap_beginscan(Relation relation, int atend, Snapshot snapshot, unsigned nkeys, ScanKey key);
-extern void heap_rescan(HeapScanDesc scan, bool scanFromEnd, ScanKey key);
-extern void heap_endscan(HeapScanDesc scan);
-extern HeapTuple heap_getnext(HeapScanDesc scandesc, int backw);
-extern void heap_fetch(Relation relation, Snapshot snapshot, HeapTuple tup, Buffer* userbuf);
-extern ItemPointer heap_get_latest_tid(Relation relation, Snapshot snapshot, ItemPointer tid);
-extern void setLastTid(const ItemPointer tid);
-extern Oid heap_insert(Relation relation, HeapTuple tup);
-extern int heap_delete(Relation relation, ItemPointer tid, ItemPointer ctid);
-extern int heap_update(Relation relation, ItemPointer otid, HeapTuple tup, ItemPointer ctid);
-extern int heap_mark4update(Relation relation, HeapTuple tup, Buffer* userbuf);
-extern void simple_heap_delete(Relation relation, ItemPointer tid);
-extern void simple_heap_update(Relation relation, ItemPointer otid, HeapTuple tup);
-extern void heap_markpos(HeapScanDesc scan);
-extern void heap_restrpos(HeapScanDesc scan);
+#define INCR_HEAP_ACCESS_STAT(x) \
+  (HeapAccessStats == NULL ? 0 : (HeapAccessStats->x)++)
 
-extern void heap_redo(XLogRecPtr lsn, XLogRecord* rptr);
-extern void heap_undo(XLogRecPtr lsn, XLogRecord* rptr);
-extern void heap_desc(char* buf, uint8 xl_info, char* rec);
+// Fetch a user attribute's value as a Datum (might be either a
+// value, or a pointer into the data area of the tuple).
+//
+// This must not be used when a system attribute might be
+// requested. Furthermore, the passed attnum MUST be valid.  Use heap_getattr()
+// instead, if in doubt.
+//
+// This gets called many times, so we macro the cacheable and NULL
+// lookups, and call nocachegetattr() for the rest.
 
-// In common/heaptuple.c
-extern Size ComputeDataSize(TupleDesc tupleDesc, Datum* value, char* nulls);
-extern void DataFill(char* data, TupleDesc tupleDesc, Datum* value, char* nulls, uint16* infomask, bits8* bit);
-extern int heap_attisnull(HeapTuple tup, int attnum);
-extern Datum nocachegetattr(HeapTuple tup, int attnum, TupleDesc att, bool* isnull);
-extern HeapTuple heap_copytuple(HeapTuple tuple);
-extern void heap_copytuple_with_tuple(HeapTuple src, HeapTuple dest);
+extern Datum no_cache_get_attr(HeapTuple tup, int attnum, TupleDesc att,
+                               bool* isnull);
+
+#if !defined(DISABLE_COMPLEX_MACRO)
+
+#define FAST_GET_ATTR(tup, attnum, tuple_desc, isnull)                        \
+  (ASSERT_MACRO((attnum) > 0),                                                \
+   ((isnull) ? (*(isnull) = false) : (DUMMY_RET)NULL),                        \
+   HEAP_TUPLE_NO_NULLS(tup)                                                   \
+       ? ((tuple_desc)->attrs[(attnum)-1]->attcacheoff >= 0                   \
+              ? (FETCH_ATT((tuple_desc)->attrs[(attnum)-1],                   \
+                           (char*)(tup)->t_data + (tup)->t_data->t_hoff +     \
+                               (tuple_desc)->attrs[(attnum)-1]->attcacheoff)) \
+              : no_cache_get_attr((tup), (attnum), (tuple_desc), (isnull)))   \
+       : (ATT_IS_NULL((attnum)-1, (tup)->t_data->t_bits)                      \
+              ? (((isnull) ? (*(isnull) = true) : (DUMMY_RET)NULL),           \
+                 (Datum)NULL)                                                 \
+              : (no_cache_get_attr((tup), (attnum), (tuple_desc), (isnull)))))
+#endif
+
+// Extract an attribute of a heap tuple and return it as a Datum.
+// This works for either system or user attributes.  The given
+// attnum is properly range-checked.
+//
+// If the field in question has a NULL value, we return a zero
+// Datum and set *isnull == true.  Otherwise, we set *isnull == false.
+//
+// <tup> is the pointer to the heap tuple.  <attnum> is the
+// attribute number of the column (field) caller wants. <tupleDesc> is a pointer
+// to the structure describing the row and all its fields.
+
+#define HEAP_GET_ATTR(tup, attnum, tupleDesc, isnull)                   \
+  (ASSERT_MACRO((tup) != NULL),                                         \
+   (((attnum) > 0)                                                      \
+        ? (((attnum) > (int)(tup)->t_data->t_natts)                     \
+               ? (((isnull) ? (*(isnull) = true) : (dummyret)NULL),     \
+                  (Datum)NULL)                                          \
+               : FAST_GET_ATTR((tup), (attnum), (tupleDesc), (isnull))) \
+        : heap_get_sys_attr((tup), (attnum), (isnull))))
+
+Datum heap_get_sys_attr(HeapTuple tup, int attnum, bool* isnull);
+
+extern HeapAccessStatistics HeapAccessStats;
+
+// function prototypes for heap access method
+//
+// heap_create, heap_create_with_catalog, and heap_drop_with_catalog
+// are declared in catalog/heap.h
+
+// heapam.c
+Relation heap_open(Oid relationId, LockMode lockmode);
+Relation heap_openr(const char* relationName, LockMode lockmode);
+Relation heap_open_no_fail(Oid relationId);
+Relation heap_openr_no_fail(const char* relationName);
+void heap_close(Relation relation, LockMode lockmode);
+HeapScanDesc heap_begin_scan(Relation relation, int atend, Snapshot snapshot,
+                             unsigned nkeys, ScanKey key);
+void heap_rescan(HeapScanDesc scan, bool scan_from_end, ScanKey key);
+void heap_end_scan(HeapScanDesc scan);
+HeapTuple heap_get_next(HeapScanDesc scandesc, int backw);
+void heap_fetch(Relation relation, Snapshot snapshot, HeapTuple tup,
+                Buffer* user_buf);
+ItemPointer heap_get_latest_tid(Relation relation, Snapshot snapshot,
+                                ItemPointer tid);
+void set_last_tid(const ItemPointer tid);
+Oid heap_insert(Relation relation, HeapTuple tup);
+int heap_delete(Relation relation, ItemPointer tid, ItemPointer ctid);
+int heap_update(Relation relation, ItemPointer otid, HeapTuple tup,
+                ItemPointer ctid);
+int heap_mark4_update(Relation relation, HeapTuple tup, Buffer* userbuf);
+void simple_heap_delete(Relation relation, ItemPointer tid);
+void simple_heap_update(Relation relation, ItemPointer otid, HeapTuple tup);
+void heap_mark_pos(HeapScanDesc scan);
+void heap_restrpos(HeapScanDesc scan);
+void heap_redo(XLogRecPtr lsn, XLogRecord* rptr);
+void heap_undo(XLogRecPtr lsn, XLogRecord* rptr);
+void heap_desc(char* buf, uint8 xl_info, char* rec);
+
+// common/heaptuple.c
+extern Size compute_data_size(TupleDesc tuple_desc, Datum* value, char* nulls);
+extern void data_fill(char* data, TupleDesc tuple_desc, Datum* value,
+                      char* nulls, uint16* infomask, bits8* bit);
+extern int heap_att_is_null(HeapTuple tup, int attnum);
+extern Datum no_cache_get_attr(HeapTuple tup, int attnum, TupleDesc att,
+                               bool* isnull);
+extern HeapTuple heap_copy_tuple(HeapTuple tuple);
+extern void heap_copy_tuple_with_tuple(HeapTuple src, HeapTuple dest);
 extern HeapTuple heap_form_tuple(TupleDesc tup_desc, Datum* value, char* nulls);
-extern HeapTuple heap_modifytuple(HeapTuple tuple, Relation relation, Datum* replValue, char* replNull, char* repl);
-extern void heap_freetuple(HeapTuple tuple);
-HeapTuple heap_addheader(uint32 natts, int structlen, char* structure);
+extern HeapTuple heap_modify_tuple(HeapTuple tuple, Relation relation,
+                                   Datum* repl_value, char* repl_null,
+                                   char* repl);
+extern void heap_free_tuple(HeapTuple tuple);
+HeapTuple heap_add_header(uint32 natts, int struct_len, char* structure);
 
 // In common/heap/stats.c
-extern void PrintHeapAccessStatistics(HeapAccessStatistics stats);
-extern void initam(void);
+void print_heap_access_statistics(HeapAccessStatistics stats);
+void init_am(void);
 
 #endif  // RDBMS_ACCESS_HEAP_AM_H_

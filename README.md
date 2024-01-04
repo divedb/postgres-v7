@@ -62,3 +62,49 @@ cost的计算方式
 
 2023/12/18
 尝试先复现executor
+
+
+
+磁盘管理
+    vfd
+    为什么要有vfd？
+    因为操作系统可能对打开对文件描述符对数量有限制。
+    思考：什么时候真正对关闭文件描述符？
+    打开文件失败的时候么？
+    进程退出的时候 注册需要关闭所有文件描述符
+
+    1. 预留了10个文件描述符给dlopen使用（RESERVE_FOR_LD）
+    2. PostgreSQL至少需要10个文件描述符（FD_MINFREE）
+
+    VfdCache数组 索引为0上的元素是不使用的。
+    free_vfd不会将fd从lru环上删除，而是更新它的fdstate以及next_free状态。
+    lru_delete才会真正的close对应的文件描述符
+
+    allocate_vfd会进行扩容2倍，旧的VfdCache会拷贝到新的内存空间。
+    索引为0的元素的next_free指向SizeVfdCache。
+    需要注意什么时候会更新next_free
+    为什么lru_delete的时候不更新next_free。
+
+    用法就是 打开文件file_open不主动进行关闭
+    让fd模块直接接管 最后close all vfds来关闭所有的文件。
+    考虑：
+    如果一直进行file_open那么达到一定的上限，least recent used文件会从lru环上删除
+    如果dirty的话 会进行fsync 然后关闭。这个时候如果进行file_read被删除的文件描述符
+    会怎么样？
+    源代码中会先进行file_access。
+    在file_access中会判断如果文件没有打开，那么通过lru_insert来重新打开文件。
+
+    问题1
+    fileClose操作
+    将所有虚拟文件描述符从LRU环上删除，然后进行关闭。但是这个地方没有free vfd的操作。
+    也就是说之后这些虚拟文件描述符就不可用了。
+
+    md
+    为什么要有md？
+    因为操作系统可能对文件大小有限制（2GB？）。通过md模块将文件分成一个个segment。
+    
+    md_init
+    初始化了100个MdfdVec，每一个MdfdVec都是空闲的（free）。
+
+    md_create(Relation relation)
+    

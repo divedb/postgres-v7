@@ -1,34 +1,48 @@
+//===----------------------------------------------------------------------===//
+//
+// buf_init.c
+//  buffer manager initialization routines
+//
+// Portions Copyright (c) 1996-2001, PostgreSQL Global Development Group
+// Portions Copyright (c) 1994, Regents of the University of California
+//
+//
+// IDENTIFICATION
+//  $Header: /home/projects/pgsql/cvsroot/pgsql/src/backend/storage/buffer/buf_init.c,v 1.42 2001/03/22 03:59:44
+//           momjian Exp $
+//
+//===----------------------------------------------------------------------===//
+
+#include "rdbms/postgres.h"
 #include "rdbms/storage/buf_internals.h"
+
+static void shutdown_buffer_pool_access();
 
 // If BMTRACE is defined, we trace the last 200 buffer allocations and
 // deallocations in a circular buffer in shared memory.
 #ifdef BMTRACE
-bmtrace* TraceBuf;
+
+BufMgrTrace* TraceBuf;
 long* CurTraceBuf;
 
 #define BMT_LIMIT 200
+
 #endif  // BMTRACE
 
 int ShowPinTrace = 0;
-// int NBuffers = DEF_NBUFFERS; // default is set in config.h
-int NBuffers = 16;
 int DataDescriptors;
 int FreeListDescriptor;
 int LookupListDescriptor;
 int NumDescriptors;
 
 BufferDesc* BufferDescriptors;
-BufferBlock BufferBlocks;
-
-extern IpcSemaphoreId WaitIOSemId;
+Block* BufferBlockPointers;
 
 long* PrivateRefCount;                  // Also used in freelist.c.
 bits8* BufferLocks;                     // Flag bits showing locks I have set.
 BufferTag* BufferTagLastDirtied;        // Tag buffer had when last dirtied by me.
 BufferBlindId* BufferBlindLastDirtied;  // And its BlindId too.
 bool* BufferDirtiedByMe;                // T if buf has been dirtied in cur xact.
-
-SPINLOCK BufMgrLock;
 
 long int ReadBufferCount;
 long int ReadLocalBufferCount;

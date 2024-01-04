@@ -57,12 +57,13 @@
 // CommandDest is a simplistic means of identifying the desired
 // destination. Someday this will probably need to be improved.
 typedef enum {
-  ENUM_NONE,             // Results are discarded.
-  ENUM_DEBUG,            // Results go to debugging output.
-  ENUM_LOCAL,            // Results go in local portal buffer.
-  ENUM_REMOTE,           // Results sent to frontend process.
-  ENUM_REMOTE_INTERNAL,  // Results sent to frontend process in internal (binary) form.
-  ENUM_SPI               // Results sent to SPI manager.
+  CMD_DEST_NONE,             // Results are discarded.
+  CMD_DEST_DEBUG,            // Results go to debugging output.
+  CMD_DEST_LOCAL,            // Results go in local portal buffer.
+  CMD_DEST_REMOTE,           // Results sent to frontend process.
+  CMD_DEST_REMOTE_INTERNAL,  // Results sent to frontend process in internal
+                             // (binary) form.
+  CMD_DEST_SPI               // Results sent to SPI manager.
 } CommandDest;
 
 // DestReceiver is a base type for destination-specific local state.
@@ -71,16 +72,19 @@ typedef enum {
 typedef struct DestReceiver DestReceiver;
 
 struct DestReceiver {
-  void (*receive_tuple)(HeapTuple tuple, TupleDesc type_info,
-                        DestReceiver* self);               // Called for each tuple to be output.
-  void (*setup)(DestReceiver* self, TupleDesc type_info);  // Initialization and teardown.
+  void (*receive_tuple)(
+      HeapTuple tuple, TupleDesc type_info,
+      DestReceiver* self);  // Called for each tuple to be output.
+  void (*setup)(DestReceiver* self,
+                TupleDesc type_info);  // Initialization and teardown.
   void (*cleanup)(DestReceiver* self);
 
   // Private fields might appear beyond this point.
 };
 
 // The primary destination management functions.
-void begin_command(char* pname, int operation, TupleDesc att_info, bool is_into_rel, bool is_into_portal, char* tag,
+void begin_command(char* pname, int operation, TupleDesc att_info,
+                   bool is_into_rel, bool is_into_portal, char* tag,
                    CommandDest dest);
 DestReceiver* dest_to_function(CommandDest dest);
 void end_command(char* command_tag, CommandDest dest);

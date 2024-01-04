@@ -1,15 +1,15 @@
-// =========================================================================
+//===----------------------------------------------------------------------===//
 //
 // fd.h
 //  Virtual file descriptor definitions.
 //
 //
-// Portions Copyright (c) 1996=2000, PostgreSQL, Inc
+// Portions Copyright (c) 1996-2001, PostgreSQL Global Development Group
 // Portions Copyright (c) 1994, Regents of the University of California
 //
-// $Id: fd.h,v 1.21 2000/04/12 17:16:51 momjian Exp $
+// $Id: fd.h,v 1.27 2001/02/18 04:39:42 tgl Exp $
 //
-// =========================================================================
+//===----------------------------------------------------------------------===//
 
 // calls:
 //
@@ -29,7 +29,6 @@
 // use FreeFile, not fclose, to close it.  AVOID using stdio for files
 // that you intend to hold open for any length of time, since there is
 // no way for them to share kernel file descriptors with other files.
-
 #ifndef RDBMS_STORAGE_FD_H_
 #define RDBMS_STORAGE_FD_H_
 
@@ -44,7 +43,7 @@ typedef int File;
 // Operations on virtual Files --- equivalent to Unix kernel file ops.
 File file_name_open_file(FileName filename, int file_flags, int file_mode);
 File path_name_open_file(FileName filename, int file_flags, int file_mode);
-File open_temporary_file(void);
+File open_temporary_file();
 void file_close(File file);
 void file_unlink(File file);
 int file_read(File file, char* buffer, int amount);
@@ -58,10 +57,13 @@ void file_mark_dirty(File file);
 FILE* allocate_file(char* name, char* mode);
 void free_file(FILE*);
 
+// If you've really really gotta have a plain kernel FD, use this.
+int basic_open_file(FileName filename, int file_flags, int file_mode);
+
 // Miscellaneous support routines.
-bool release_data_file(void);
-void close_all_vfds(void);
-void at_eo_xact_files(void);
+void close_all_vfds();
+void at_eo_xact_files();
 int pg_fsync(int fd);
+int pg_fdatasync(int fd);
 
 #endif  // RDBMS_STORAGE_FD_H_

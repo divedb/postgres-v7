@@ -10,7 +10,8 @@
  *
  *
  * IDENTIFICATION
- *	  $Header: /usr/local/cvsroot/pgsql/src/backend/lib/dllist.c,v 1.17 2000/04/12 17:15:10 momjian Exp $
+ *	  $Header: /usr/local/cvsroot/pgsql/src/backend/lib/dllist.c,v 1.17
+ *2000/04/12 17:15:10 momjian Exp $
  *
  *-------------------------------------------------------------------------
  */

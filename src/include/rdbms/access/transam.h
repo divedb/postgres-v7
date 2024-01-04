@@ -1,4 +1,4 @@
-// =========================================================================
+//===----------------------------------------------------------------------===//
 //
 // transam.h
 //  postgres transaction access method support code header
@@ -13,30 +13,30 @@
 //  Transaction System Version 101 now support proper oid
 //  generation and recording in the variable relation.
 //
-// =========================================================================
-
+//===----------------------------------------------------------------------===//
 #ifndef RDBMS_ACCESS_TRANSAM_H_
 #define RDBMS_ACCESS_TRANSAM_H_
 
+#include "rdbms/access/xlogdefs.h"
 #include "rdbms/postgres.h"
 #include "rdbms/storage/block.h"
 #include "rdbms/utils/rel.h"
 
 // Transaction system version id
 //
-//  This is stored on the first page of the log, time and variable
+// This is stored on the first page of the log, time and variable
 // relations on the first 4 bytes.  This is so that if we improve
 // the format of the transaction log after postgres version 2, then
 // people won't have to rebuild their databases.
 //
-//  TRANS_SYSTEM_VERSION 100 means major version 1 minor version 0.
+// TRANS_SYSTEM_VERSION 100 means major version 1 minor version 0.
 // Two databases with the same major version should be compatible,
 // even if their minor versions differ.
 #define TRANS_SYSTEM_VERSION 200
 
 // Transaction id status values
 //
-//  Someday we will use "11" = 3 = XID_COMMIT_CHILD to mean the
+// Someday we will use "11" = 3 = XID_COMMIT_CHILD to mean the
 // commiting of child xactions.
 #define XID_COMMIT       2  // Transaction commited.
 #define XID_ABORT        1  // Transaction aborted.
@@ -48,44 +48,44 @@ typedef unsigned char XidStatus;  // (2 bits).
 // Note: we reserve the first 16384 object ids for internal use.
 // oid's less than this appear in the .bki files.  the choice of
 // 16384 is completely arbitrary.
-#define BootstrapObjectIdData 16384
+#define BOOTSTRAP_OBJECT_ID_DATA 16384
 
 // BitIndexOf computes the index of the Nth xid on a given block
 #define BIT_INDEX_OF(n) ((n)*2)
 
 // Transaction page definitions.
-#define TP_DATA_SIZE                BLCKSZ
+#define TP_DATA_SIZE                (BLCKSZ - sizeof(XLogRecPtr))
 #define TP_NUM_XID_STATUS_PER_BLOCK (TP_DATA_SIZE * 4)
 
-// LogRelationContents structure
-//
-//  This structure describes the storage of the data in the
-// first 128 bytes of the log relation.  This storage is never
+// This structure describes the storage of the data in the
+// first 128 bytes of the log relation. This storage is never
 // used for transaction status because transaction id's begin
 // their numbering at 512.
 //
-//  The first 4 bytes of this relation store the version
+// The first 4 bytes of this relation store the version
 // number of the transction system.
 typedef struct LogRelationContentsData {
+  XLogRecPtr lsn;  // Temp hack: LSN is member of any block
   int trans_system_version;
 } LogRelationContentsData;
 
 typedef LogRelationContentsData* LogRelationContents;
 
-// VariableRelationContents structure
-//
-//  The variable relation is a special "relation" which
+// The variable relation is a special "relation" which
 // is used to store various system "variables" persistantly.
 // Unlike other relations in the system, this relation
 // is updated in place whenever the variables change.
 //
-//  The first 4 bytes of this relation store the version
+// The first 4 bytes of this relation store the version
 // number of the transction system.
 //
-//  Currently, the relation has only one page and the next
+// Currently, the relation has only one page and the next
 // available xid, the last committed xid and the next
 // available oid are stored there.
+//
+// XXX As of 7.1, pg_variable isn't used anymore; this is dead code.
 typedef struct VariableRelationContentsData {
+  XLogRecPtr lsn;
   int trans_system_version;
   TransactionId next_xid_data;
   TransactionId last_xid_data;  // unused.
@@ -94,17 +94,12 @@ typedef struct VariableRelationContentsData {
 
 typedef VariableRelationContentsData* VariableRelationContents;
 
-// VariableCache is placed in shmem and used by backends to
-// get next available XID & OID without access to
-// variable relation. Actually, I would like to have two
-// different on-disk storages for next XID and OID...
-// But hoping that someday we will use per database OID
-// generator I leaved this as is.	- vadim 07/21/98
+// VariableCache is placed in shmem and used by
+// backends to get next available XID & OID.
 typedef struct VariableCacheData {
-  uint32 xid_count;
-  TransactionId next_xid;
-  uint32 oid_count;  // Not implemented, yet.
-  Oid next_oid;
+  TransactionId next_xid;  // Next XID to assign
+  Oid next_oid;            // Next OID to assign
+  uint32 oid_count;        // OIDs available before must do XLOG work
 } VariableCacheData;
 
 typedef VariableCacheData* VariableCache;

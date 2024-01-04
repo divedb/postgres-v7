@@ -16,50 +16,61 @@
 #include "rdbms/access/xlogdefs.h"
 #include "rdbms/storage/buf.h"
 #include "rdbms/storage/lock.h"
-
-// The maximum size of a disk block for any possible installation.
-//
-// in theory this could be anything, but in practice this is actually
-// limited to 2^13 bytes because we have limited ItemIdData.lp_off and
-// ItemIdData.lp_len to 13 bits (see itemid.h).
-//
-// limit is now 2^15.  Took four bits from ItemIdData.lp_flags and gave
-// two apiece to ItemIdData.lp_len and lp_off. darrenk 01/06/98
-#define MAXBLCKSZ 32768
+#include "rdbms/utils/rel.h"
 
 typedef void* Block;
 
+// globals.c
+extern int NBuffers;
+
+// buf_init.c
+extern Block* BufferBlockPointers;
+extern long* PrivateRefCount;
+
+// localbuf.c
+extern int NLocBuffer;
+extern Block* LocalBufferBlockPointers;
+extern long* LocalRefCount;
+
 // Special pageno for bget.
 #define P_NEW INVALID_BLOCK_NUMBER
-
-typedef bits16 BufferLock;
-
-// The rest is function defns in the bufmgr that are externally callable.
-
-// These routines are beaten on quite heavily, hence the macroization.
-// See buf_internals.h for a related comment.
-#define BufferDescriptorGetBuffer(bdesc) ((bdesc)->buf_id + 1)
-
-extern int ShowPinTrace;
 
 // Buffer context lock modes
 #define BUFFER_LOCK_UNLOCK    0
 #define BUFFER_LOCK_SHARE     1
 #define BUFFER_LOCK_EXCLUSIVE 2
 
-// BufferIsValid
-//  True iff the given buffer number is valid (either as a shared
-//  or local buffer).
+#define BAD_BUFFER_ID(bid) ((bid) < 1 || (bid) > NBuffers)
+#define INVALID_DESCRIPTOR (-3)
+
+#define UNLOCK_AND_RELEASE_BUFFER(buffer) (lock_buffer(buffer, BUFFER_LOCK_UNLOCK), release_buffer(buffer))
+#define UNLOCK_AND_WRITE_BUFFER(buffer)   (lock_buffer(buffer, BUFFER_LOCK_UNLOCK), write_buffer(buffer))
+#define BUFFER_IS_VALID(bufnum)           (BUFFER_IS_LOCAL(bufnum) ? ((bufnum) >= -NLocBuffer) : (!BAD_BUFFER_ID(bufnum)))
+
+#define BUFFER_IS_PINNED(bufnum)                                                         \
+  (BUFFER_IS_LOCAL(bufnum) ? ((bufnum) >= -NLocBuffer && LocalRefCount[-(bufnum)-1] > 0) \
+                           : (BAD_BUFFER_ID(bufnum) ? false : (PrivateRefCount[(bufnum)-1] > 0)))
+
+// Increment the pin count on a buffer that we have *already* pinned
+// at least once.
 //
-// Note:
-//  BufferIsValid(InvalidBuffer) is False.
-//  BufferIsValid(UnknownBuffer) is False.
-//
-// Note: For a long time this was defined the same as BufferIsPinned,
-// that is it would say False if you didn't hold a pin on the buffer.
-// I believe this was bogus and served only to mask logic errors.
-// Code should always know whether it has a buffer reference,
-// independently of the pin state.
-#define BUFFER_IS_VALID(bufnum) (BUFFER_IS_LOCAL(bufnum) ? ((bufnum) >= -NLocBuffer) : (!BAD_BUFFER_ID(bufnum)))
+// This macro cannot be used on a buffer we do not have pinned,
+// because it doesn't change the shared buffer state. Therefore the
+// Assert checks are for refcount > 0.  Someone got this wrong once...
+#define INCR_BUFFER_REF_COUNT(buffer)                                                                      \
+  (BUFFER_IS_LOCAL(buffer)                                                                                 \
+       ? ((void)ASSERT_MACRO((buffer) >= -NLocBuffer), (void)ASSERT_MACRO(LocalRefCount[-(buffer)-1] > 0), \
+          (void)LocalRefCount[-(buffer)-1]++)                                                              \
+       : ((void)ASSERT_MACRO(!BAD_BUFFER_ID(buffer)), (void)ASSERT_MACRO(PrivateRefCount[(buffer)-1] > 0), \
+          (void)PrivateRefCount[(buffer)-1]++))
+
+#define BUFFER_GET_BLOCK(buffer)          \
+  (ASSERT_MACRO(BUFFER_IS_VALID(buffer)), \
+   BUFFER_IS_LOCAL(buffer) ? LocalBufferBlockPointers[-(buffer)-1] : BufferBlockPointers[(buffer)-1])
+
+// bufmgr.c
+Buffer relation_get_buffer_write_buffer(Relation relation, BlockNumber block_number, Buffer buffer);
+
+void init_buffer_pool();
 
 #endif  // RDBMS_STORAGE_BUFMGR_H_

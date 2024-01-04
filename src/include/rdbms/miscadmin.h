@@ -86,11 +86,11 @@ void process_interrupts();
   } while (0)
 
 #define START_CRIT_SECTION() (CritSectionCount++)
-#define END_CRIT_SECTION()                     \
-  do {                                         \
-    Assert(CritSectionCount > 0);              \
-    CritSectionCount--;                        \
-    if (InterruptPending) ProcessInterrupts(); \
+#define END_CRIT_SECTION()                      \
+  do {                                          \
+    ASSERT(CritSectionCount > 0);               \
+    CritSectionCount--;                         \
+    if (InterruptPending) process_interrupts(); \
   } while (0)
 
 // postmaster/postmaster.c
@@ -120,7 +120,8 @@ extern int DebugLvl;
 //  USE_GERMAN_DATES specifies German-style dd.mm/yyyy date format.
 //
 // DateStyle specifies preference for date formatting for output.
-// EuroDates if client prefers dates interpreted and written w/European conventions.
+// EuroDates if client prefers dates interpreted and written w/European
+// conventions.
 //
 // HasCTZSet if client timezone is specified by client.
 // CDayLight is the apparent daylight savings time status.
@@ -147,7 +148,8 @@ extern bool EnableFsync;
 extern bool AllowSystemTableMods;
 extern int SortMem;
 
-// A few postmaster startup options are exported here so tht configuration file processor has access to them.
+// A few postmaster startup options are exported here so tht configuration file
+// processor has access to them.
 extern bool NetServer;
 extern bool EnableSSL;
 extern bool SilentMode;
@@ -167,7 +169,7 @@ extern char* DatabasePath;
 void get_raw_database_info(const char* name, Oid* db_id, char* path);
 char* expand_database_path(const char* path);
 
-// utils/init/miscinit.c.
+// utils/init/miscinit.c
 void set_database_name(const char* name);
 void set_database_path(const char* path);
 
@@ -182,13 +184,13 @@ int check_path_access(char* path, char* name, int open_mode);
 
 #ifdef CYR_RECODE
 
-extern void get_charset_by_host(char* table_name, int host, const char* data_dir);
+extern void get_charset_by_host(char* table_name, int host,
+                                const char* data_dir);
 extern void set_charset(void);
 extern char* convert_str(unsigned char* buff, int len, int dest);
 
 #endif
 
-// pmod.h --
 //  POSTGRES processing mode definitions.
 // Description:
 //  There are three processing modes in POSTGRES.  They are
@@ -220,9 +222,6 @@ extern int LockingOff;
 void init_postgres(const char* dbname, const char* username);
 void base_init();
 
-// TODO(gc): proc_exec or proc_exit
-#define EXIT_POSTGRES(status) proc_exit(status)
-
 // Processing mode support stuff.
 extern ProcessingMode Mode;
 
@@ -230,10 +229,11 @@ extern ProcessingMode Mode;
 #define IS_INIT_PROCESSING_MODE()      (Mode == InitProcessing)
 #define IS_NORMAL_PROCESSING_MODE()    (Mode == NormalProcessing)
 
-#define SET_PROCESSING_MODE(mode)                                                                       \
-  do {                                                                                                  \
-    AssertArg((mode) == BootstrapProcessing || (mode) == InitProcessing || (mode) == NormalProcessing); \
-    Mode = (mode);                                                                                      \
+#define SET_PROCESSING_MODE(mode)                                           \
+  do {                                                                      \
+    ASSERT_ARG((mode) == BootstrapProcessing || (mode) == InitProcessing || \
+               (mode) == NormalProcessing);                                 \
+    Mode = (mode);                                                          \
   } while (0)
 
 #define GET_PROCESSING_MODE() Mode
@@ -241,7 +241,8 @@ extern ProcessingMode Mode;
 bool create_data_dir_lock_file(const char* data_dir, bool am_postmaster);
 bool create_socket_lock_file(const char* socket_file, bool am_postmaster);
 void touch_socket_lock_file();
-void record_shared_memory_in_lock_file(IpcMemoryKey shm_key, IpcMemoryId shm_id);
+void record_shared_memory_in_lock_file(IpcMemoryKey shm_key,
+                                       IpcMemoryId shm_id);
 void validate_pg_version(const char* path);
 
 // These externs do not belong here...
