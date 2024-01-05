@@ -29,18 +29,17 @@ int smgr_extend(int16 which, Relation relation, char* buffer);
 // md.c
 int md_init();
 int md_create(Relation relation);
-int md_unlink(Relation relation);
+int md_unlink(RelFileNode rnode);
 int md_extend(Relation relation, char* buffer);
 int md_open(Relation relation);
 int md_close(Relation relation);
 int md_read(Relation relation, BlockNumber block_num, char* buffer);
 int md_write(Relation relation, BlockNumber block_num, char* buffer);
 int md_flush(Relation relation, BlockNumber block_num, char* buffer);
-int md_blind_wrt(char* db_name, char* rel_name, Oid db_id, Oid rel_id,
-                 BlockNumber block_num, char* buffer, bool do_fsync);
+int md_blind_wrt(RelFileNode rnode, BlockNumber block_num, char* buffer,
+                 bool do_fsync);
 int md_mark_dirty(Relation relation, BlockNumber block_num);
-int md_blind_mark_dirty(char* db_name, char* rel_name, Oid db_id, Oid rel_id,
-                        BlockNumber block_num);
+int md_blind_mark_dirty(RelFileNode rnode, BlockNumber block_num);
 int md_nblocks(Relation relation);
 int md_truncate(Relation relation, int bnlocks);
 int md_commit();

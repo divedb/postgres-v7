@@ -69,8 +69,7 @@ static void md_close_fd(int fd);
 static int md_fd_get_reln_fd(Relation relation);
 static MdfdVec* md_fd_open_seg(Relation relation, int seg_no, int oflags);
 static MdfdVec* md_fd_get_seg(Relation relation, int blk_no);
-static int md_fd_blind_get_seg(char* db_name, char* rel_name, Oid db_id,
-                               Oid rel_id, int blk_no);
+static int md_fd_blind_get_seg(RelFileNode rnode, int blk_no);
 static int fdvec_alloc();
 static int fdvec_free(int);
 static BlockNumber md_nblocks_aux(File file, Size blck_sz);
@@ -85,10 +84,9 @@ static BlockNumber md_nblocks_aux(File file, Size blck_sz);
 //
 // Returns SM_SUCCESS or SM_FAIL with errno set as appropriate.
 int md_init() {
-  MemoryContext old_cxt;
   int i;
 
-  MdCxt = AllocSetContextCreate(
+  MdCxt = alloc_set_context_create(
       TopMemoryContext, "MdSmgr", ALLOCSET_DEFAULT_MIN_SIZE,
       ALLOCSET_DEFAULT_INIT_SIZE, ALLOCSET_DEFAULT_MAX_SIZE);
   Md_fdvec = (MdfdVec*)memory_context_alloc(MdCxt, Nfds * sizeof(MdfdVec));
@@ -116,18 +114,13 @@ int md_create(Relation relation) {
   path = relpath(relation->rd_node);
   fd = file_name_open_file(path, O_RDWR | O_CREAT | O_EXCL | PG_BINARY, 0600);
 
-  // During bootstrap processing, we skip that check, because pg_time,
-  // pg_variable, and pg_log get created before their .bki file entries
-  // are processed.
-  //
-
   if (fd < 0) {
     int save_errno = errno;
 
     // During bootstrap, there are cases where a system relation will
     // be accessed (by internal backend processes) before the
-    // bootstrap script nominally creates it.  Therefore, allow the
-    // file to exist already, but in bootstrap mode only.  (See also
+    // bootstrap script nominally creates it. Therefore, allow the
+    // file to exist already, but in bootstrap mode only. (See also
     // mdopen)
     if (IS_BOOTSTRAP_PROCESSING_MODE()) {
       fd = file_name_open_file(path, O_RDWR | PG_BINARY, 0600);
@@ -162,67 +155,47 @@ int md_create(Relation relation) {
 }
 
 // Unlink a relation.
-int md_unlink(Relation relation) {
-  int nblocks;
-  int fd;
-  MdfdVec* v;
-  MemoryContext old_cxt;
+int md_unlink(RelFileNode rnode) {
+  int status = SM_SUCCESS;
+  int save_errno = 0;
+  char* path;
 
-  // If the relation is already unlinked, we have nothing to do any more.
-  if (relation->rd_unlinked && relation->rd_fd < 0) {
-    return SM_SUCCESS;
+  path = relpath(rnode);
+
+  // Delete the first segment, or only segment if not doing segmenting.
+  if (unlink(path) < 0) {
+    status = SM_FAIL;
+    save_errno = errno;
   }
-
-  // Force all segments of the relation to be opened, so that we won't
-  // miss deleting any of them.
-  nblocks = md_nblocks(relation);
-
-  // Clean out the mdfd vector, letting fd.c unlink the physical files.
-  //
-  // NOTE: We truncate the file(s) before deleting 'em, because if other
-  // backends are holding the files open, the unlink will fail on some
-  // platforms (think Microsoft).  Better a zero-size file gets left
-  // around than a big file.	Those other backends will be forced to
-  // close the relation by cache invalidation, but that probably hasn't
-  // happened yet.
-  fd = RELATION_GET_FILE(relation);
-
-  if (fd < 0) {
-    elog(ERROR, "%s: mdnblocks didn't open relation", __func__);
-  }
-
-  Md_fdvec[fd].md_fd_flags = 0;
-  old_cxt = memory_context_switch_to(MdCxt);
 
 #ifndef LET_OS_MANAGE_FILESIZE
 
-  for (v = &Md_fdvec[fd]; v != NULL;) {
-    MdfdVec* ov = v;
-    file_truncate(v->md_fd_vfd, 0);
-    file_unlink(v->md_fd_vfd);
-    v = v->md_fd_chain;
+  if (status == SM_SUCCESS) {
+    char* segpath = (char*)palloc(strlen(path) + 12);
+    int segno;
 
-    if (ov != &Md_fdvec[fd]) {
-      pfree(ov);
+    for (segno = 1;; segno++) {
+      sprintf(segpath, "%s.%d", path, segno);
+
+      if (unlink(segpath) < 0) {
+        // ENOENT is expected after the last segment...
+        if (errno != ENOENT) {
+          status = SM_FAIL;
+          save_errno = errno;
+        }
+        break;
+      }
     }
+
+    pfree(segpath);
   }
-
-#else
-
-  v = &Md_fdvec[fd];
-  file_truncate(v->md_fd_vfd, 0);
-  file_unlink(v->md_fd_vfd);
 
 #endif
 
-  memory_context_switch_to(old_cxt);
-  fdvec_free(fd);
+  pfree(path);
+  errno = save_errno;
 
-  // Be sure to mark relation closed && unlinked.
-  relation->rd_fd = -1;
-  relation->rd_unlinked = true;
-
-  return SM_SUCCESS;
+  return status;
 }
 
 // Add a block to the specified relation.
@@ -251,6 +224,7 @@ int md_extend(Relation relation, char* buffer) {
     }
   }
 
+  // TODO(gc): 这里为什么没有考虑缓冲区溢出？
   if ((nbytes = file_write(v->md_fd_vfd, buffer, BLCKSZ)) != BLCKSZ) {
     if (nbytes > 0) {
       file_truncate(v->md_fd_vfd, pos);
@@ -374,17 +348,13 @@ int md_read(Relation relation, BlockNumber block_num, char* buffer) {
   seek_pos = (long)(BLCKSZ * (block_num % RELSEG_SIZE));
 
 #ifdef DIAGNOSTIC
-
   if (seek_pos >= BLCKSZ * RELSEG_SIZE) {
     elog(FATAL, "seekpos too big!");
   }
-
 #endif
 
 #else
-
   seekpos = (long)(BLCKSZ * (blocknum));
-
 #endif
 
   if (file_seek(v->md_fd_vfd, seek_pos, SEEK_SET) != seek_pos) {
@@ -397,6 +367,7 @@ int md_read(Relation relation, BlockNumber block_num, char* buffer) {
     if (nbytes == 0) {
       MEMSET(buffer, 0, BLCKSZ);
     } else if (block_num == 0 && nbytes > 0 && md_nblocks(relation) == 0) {
+      // TODO(gc): 为什么block的数量为0，能读到nbytes大于0？
       MEMSET(buffer, 0, BLCKSZ);
     } else {
       status = SM_FAIL;
@@ -415,22 +386,17 @@ int md_write(Relation relation, BlockNumber block_num, char* buffer) {
 
   v = md_fd_get_seg(relation, block_num);
 
-#ifndef LET_OS_MANAGE_FILESIZE
-
+#ifndef LET_OS_MANAGE_FILESIZE、
   seek_pos = (long)(BLCKSZ * (block_num % RELSEG_SIZE));
 
 #ifdef DIAGNOSTIC
-
   if (seek_pos >= BLCKSZ * RELSEG_SIZE) {
     elog(FATAL, "seekpos too big!");
   }
-
 #endif
 
 #else
-
   seek_pos = (long)(BLCKSZ * (block_num));
-
 #endif
 
   if (file_seek(v->md_fd_vfd, seek_pos, SEEK_SET) != seek_pos) {
@@ -458,21 +424,16 @@ int md_flush(Relation relation, BlockNumber block_num, char* buffer) {
   v = md_fd_get_seg(relation, block_num);
 
 #ifndef LET_OS_MANAGE_FILESIZE
-
   seek_pos = (long)(BLCKSZ * (block_num % RELSEG_SIZE));
 
 #ifdef DIAGNOSTIC
-
   if (seek_pos >= BLCKSZ * RELSEG_SIZE) {
     elog(FATAL, "seekpos too big!");
   }
-
 #endif
 
 #else
-
   seek_pos = (long)(BLCKSZ * (blocknum));
-
 #endif
 
   if (file_seek(v->md_fd_vfd, seek_pos, SEEK_SET) != seek_pos) {
@@ -490,37 +451,41 @@ int md_flush(Relation relation, BlockNumber block_num, char* buffer) {
   return status;
 }
 
-int md_blind_wrt(char* db_name, char* rel_name, Oid db_id, Oid rel_id,
-                 BlockNumber block_num, char* buffer, bool do_fsync) {
+// Write a block to disk blind.
+//
+// We have to be able to do this using only the name and OID of
+// the database and relation in which the block belongs.  Otherwise
+// this is much like mdwrite().  If dofsync is TRUE, then we fsync
+// the file, making it more like mdflush().
+int md_blind_wrt(RelFileNode rnode, BlockNumber block_num, char* buffer,
+                 bool do_fsync) {
   int status;
   long seek_pos;
   int fd;
 
-  fd = md_fd_blind_get_seg(db_name, rel_name, db_id, rel_id, block_num);
+  fd = md_fd_blind_get_seg(rnode, block_num);
 
   if (fd < 0) {
     return SM_FAIL;
   }
 
 #ifndef LET_OS_MANAGE_FILESIZE
-
   seek_pos = (long)(BLCKSZ * (block_num % RELSEG_SIZE));
 
 #ifdef DIAGNOSTIC
-
   if (seek_pos >= BLCKSZ * RELSEG_SIZE) {
     elog(FATAL, "seekpos too big!");
   }
-
 #endif
 
 #else
-
   seek_pos = (long)(BLCKSZ * (block_num));
-
 #endif
 
+  errno = 0;
+
   if (lseek(fd, seek_pos, SEEK_SET) != seek_pos) {
+    elog(DEBUG, "%s: lseek(%ld) failed: %m", __func__, seek_pos);
     close(fd);
 
     return SM_FAIL;
@@ -530,12 +495,12 @@ int md_blind_wrt(char* db_name, char* rel_name, Oid db_id, Oid rel_id,
 
   // Write and optionally sync the block.
   if (write(fd, buffer, BLCKSZ) != BLCKSZ) {
-    status = SM_FAIL;
-  } else if (do_fsync && pg_fsync(fd) < 0) {
+    elog(DEBUG, "%s: write() failed: %m", __func__);
     status = SM_FAIL;
   }
 
   if (close(fd) < 0) {
+    elog(DEBUG, "%s: close() failed: %m", __func__);
     status = SM_FAIL;
   }
 
@@ -555,6 +520,29 @@ int md_mark_dirty(Relation relation, BlockNumber block_num) {
   return SM_SUCCESS;
 }
 
+int md_blind_mark_dirty(RelFileNode rnode, BlockNumber block_num) {
+  int status;
+  int fd;
+
+  fd = md_fd_blind_get_seg(rnode, block_num);
+
+  if (fd < 0) {
+    return SM_FAIL;
+  }
+
+  status = SM_SUCCESS;
+
+  if (pg_fsync(fd) < 0) {
+    status = SM_FAIL;
+  }
+
+  if (close(fd) < 0) {
+    status = SM_FAIL;
+  }
+
+  return status;
+}
+
 // Get the number of blocks stored in a relation.
 //
 // Important side effect: all segments of the relation are opened
@@ -568,17 +556,14 @@ int md_nblocks(Relation relation) {
   MdfdVec* v;
 
 #ifndef LET_OS_MANAGE_FILESIZE
-
   int nblocks;
   int seg_no;
-
 #endif
 
   fd = md_fd_get_reln_fd(relation);
   v = &Md_fdvec[fd];
 
 #ifndef LET_OS_MANAGE_FILESIZE
-
   seg_no = 0;
 
   for (;;) {
@@ -597,7 +582,7 @@ int md_nblocks(Relation relation) {
         v->md_fd_chain = md_fd_open_seg(relation, seg_no, O_CREAT);
 
         if (v->md_fd_chain == NULL) {
-          elog(ERROR, "cannot count blocks for %s -- open failed",
+          elog(ERROR, "%s: cannot count blocks for %s -- open failed", __func__,
                RELATION_GET_RELATION_NAME(relation));
         }
       }
@@ -609,9 +594,7 @@ int md_nblocks(Relation relation) {
   }
 
 #else
-
   return md_nblocks_aux(v->mdfd_vfd, BLCKSZ);
-
 #endif
 }
 
@@ -624,10 +607,7 @@ int md_truncate(Relation relation, int nblocks) {
   MdfdVec* v;
 
 #ifndef LET_OS_MANAGE_FILESIZE
-
-  MemoryContext old_cxt;
   int prior_blocks;
-
 #endif
 
   // NOTE: mdnblocks makes sure we have opened all existing segments, so
@@ -648,8 +628,6 @@ int md_truncate(Relation relation, int nblocks) {
   v = &Md_fdvec[fd];
 
 #ifndef LET_OS_MANAGE_FILESIZE
-
-  old_cxt = memory_context_switch_to(MdCxt);
   prior_blocks = 0;
 
   while (v != NULL) {
@@ -664,7 +642,7 @@ int md_truncate(Relation relation, int nblocks) {
       file_truncate(v->md_fd_vfd, 0);
       file_unlink(v->md_fd_vfd);
       v = v->md_fd_chain;
-      assert(ov != &Md_fdvec[fd]);  // we never drop the 1st segment.
+      ASSERT(ov != &Md_fdvec[fd]);  // we never drop the 1st segment.
       pfree(ov);
     } else if (prior_blocks + RELSEG_SIZE > nblocks) {
       // This is the last segment we want to keep. Truncate the file
@@ -691,10 +669,7 @@ int md_truncate(Relation relation, int nblocks) {
     prior_blocks += RELSEG_SIZE;
   }
 
-  memory_context_switch_to(old_cxt);
-
 #else
-
   if (file_truncate(v->md_fd_vfd, nblocks * BLCKSZ) < 0) {
     return -1;
   }
@@ -715,16 +690,6 @@ int md_truncate(Relation relation, int nblocks) {
 //
 // Returns SM_SUCCESS or SM_FAIL with errno set as appropriate.
 int md_commit() {
-#ifdef XLOG
-
-  sync();
-  sleep(1);
-  sync();
-
-  return SM_SUCCESS;
-
-#else
-
   int i;
   MdfdVec* v;
 
@@ -735,15 +700,10 @@ int md_commit() {
     }
 
     // Sync the file entry.
-
 #ifndef LET_OS_MANAGE_FILESIZE
-
-    for (; v != NULL; v = v->md_fd_chain)
-
+    for (; v != (MdfdVec*)NULL; v = v->md_fd_chain)
 #else
-
-    if (v != NULL)
-
+    if (v != (MdfdVec*)NULL)
 #endif
     {
       if (file_sync(v->md_fd_vfd) < 0) {
@@ -753,8 +713,6 @@ int md_commit() {
   }
 
   return SM_SUCCESS;
-
-#endif  // XLOG
 }
 
 // Abort a transaction.
@@ -778,7 +736,7 @@ static void md_close_fd(int fd) {
     // If not closed already.
     if (v->md_fd_vfd >= 0) {
       // We sync the file descriptor so that we don't need to reopen
-      // it at transaction commit to force changes to disk.  (This
+      // it at transaction commit to force changes to disk. (This
       // is not really optional, because we are about to forget that
       // the file even exists...).
       file_sync(v->md_fd_vfd);
@@ -788,7 +746,6 @@ static void md_close_fd(int fd) {
     // Now free vector.
     v = v->md_fd_chain;
 
-    // TODO(gc): 第一个指针始终有效么
     if (ov != &Md_fdvec[fd]) {
       pfree(ov);
     }
@@ -831,14 +788,13 @@ static int md_fd_get_reln_fd(Relation relation) {
 }
 
 static MdfdVec* md_fd_open_seg(Relation relation, int seg_no, int oflags) {
-  MemoryContext old_cxt;
   MdfdVec* v;
   int fd;
   char* path;
   char* full_path;
 
   // Be sure we have enough space for the '.segno', if any.
-  path = rel_path(RELATION_GET_PHYSICAL_RELATION_NAME(relation));
+  path = relpath(relation->rd_node);
 
   if (seg_no > 0) {
     full_path = (char*)palloc(strlen(path) + 12);
@@ -848,7 +804,8 @@ static MdfdVec* md_fd_open_seg(Relation relation, int seg_no, int oflags) {
     full_path = path;
   }
 
-  fd = file_name_open_file(full_path, O_RDWR | oflags, 0600);
+  // Open the file.
+  fd = file_name_open_file(full_path, O_RDWR | PG_BINARY | oflags, 0600);
   pfree(full_path);
 
   if (fd < 0) {
@@ -856,9 +813,7 @@ static MdfdVec* md_fd_open_seg(Relation relation, int seg_no, int oflags) {
   }
 
   // Allocate an mdfdvec entry for it.
-  old_cxt = memory_context_switch_to(MdCxt);
-  v = (MdfdVec*)palloc(sizeof(MdfdVec));
-  memory_context_switch_to(old_cxt);
+  v = (MdfdVec*)memory_context_alloc(MdCxt, sizeof(MdfdVec));
 
   // Fill the entry.
   v->md_fd_vfd = fd;
@@ -870,9 +825,7 @@ static MdfdVec* md_fd_open_seg(Relation relation, int seg_no, int oflags) {
   v->md_fd_chain = NULL;
 
 #ifdef DIAGNOSTIC
-
   if (v->mdfd_lstbcnt > RELSEG_SIZE) elog(FATAL, "segment too big on open!");
-
 #endif
 
 #endif
@@ -881,6 +834,8 @@ static MdfdVec* md_fd_open_seg(Relation relation, int seg_no, int oflags) {
 }
 
 // Find the segment of the relation holding the specified block.
+// 假如一个segment的大小是1G，一个block的大小是8192字节
+// 那么一个segment可以容纳1G/8192=131072个block
 static MdfdVec* md_fd_get_seg(Relation relation, int block_num) {
   MdfdVec* v;
   int seg_no;
@@ -894,7 +849,15 @@ static MdfdVec* md_fd_get_seg(Relation relation, int block_num) {
   for (v = &Md_fdvec[fd], seg_no = block_num / RELSEG_SIZE, i = 1; seg_no > 0;
        i++, seg_no--) {
     if (v->md_fd_chain == NULL) {
-      v->md_fd_chain = md_fd_open_seg(relation, i, O_CREAT);
+      // We will create the next segment only if the target block is
+      // within it. This prevents Sorcerer's Apprentice syndrome if
+      // a bug at higher levels causes us to be handed a
+      // ridiculously large blkno --- otherwise we could create many
+      // thousands of empty segment files before reaching the
+      // "target" block. We should never need to create more than
+      // one new segment per call, so this restriction seems
+      // reasonable.
+      v->md_fd_chain = md_fd_open_seg(relation, i, (seg_no == 1) ? O_CREAT : 0);
 
       if (v->md_fd_chain == NULL) {
         elog(ERROR, "%s: cannot open segment %d of relation %s", __func__, i,
@@ -906,43 +869,40 @@ static MdfdVec* md_fd_get_seg(Relation relation, int block_num) {
   }
 
 #else
-
   v = &Md_fdvec[fd];
-
 #endif
 
   return v;
 }
 
-static int md_fd_blind_get_seg(char* db_name, char* rel_name, Oid db_id,
-                               Oid rel_id, int block_num) {
+static int md_fd_blind_get_seg(RelFileNode rnode, int block_num) {
   char* path;
   int fd;
 
 #ifndef LET_OS_MANAGE_FILESIZE
-
-  int seg_no;
-
+  int segno;
 #endif
 
-  // Construct the path to the relation.
-  path = rel_path_blind(db_name, rel_name, db_id, rel_id);
+  path = relpath(rnode);
 
 #ifndef LET_OS_MANAGE_FILESIZE
-
   // Append the '.segno', if needed.
-  seg_no = block_num / RELSEG_SIZE;
+  segno = block_num / RELSEG_SIZE;
+  if (segno > 0) {
+    char* segpath = (char*)palloc(strlen(path) + 12);
 
-  if (seg_no > 0) {
-    char* seg_path = (char*)palloc(strlen(path) + 12);
-    sprintf(seg_path, "%s.%d", path, seg_no);
+    sprintf(segpath, "%s.%d", path, segno);
     pfree(path);
-    path = seg_path;
+    path = segpath;
   }
-
 #endif
 
-  fd = open(path, O_RDWR, 0600);
+  // Call fd.c to allow other FDs to be closed if needed.
+  fd = basic_open_file(path, O_RDWR | PG_BINARY, 0600);
+  if (fd < 0) {
+    elog(DEBUG, "%s: couldn't open %s: %m", __func__, path);
+  }
+
   pfree(path);
 
   return fd;
@@ -1001,8 +961,8 @@ static int fdvec_alloc() {
 
 // Free md file descriptor vector.
 static int fdvec_free(int fdvec) {
-  assert(MdFree < 0 || Md_fdvec[MdFree].md_fd_flags == MD_FD_FREE);
-  assert(Md_fdvec[fdvec].md_fd_flags != MD_FD_FREE);
+  ASSERT(MdFree < 0 || Md_fdvec[MdFree].md_fd_flags == MD_FD_FREE);
+  ASSERT(Md_fdvec[fdvec].md_fd_flags != MD_FD_FREE);
 
   Md_fdvec[fdvec].md_fd_next_free = MdFree;
   Md_fdvec[fdvec].md_fd_flags = MD_FD_FREE;

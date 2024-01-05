@@ -14,8 +14,9 @@
 //
 //
 // IDENTIFICATION
-//  $Header: /home/projects/pgsql/cvsroot/pgsql/src/backend/utils/mmgr/mcxt.c,v 1.28 2001/03/22 04:00:08 momjian
-//  Exp $
+//  $Header:
+//  /home/projects/pgsql/cvsroot/pgsql/src/backend/utils/mmgr/mcxt.c,v 1.28
+//  2001/03/22 04:00:08 momjian Exp $
 //
 //===----------------------------------------------------------------------===//
 
@@ -53,7 +54,8 @@ void memory_context_init() {
   // rate --- we don't really expect much to be allocated in it.
   //
   // (There is special-case code in MemoryContextCreate() for this call.)
-  TopMemoryContext = alloc_set_context_create(NULL, "TopMemoryContext", 8 * 1024, 8 * 1024, 8 * 1024);
+  TopMemoryContext = alloc_set_context_create(NULL, "TopMemoryContext",
+                                              8 * 1024, 8 * 1024, 8 * 1024);
 
   // Not having any other place to point CurrentMemoryContext, make it
   // point to TopMemoryContext. Caller should change this soon!
@@ -65,7 +67,8 @@ void memory_context_init() {
   // only case where retained memory in a context is *essential* --- we
   // want to be sure ErrorContext still has some memory even if we've
   // run out elsewhere!
-  ErrorContext = alloc_set_context_create(TopMemoryContext, "ErrorContext", 8 * 1024, 8 * 1024, 8 * 1024);
+  ErrorContext = alloc_set_context_create(TopMemoryContext, "ErrorContext",
+                                          8 * 1024, 8 * 1024, 8 * 1024);
 }
 
 // Release all space allocated within a context and its descendants,
@@ -190,8 +193,9 @@ void memory_context_reset_and_delete_children(MemoryContext context) {
 // Note that the name field of a MemoryContext does not point to
 // separately-allocated storage, so it should not be freed at context
 // deletion.
-MemoryContext memory_context_create(NodeTag tag, Size size, MemoryContextMethods* methods, MemoryContext parent,
-                                    const char* name) {
+MemoryContext memory_context_create(NodeTag tag, Size size,
+                                    MemoryContextMethods* methods,
+                                    MemoryContext parent, const char* name) {
   MemoryContext node;
   Size needed = size + strlen(name) + 1;
 
@@ -316,7 +320,9 @@ char* memory_context_strdup(MemoryContext context, const char* string) {
   return nstr;
 }
 
-void* palloc(Size size) { return memory_context_alloc(CurrentMemoryContext, size); }
+void* palloc(Size size) {
+  return memory_context_alloc(CurrentMemoryContext, size);
+}
 
 void pfree(void* pointer) {
   StandardChunkHeader* header;

@@ -104,7 +104,16 @@ cost的计算方式
     因为操作系统可能对文件大小有限制（2GB？）。通过md模块将文件分成一个个segment。
     
     md_init
+    创建了MdxCtx内存管理上下文
     初始化了100个MdfdVec，每一个MdfdVec都是空闲的（free）。
 
     md_create(Relation relation)
+    打开表文件 返回虚拟的文件描述符
     
+    md_unlink(RelFileNode)
+    删除对应文件 如果有多个segments的话 同时删除
+    文件名.segno
+
+    md_fd_get_seg(Relation, int)
+    根据block的id来找到对应的segment
+    同时会更新md_chain字段

@@ -11,7 +11,9 @@
 // Portions Copyright (c) 1994, Regents of the University of California
 //
 // IDENTIFICATION
-//  $Header: /home/projects/pgsql/cvsroot/pgsql/src/backend/utils/mmgr/aset.c,v 1.41 2001/03/22 04:00:07 momjian
+//  $Header:
+//  /home/projects/pgsql/cvsroot/pgsql/src/backend/utils/mmgr/aset.c,v 1.41
+//  2001/03/22 04:00:07 momjian
 // Exp $
 //
 // NOTE:
@@ -107,12 +109,12 @@ typedef void* AllocPointer;
 
 // AllocSetContext is our standard implementation of MemoryContext.
 typedef struct AllocSetContext {
-  MemoryContextData header;                      // Standard memory-context fields.
-  AllocBlock blocks;                             // Head of list of blocks in this set.
+  MemoryContextData header;  // Standard memory-context fields.
+  AllocBlock blocks;         // Head of list of blocks in this set.
   AllocChunk freelist[ALLOC_SET_NUM_FREELISTS];  // Free chunk lists.
   Size init_block_size;                          // Initial block size.
   Size max_block_size;                           // Maximum block size.
-  AllocBlock keeper;                             // If not NULL, keep this block over reset.
+  AllocBlock keeper;  // If not NULL, keep this block over reset.
 } AllocSetContext;
 
 typedef AllocSetContext* AllocSet;
@@ -139,7 +141,8 @@ typedef struct AllocBlockData {
 //
 // NB: this MUST match StandardChunkHeader as defined by utils/memutils.h
 typedef struct AllocChunkData {
-  void* aset;  // aset is the owning aset if allocated, or the freelist link if free.
+  void* aset;  // aset is the owning aset if allocated, or the freelist link if
+               // free.
   Size size;   // size is always the size of the usable space in the chunk.
 
 #ifdef MEMORY_CONTEXT_CHECKING
@@ -150,10 +153,12 @@ typedef struct AllocChunkData {
 
 } AllocChunkData;
 
-#define ALLOC_POINTER_IS_VALID(pointer)  POINTER_IS_VALID(pointer)
-#define ALLOC_SET_IS_VALID(set)          POINTER_IS_VALID(set)
-#define ALLOC_POINTER_GET_CHUNK(pointer) ((AllocChunk)(((char*)(pointer)) - ALLOC_CHUNK_HDR_SZ))
-#define ALLOC_CHUNK_GET_POINTER(chunk)   ((AllocPointer)(((char*)(chunk)) + ALLOC_CHUNK_HDR_SZ))
+#define ALLOC_POINTER_IS_VALID(pointer) POINTER_IS_VALID(pointer)
+#define ALLOC_SET_IS_VALID(set)         POINTER_IS_VALID(set)
+#define ALLOC_POINTER_GET_CHUNK(pointer) \
+  ((AllocChunk)(((char*)(pointer)) - ALLOC_CHUNK_HDR_SZ))
+#define ALLOC_CHUNK_GET_POINTER(chunk) \
+  ((AllocPointer)(((char*)(chunk)) + ALLOC_CHUNK_HDR_SZ))
 
 // These functions implement the MemoryContext API for AllocSet contexts.
 static void* alloc_set_alloc(MemoryContext context, Size size);
@@ -170,18 +175,21 @@ static void alloc_set_check(MemoryContext context);
 static void alloc_set_stats(MemoryContext context);
 
 // This is the virtual function table for AllocSet contexts.
-static MemoryContextMethods AllocSetMethods = {alloc_set_alloc, alloc_set_free,  alloc_set_realloc,
-                                               alloc_set_init,  alloc_set_reset, alloc_set_delete,
+static MemoryContextMethods AllocSetMethods = {
+    alloc_set_alloc, alloc_set_free,  alloc_set_realloc,
+    alloc_set_init,  alloc_set_reset, alloc_set_delete,
 #ifdef MEMORY_CONTEXT_CHECKING
-                                               alloc_set_check,
+    alloc_set_check,
 #endif
-                                               alloc_set_stats};
+    alloc_set_stats};
 
 #ifdef HAVE_ALLOC_INFO
-#define ALLOC_FREE_INFO(cxt, chunk) \
-  fprintf(stderr, "%s: %s: %p, %ld\n", __func__, (cxt)->header.name, (chunk), (chunk)->size)
-#define ALLOC_ALLOC_INFO(cxt, chunk) \
-  fprintf(stderr, "%s: %s: %p, %ld\n", __func__, (cxt)->header.name, (chunk), (chunk)->size)
+#define ALLOC_FREE_INFO(cxt, chunk)                                           \
+  fprintf(stderr, "%s: %s: %p, %ld\n", __func__, (cxt)->header.name, (chunk), \
+          (chunk)->size)
+#define ALLOC_ALLOC_INFO(cxt, chunk)                                          \
+  fprintf(stderr, "%s: %s: %p, %ld\n", __func__, (cxt)->header.name, (chunk), \
+          (chunk)->size)
 #else
 #define ALLOC_FREE_INFO(cxt, chunk)
 #define ALLOC_ALLOC_INFO(cxt, chunk)
@@ -214,12 +222,16 @@ static inline int alloc_set_free_index(Size size) {
 // minContextSize: minimum context size
 // initBlockSize: initial allocation block size
 // maxBlockSize: maximum allocation block size
-MemoryContext alloc_set_context_create(MemoryContext parent, const char* name, Size min_context_size,
-                                       Size init_block_size, Size max_block_size) {
+MemoryContext alloc_set_context_create(MemoryContext parent, const char* name,
+                                       Size min_context_size,
+                                       Size init_block_size,
+                                       Size max_block_size) {
   AllocSet context;
 
   // Do the type-independent part of context creation.
-  context = (AllocSet)memory_context_create(T_AllocSetContext, sizeof(AllocSetContext), &AllocSetMethods, parent, name);
+  context = (AllocSet)memory_context_create(T_AllocSetContext,
+                                            sizeof(AllocSetContext),
+                                            &AllocSetMethods, parent, name);
 
   // Make sure alloc parameters are reasonable, and save them.
   //
@@ -248,7 +260,8 @@ MemoryContext alloc_set_context_create(MemoryContext parent, const char* name, S
 
     if (block == NULL) {
       memory_context_stats(TopMemoryContext);
-      elog(ERROR, "Memory exhausted in %s(%lu)", __func__, (unsigned long)min_context_size);
+      elog(ERROR, "Memory exhausted in %s(%lu)", __func__,
+           (unsigned long)min_context_size);
     }
 
     block->aset = context;
@@ -264,7 +277,8 @@ MemoryContext alloc_set_context_create(MemoryContext parent, const char* name, S
   return (MemoryContext)context;
 }
 
-// Returns pointer to allocated memory of given size; memory is added to the set.
+// Returns pointer to allocated memory of given size; memory is added to the
+// set.
 static void* alloc_set_alloc(MemoryContext context, Size size) {
   AllocSet set = (AllocSet)context;
   AllocBlock block;
@@ -500,7 +514,8 @@ static void alloc_set_free(MemoryContext context, void* pointer) {
   // Test for someone scribbling on unused space in chunk.
   if (chunk->requested_size < chunk->size) {
     if (((char*)pointer)[chunk->requested_size] != 0x7E) {
-      elog(NOTICE, "%s: detected write past chunk end in %s %p", __func__, set->header.name, chunk);
+      elog(NOTICE, "%s: detected write past chunk end in %s %p", __func__,
+           set->header.name, chunk);
     }
   }
 #endif
@@ -525,7 +540,9 @@ static void alloc_set_free(MemoryContext context, void* pointer) {
     }
 
     // Let's just make sure chunk is the only one in the block.
-    assert(block->freeptr == ((char*)block) + (chunk->size + ALLOC_BLOCK_HDR_SZ + ALLOC_CHUNK_HDR_SZ));
+    assert(block->freeptr ==
+           ((char*)block) +
+               (chunk->size + ALLOC_BLOCK_HDR_SZ + ALLOC_CHUNK_HDR_SZ));
 
     // Remove block from aset's list and free it.
     if (prev_block == NULL) {
@@ -562,7 +579,8 @@ static void alloc_set_free(MemoryContext context, void* pointer) {
 // Returns new pointer to allocated memory of given size; this memory
 // is added to the set. Memory associated with given pointer is copied
 // into the new memory, and the old memory is freed.
-static void* alloc_set_realloc(MemoryContext context, void* pointer, Size size) {
+static void* alloc_set_realloc(MemoryContext context, void* pointer,
+                               Size size) {
   AllocSet set = (AllocSet)context;
   AllocChunk chunk = ALLOC_POINTER_GET_CHUNK(pointer);
   Size old_size = chunk->size;
@@ -571,7 +589,8 @@ static void* alloc_set_realloc(MemoryContext context, void* pointer, Size size) 
   // Test for someone scribbling on unused space in chunk.
   if (chunk->requested_size < old_size) {
     if (((char*)pointer)[chunk->requested_size] != 0x7E) {
-      elog(NOTICE, "%s: detected write past chunk end in %s %p", __func__, set->header.name, chunk);
+      elog(NOTICE, "%s: detected write past chunk end in %s %p", __func__,
+           set->header.name, chunk);
     }
   }
 #endif
@@ -614,7 +633,9 @@ static void* alloc_set_realloc(MemoryContext context, void* pointer, Size size) 
     }
 
     // Let's just make sure chunk is the only one in the block.
-    assert(block->freeptr == ((char*)block) + (chunk->size + ALLOC_BLOCK_HDR_SZ + ALLOC_CHUNK_HDR_SZ));
+    assert(block->freeptr ==
+           ((char*)block) +
+               (chunk->size + ALLOC_BLOCK_HDR_SZ + ALLOC_CHUNK_HDR_SZ));
 
     chunk_size = MAX_ALIGN(size);
     blk_size = chunk_size + ALLOC_BLOCK_HDR_SZ + ALLOC_CHUNK_HDR_SZ;
@@ -813,14 +834,17 @@ static void alloc_set_stats(MemoryContext context) {
   }
 
   for (fidx = 0; fidx < ALLOC_SET_NUM_FREELISTS; fidx++) {
-    for (chunk = set->freelist[fidx]; chunk != NULL; chunk = (AllocChunk)chunk->aset) {
+    for (chunk = set->freelist[fidx]; chunk != NULL;
+         chunk = (AllocChunk)chunk->aset) {
       nchunks++;
       free_space += chunk->size + ALLOC_CHUNK_HDR_SZ;
     }
   }
 
-  fprintf(stderr, "%s: %ld total in %ld blocks; %ld free (%ld chunks); %ld used\n", set->header.name, total_space,
-          nblocks, free_space, nchunks, total_space - free_space);
+  fprintf(stderr,
+          "%s: %ld total in %ld blocks; %ld free (%ld chunks); %ld used\n",
+          set->header.name, total_space, nblocks, free_space, nchunks,
+          total_space - free_space);
 }
 
 #ifdef MEMORY_CONTEXT_CHECKING
@@ -861,29 +885,35 @@ static void alloc_set_check(MemoryContext context) {
 
       // Check chunk size.
       if (dsize > chsize) {
-        elog(NOTICE, "%s: %s: req size > alloc size for chunk %p in block %p", __func__, name, chunk, block);
+        elog(NOTICE, "%s: %s: req size > alloc size for chunk %p in block %p",
+             __func__, name, chunk, block);
       }
 
       if (chsize < (1 << ALLOC_MIN_BITS)) {
-        elog(NOTICE, "%s: %s: bad size %lu for chunk %p in block %p", __func__, name, (unsigned long)chsize, chunk,
-             block);
+        elog(NOTICE, "%s: %s: bad size %lu for chunk %p in block %p", __func__,
+             name, (unsigned long)chsize, chunk, block);
       }
 
       // Single-chunk block?
-      if (chsize > ALLOC_CHUNK_LIMIT && chsize + ALLOC_CHUNK_HDR_SZ != blk_used) {
-        elog(NOTICE, "%s: %s: bad single-chunk %p in block %p", __func__, name, chunk, block);
+      if (chsize > ALLOC_CHUNK_LIMIT &&
+          chsize + ALLOC_CHUNK_HDR_SZ != blk_used) {
+        elog(NOTICE, "%s: %s: bad single-chunk %p in block %p", __func__, name,
+             chunk, block);
       }
 
       // If chunk is allocated, check for correct aset pointer. (If
       // it's free, the aset is the freelist pointer, which we can't
       // check as easily...)
       if (dsize > 0 && chunk->aset != (void*)set) {
-        elog(NOTICE, "%s: %s: bogus aset link in block %p, chunk %p", __func__, name, block, chunk);
+        elog(NOTICE, "%s: %s: bogus aset link in block %p, chunk %p", __func__,
+             name, block, chunk);
       }
 
       // Check for overwrite of "unallocated" space in chunk
       if (dsize > 0 && dsize < chsize && *chdata_end != 0x7E) {
-        elog(NOTICE, "%s: %s: detected write past chunk end in block %p, chunk %p", __func__, name, block, chunk);
+        elog(NOTICE,
+             "%s: %s: detected write past chunk end in block %p, chunk %p",
+             __func__, name, block, chunk);
       }
 
       blk_data += chsize;
@@ -893,7 +923,8 @@ static void alloc_set_check(MemoryContext context) {
     }
 
     if ((blk_data + (nchunks * ALLOC_CHUNK_HDR_SZ)) != blk_used) {
-      elog(NOTICE, "%s: %s: found inconsistent memory block %p", __func__, name, block);
+      elog(NOTICE, "%s: %s: found inconsistent memory block %p", __func__, name,
+           block);
     }
   }
 }
