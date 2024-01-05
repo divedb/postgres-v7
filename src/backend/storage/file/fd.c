@@ -49,6 +49,7 @@
 #include "rdbms/postgres.h"
 #include "rdbms/storage/ipc.h"
 #include "rdbms/utils/elog.h"
+#include "rdbms/utils/memutils.h"
 
 // Problem: Postgres does a system(ld...) to do dynamic loading.
 // This will open several extra files in addition to those used by
@@ -387,7 +388,7 @@ long file_seek(File file, long offset, int whence) {
 int file_truncate(File file, long offset) {
   int return_code;
 
-  ASERT(FILE_IS_VALID(file));
+  ASSERT(FILE_IS_VALID(file));
 
   DO_DB(elog(DEBUG, "%s: %d (%s).\n", __func__, file, VfdCache[file].filename));
 
@@ -570,7 +571,7 @@ try_again:
 
     // 如果成功能够重新释放旧文件描述符
     // 那么再尝试打开
-    if (release_lru_file) {
+    if (release_lru_file()) {
       goto try_again;
     }
 

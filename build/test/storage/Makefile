@@ -130,6 +130,44 @@ ipc_test/fast:
 	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f test/storage/CMakeFiles/ipc_test.dir/build.make test/storage/CMakeFiles/ipc_test.dir/build
 .PHONY : ipc_test/fast
 
+# Convenience name for target.
+test/storage/CMakeFiles/fd_test.dir/rule:
+	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test/storage/CMakeFiles/fd_test.dir/rule
+.PHONY : test/storage/CMakeFiles/fd_test.dir/rule
+
+# Convenience name for target.
+fd_test: test/storage/CMakeFiles/fd_test.dir/rule
+.PHONY : fd_test
+
+# fast build rule for target.
+fd_test/fast:
+	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f test/storage/CMakeFiles/fd_test.dir/build.make test/storage/CMakeFiles/fd_test.dir/build
+.PHONY : fd_test/fast
+
+fd_test.o: fd_test.c.o
+.PHONY : fd_test.o
+
+# target to build an object file
+fd_test.c.o:
+	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f test/storage/CMakeFiles/fd_test.dir/build.make test/storage/CMakeFiles/fd_test.dir/fd_test.c.o
+.PHONY : fd_test.c.o
+
+fd_test.i: fd_test.c.i
+.PHONY : fd_test.i
+
+# target to preprocess a source file
+fd_test.c.i:
+	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f test/storage/CMakeFiles/fd_test.dir/build.make test/storage/CMakeFiles/fd_test.dir/fd_test.c.i
+.PHONY : fd_test.c.i
+
+fd_test.s: fd_test.c.s
+.PHONY : fd_test.s
+
+# target to generate assembly for a file
+fd_test.c.s:
+	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f test/storage/CMakeFiles/fd_test.dir/build.make test/storage/CMakeFiles/fd_test.dir/fd_test.c.s
+.PHONY : fd_test.c.s
+
 ipc_test.o: ipc_test.c.o
 .PHONY : ipc_test.o
 
@@ -162,7 +200,11 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
+	@echo "... fd_test"
 	@echo "... ipc_test"
+	@echo "... fd_test.o"
+	@echo "... fd_test.i"
+	@echo "... fd_test.s"
 	@echo "... ipc_test.o"
 	@echo "... ipc_test.i"
 	@echo "... ipc_test.s"

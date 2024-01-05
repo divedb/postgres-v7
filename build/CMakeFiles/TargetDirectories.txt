@@ -12,6 +12,9 @@
 /Users/zlh/Documents/Git/postgres-v7/build/src/backend/storage/ipc/CMakeFiles/ipc.dir
 /Users/zlh/Documents/Git/postgres-v7/build/src/backend/storage/ipc/CMakeFiles/edit_cache.dir
 /Users/zlh/Documents/Git/postgres-v7/build/src/backend/storage/ipc/CMakeFiles/rebuild_cache.dir
+/Users/zlh/Documents/Git/postgres-v7/build/src/backend/storage/file/CMakeFiles/fd.dir
+/Users/zlh/Documents/Git/postgres-v7/build/src/backend/storage/file/CMakeFiles/edit_cache.dir
+/Users/zlh/Documents/Git/postgres-v7/build/src/backend/storage/file/CMakeFiles/rebuild_cache.dir
 /Users/zlh/Documents/Git/postgres-v7/build/src/backend/utils/CMakeFiles/edit_cache.dir
 /Users/zlh/Documents/Git/postgres-v7/build/src/backend/utils/CMakeFiles/rebuild_cache.dir
 /Users/zlh/Documents/Git/postgres-v7/build/src/backend/utils/misc/CMakeFiles/fstack.dir
@@ -26,6 +29,7 @@
 /Users/zlh/Documents/Git/postgres-v7/build/src/backend/utils/error/CMakeFiles/rebuild_cache.dir
 /Users/zlh/Documents/Git/postgres-v7/build/src/backend/utils/init/CMakeFiles/enbl.dir
 /Users/zlh/Documents/Git/postgres-v7/build/src/backend/utils/init/CMakeFiles/globals.dir
+/Users/zlh/Documents/Git/postgres-v7/build/src/backend/utils/init/CMakeFiles/miscinit.dir
 /Users/zlh/Documents/Git/postgres-v7/build/src/backend/utils/init/CMakeFiles/edit_cache.dir
 /Users/zlh/Documents/Git/postgres-v7/build/src/backend/utils/init/CMakeFiles/rebuild_cache.dir
 /Users/zlh/Documents/Git/postgres-v7/build/src/backend/tcop/CMakeFiles/pg.dir
@@ -34,5 +38,6 @@
 /Users/zlh/Documents/Git/postgres-v7/build/test/CMakeFiles/edit_cache.dir
 /Users/zlh/Documents/Git/postgres-v7/build/test/CMakeFiles/rebuild_cache.dir
 /Users/zlh/Documents/Git/postgres-v7/build/test/storage/CMakeFiles/ipc_test.dir
+/Users/zlh/Documents/Git/postgres-v7/build/test/storage/CMakeFiles/fd_test.dir
 /Users/zlh/Documents/Git/postgres-v7/build/test/storage/CMakeFiles/edit_cache.dir
 /Users/zlh/Documents/Git/postgres-v7/build/test/storage/CMakeFiles/rebuild_cache.dir

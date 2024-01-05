@@ -1,8 +1,10 @@
 #include "rdbms/storage/fd.h"
 
+#include <fcntl.h>
 #include <sys/resource.h>
 
 #include "../template.h"
+#include "rdbms/utils/memutils.h"
 
 #define MAX_BUFF  1024
 #define FILE_MODE 0600
@@ -12,7 +14,7 @@ static void test_max_file_per_process() {
   struct rlimit limits;
   if (getrlimit(RLIMIT_NOFILE, &limits) == -1) {
     perror("getrlimit");
-    return 1;
+    return;
   }
 
   printf("Soft limit: %ld\n", (long)limits.rlim_cur);
@@ -46,6 +48,8 @@ static void test_basic_read_write() {
 }
 
 static void register_test() {
+  memory_context_init();
+
   TEST("Max NO File", test_max_file_per_process);
   TEST("File Write and Read", test_basic_read_write);
 }

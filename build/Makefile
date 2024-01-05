@@ -143,6 +143,19 @@ ipc/fast:
 .PHONY : ipc/fast
 
 #=============================================================================
+# Target rules for targets named fd
+
+# Build rule for target.
+fd: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 fd
+.PHONY : fd
+
+# fast build rule for target.
+fd/fast:
+	$(MAKE) $(MAKESILENT) -f src/backend/storage/file/CMakeFiles/fd.dir/build.make src/backend/storage/file/CMakeFiles/fd.dir/build
+.PHONY : fd/fast
+
+#=============================================================================
 # Target rules for targets named fstack
 
 # Build rule for target.
@@ -221,6 +234,19 @@ globals/fast:
 .PHONY : globals/fast
 
 #=============================================================================
+# Target rules for targets named miscinit
+
+# Build rule for target.
+miscinit: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 miscinit
+.PHONY : miscinit
+
+# fast build rule for target.
+miscinit/fast:
+	$(MAKE) $(MAKESILENT) -f src/backend/utils/init/CMakeFiles/miscinit.dir/build.make src/backend/utils/init/CMakeFiles/miscinit.dir/build
+.PHONY : miscinit/fast
+
+#=============================================================================
 # Target rules for targets named pg
 
 # Build rule for target.
@@ -246,6 +272,19 @@ ipc_test/fast:
 	$(MAKE) $(MAKESILENT) -f test/storage/CMakeFiles/ipc_test.dir/build.make test/storage/CMakeFiles/ipc_test.dir/build
 .PHONY : ipc_test/fast
 
+#=============================================================================
+# Target rules for targets named fd_test
+
+# Build rule for target.
+fd_test: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 fd_test
+.PHONY : fd_test
+
+# fast build rule for target.
+fd_test/fast:
+	$(MAKE) $(MAKESILENT) -f test/storage/CMakeFiles/fd_test.dir/build.make test/storage/CMakeFiles/fd_test.dir/build
+.PHONY : fd_test/fast
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -257,10 +296,13 @@ help:
 	@echo "... buffer"
 	@echo "... enbl"
 	@echo "... error"
+	@echo "... fd"
+	@echo "... fd_test"
 	@echo "... fstack"
 	@echo "... globals"
 	@echo "... ipc"
 	@echo "... ipc_test"
+	@echo "... miscinit"
 	@echo "... mmgr"
 	@echo "... pg"
 	@echo "... trace"

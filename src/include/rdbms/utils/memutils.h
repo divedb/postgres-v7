@@ -63,7 +63,7 @@ extern MemoryContext QueryContext;
 extern MemoryContext TopTransactionContext;
 extern MemoryContext TransactionCommandContext;
 
-// In mcxt.c
+// mcxt.c
 void memory_context_init();
 void memory_context_reset(MemoryContext context);
 void memory_context_delete(MemoryContext context);
@@ -86,12 +86,15 @@ void* repalloc(void* pointer, Size size);
 // This routine handles the context-type-independent part of memory
 // context creation. It's intended to be called from context-type-
 // specific creation routines, and noplace else.
-MemoryContext memory_context_create(NodeTag tag, Size size, MemoryContextMethods* methods, MemoryContext parent,
-                                    const char* name);
+MemoryContext memory_context_create(NodeTag tag, Size size,
+                                    MemoryContextMethods* methods,
+                                    MemoryContext parent, const char* name);
 
 // In aset.c
-MemoryContext alloc_set_context_create(MemoryContext parent, const char* name, Size min_context_size,
-                                       Size init_block_size, Size max_block_size);
+MemoryContext alloc_set_context_create(MemoryContext parent, const char* name,
+                                       Size min_context_size,
+                                       Size init_block_size,
+                                       Size max_block_size);
 
 // Recommended default alloc parameters, suitable for "ordinary" contexts
 // that might hold quite a lot of data.
