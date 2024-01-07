@@ -20,12 +20,13 @@
 //===----------------------------------------------------------------------===//
 // Section 1: variable-length datatypes (TOAST support)
 //===----------------------------------------------------------------------===//
-// Struct varattrib is the header of a varlena object that may have been TOASTed.
+// Struct varattrib is the header of a varlena object that may have been
+// TOASTed.
 #define TUPLE_TOASTER_ACTIVE
 
 typedef struct VarAttrib {
-  int32 va_header; /* External/compressed storage */
-  /* flags and item size */
+  int32 va_header;  // External/compressed storage
+  // Flags and item size
   union {
     struct {
       int32 va_rawsize;  // Plain data size.
@@ -54,14 +55,17 @@ typedef struct VarAttrib {
 #define VARATT_SIZEP(ptr) (((VarAttrib*)(ptr))->va_header)
 #define VARATT_SIZE(ptr)  (VARATT_SIZEP(ptr) & VARATT_MASK_SIZE)
 #define VARATT_DATA(ptr)  (((VarAttrib*)(ptr))->va_content.va_data)
-#define VARATT_CDATA(ptr) (((VarAttrib*)(ptr))->va_content.va_compressed.va_data)
+#define VARATT_CDATA(ptr) \
+  (((VarAttrib*)(ptr))->va_content.va_compressed.va_data)
 
 #define VARSIZE(ptr) VARATT_SIZE(ptr)
 #define VARDATA(ptr) VARATT_DATA(ptr)
 
-#define VARATT_IS_EXTENDED(ptr)   ((VARATT_SIZEP(ptr) & VARATT_MASK_FLAGS) != 0)
-#define VARATT_IS_EXTERNAL(ptr)   ((VARATT_SIZEP(ptr) & VARATT_FLAG_EXTERNAL) != 0)
-#define VARATT_IS_COMPRESSED(ptr) ((VARATT_SIZEP(ptr) & VARATT_FLAG_COMPRESSED) != 0)
+#define VARATT_IS_EXTENDED(ptr) ((VARATT_SIZEP(ptr) & VARATT_MASK_FLAGS) != 0)
+#define VARATT_IS_EXTERNAL(ptr) \
+  ((VARATT_SIZEP(ptr) & VARATT_FLAG_EXTERNAL) != 0)
+#define VARATT_IS_COMPRESSED(ptr) \
+  ((VARATT_SIZEP(ptr) & VARATT_FLAG_COMPRESSED) != 0)
 
 //===----------------------------------------------------------------------===//
 // Section 2: datum type + support macros
@@ -141,10 +145,11 @@ extern Exception BadState;
 extern bool AssertEnabled;
 
 // Generates an exception if the given condition is true.
-#define TRAP(condition, exception)                                                                    \
-  do {                                                                                                \
-    if ((AssertEnabled) && (condition))                                                               \
-      exceptional_condition(CPP_AS_STRING(condition), &(exception), (char*)NULL, __FILE__, __LINE__); \
+#define TRAP(condition, exception)                                  \
+  do {                                                              \
+    if ((AssertEnabled) && (condition))                             \
+      exceptional_condition(CPP_AS_STRING(condition), &(exception), \
+                            (char*)NULL, __FILE__, __LINE__);       \
   } while (0)
 
 // TrapMacro is the same as Trap but it's intended for use in macros:
@@ -152,9 +157,10 @@ extern bool AssertEnabled;
 //  #define foo(x) (AssertM(x != 0) && bar(x))
 //
 // Isn't CPP fun?
-#define TRAP_MACRO(condition, exception)      \
-  ((bool)((!AssertEnabled) || !(condition) || \
-          (exceptional_condition(CPP_AS_STRING(condition), &(exception), (char*)NULL, __FILE__, __LINE__))))
+#define TRAP_MACRO(condition, exception)                                 \
+  ((bool)((!AssertEnabled) || !(condition) ||                            \
+          (exceptional_condition(CPP_AS_STRING(condition), &(exception), \
+                                 (char*)NULL, __FILE__, __LINE__))))
 
 // TODO(gc): fix assert
 #ifndef USE_ASSERT_CHECKING
@@ -164,28 +170,32 @@ extern bool AssertEnabled;
 #define ASSERT_STATE(condition)
 #define AssertEnabled 0
 #else
-#define ASSERT(condition)       TRAP(!(condition), FailedAssertion)
-#define ASSERT_MACRO(condition) ((void)TRAP_MACRO(!(condition), FailedAssertion))
+#define ASSERT(condition) TRAP(!(condition), FailedAssertion)
+#define ASSERT_MACRO(condition) \
+  ((void)TRAP_MACRO(!(condition), FailedAssertion))
 #define ASSERT_ARG(condition)   TRAP(!(condition), BadArg)
 #define ASSERT_STATE(condition) TRAP(!(condition), BadState)
 #endif
 
 // Generates an exception with a message if the given condition is true.
-#define LOG_TRAP(condition, exception, print_args)                                                                 \
-  do {                                                                                                             \
-    if ((AssertEnabled) && (condition))                                                                            \
-      exceptional_condition(CPP_AS_STRING(condition), &(exception), vararg_format print_args, __FILE__, __LINE__); \
+#define LOG_TRAP(condition, exception, print_args)                         \
+  do {                                                                     \
+    if ((AssertEnabled) && (condition))                                    \
+      exceptional_condition(CPP_AS_STRING(condition), &(exception),        \
+                            vararg_format print_args, __FILE__, __LINE__); \
   } while (0)
 
 // This is the same as LogTrap but it's intended for use in macros:
 //
 //  #define foo(x) (LogAssertMacro(x != 0, "yow!") && bar(x))
-#define LOG_TRAP_MACRO(condition, exception, print_args)                                                     \
-  ((bool)((!AssertEnabled) || !(condition) ||                                                                \
-          (exceptional_condition(CPP_AS_STRING(condition), &(exception), vararg_format print_args, __FILE__, \
+#define LOG_TRAP_MACRO(condition, exception, print_args)                 \
+  ((bool)((!AssertEnabled) || !(condition) ||                            \
+          (exceptional_condition(CPP_AS_STRING(condition), &(exception), \
+                                 vararg_format print_args, __FILE__,     \
                                  __LINE__))))
 
-extern int exceptional_condition(char* condition_name, Exception* exceptionp, char* details, char* filename,
+extern int exceptional_condition(char* condition_name, Exception* exceptionp,
+                                 char* details, char* filename,
                                  int line_number);
 extern char* vararg_format(const char* fmt, ...);
 
@@ -198,10 +208,14 @@ extern char* vararg_format(const char* fmt, ...);
 
 #else
 
-#define LOG_ASSERT(condition, print_args)       LOG_TRAP_(!(condition), FailedAssertion, print_args)
-#define LOG_ASSERT_MACRO(condition, print_args) LOG_TRAP_MACRO(!(condition), FailedAssertion, print_args)
-#define LOG_ASSERT_ARG(condition, print_args)   LOG_TRAP_(!(condition), BadArg, print_args)
-#define LOG_ASSERT_STATE(condition, print_args) LOG_TRAP_(!(condition), BadState, print_args)
+#define LOG_ASSERT(condition, print_args) \
+  LOG_TRAP_(!(condition), FailedAssertion, print_args)
+#define LOG_ASSERT_MACRO(condition, print_args) \
+  LOG_TRAP_MACRO(!(condition), FailedAssertion, print_args)
+#define LOG_ASSERT_ARG(condition, print_args) \
+  LOG_TRAP_(!(condition), BadArg, print_args)
+#define LOG_ASSERT_STATE(condition, print_args) \
+  LOG_TRAP_(!(condition), BadState, print_args)
 
 #ifdef ASSERT_CHECKING_TEST
 extern int assert_test(int val);

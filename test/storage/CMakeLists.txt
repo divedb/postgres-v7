@@ -1,1 +1,1 @@
-add_tests(ipc_test fd_test)
+add_tests(ipc_test fd_test md_test)

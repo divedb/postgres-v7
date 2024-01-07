@@ -108,7 +108,7 @@ struct VarLena {
 #define VAR_HDR_SZ ((int32)sizeof(int32))
 
 typedef struct VarLena Bytea;
-typedef struct VarLena Text;
+typedef struct VarLena text;
 typedef struct VarLena BpChar;  // Blank-padded char, ie SQL char(n)
 typedef struct VarLena VarChar;
 
@@ -130,11 +130,12 @@ typedef NameData* Name;
 //===----------------------------------------------------------------------===//
 // Section 4: IsValid macros for system types
 //===----------------------------------------------------------------------===//
-#define BOOL_IS_VALID(boolean)            ((boolean) == false || (boolean) == true)
-#define POINTER_IS_VALID(pointer)         ((void*)(pointer) != NULL)
-#define POINTER_IS_ALIGNED(pointer, type) (((long)(pointer) % (sizeof(type))) == 0)
-#define OID_IS_VALID(oid)                 ((oid) != INVALID_OID)
-#define REG_PROCEDURE_IS_VALID(p)         OID_IS_VALID(p)
+#define BOOL_IS_VALID(boolean)    ((boolean) == false || (boolean) == true)
+#define POINTER_IS_VALID(pointer) ((void*)(pointer) != NULL)
+#define POINTER_IS_ALIGNED(pointer, type) \
+  (((long)(pointer) % (sizeof(type))) == 0)
+#define OID_IS_VALID(oid)         ((oid) != INVALID_OID)
+#define REG_PROCEDURE_IS_VALID(p) OID_IS_VALID(p)
 
 //===----------------------------------------------------------------------===//
 // Section 5: offsetof, lengthof, endof, alignment
@@ -150,7 +151,8 @@ typedef NameData* Name;
 //
 // NOTE: TYPEALIGN will not work if ALIGNVAL is not a power of 2.
 // That case seems extremely unlikely to occur in practice, however.
-#define TYPE_ALIGN(alignment, size) (((long)(size) + (alignment - 1)) & ~(alignment - 1))
+#define TYPE_ALIGN(alignment, size) \
+  (((long)(size) + (alignment - 1)) & ~(alignment - 1))
 
 #define SHORT_ALIGN(size)  TYPE_ALIGN(_Alignof(short), size)
 #define INT_ALIGN(size)    TYPE_ALIGN(_Alignof(int), size)
@@ -202,18 +204,19 @@ typedef NameData* Name;
 //
 // I think the crossover point could be a good deal higher for
 // most platforms, actually.  tgl 2000-03-19
-#define MEMSET(start, val, len)                                                                \
-  do {                                                                                         \
-    int32* _start = (int32*)(start);                                                           \
-    int _val = (val);                                                                          \
-    Size _len = (len);                                                                         \
-                                                                                               \
-    if ((((long)_start) & INT_ALIGN_MASK) == 0 && (_len & INT_ALIGN_MASK) == 0 && _val == 0 && \
-        _len <= MEMSET_LOOP_LIMIT) {                                                           \
-      int32* _stop = (int32*)((char*)_start + _len);                                           \
-      while (_start < _stop) *_start++ = 0;                                                    \
-    } else                                                                                     \
-      memset((char*)_start, _val, _len);                                                       \
+#define MEMSET(start, val, len)                      \
+  do {                                               \
+    int32* _start = (int32*)(start);                 \
+    int _val = (val);                                \
+    Size _len = (len);                               \
+                                                     \
+    if ((((long)_start) & INT_ALIGN_MASK) == 0 &&    \
+        (_len & INT_ALIGN_MASK) == 0 && _val == 0 && \
+        _len <= MEMSET_LOOP_LIMIT) {                 \
+      int32* _stop = (int32*)((char*)_start + _len); \
+      while (_start < _stop) *_start++ = 0;          \
+    } else                                           \
+      memset((char*)_start, _val, _len);             \
   } while (0)
 
 #define MEMSET_LOOP_LIMIT 64
@@ -221,6 +224,8 @@ typedef NameData* Name;
 //===----------------------------------------------------------------------===//
 // Section 7: random stuff
 //===----------------------------------------------------------------------===//
+#define CSIGNBIT (0x80)
+
 #define STATUS_OK           (0)
 #define STATUS_ERROR        (-1)
 #define STATUS_NOT_FOUND    (-2)

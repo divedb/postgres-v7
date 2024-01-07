@@ -156,6 +156,19 @@ fd/fast:
 .PHONY : fd/fast
 
 #=============================================================================
+# Target rules for targets named md
+
+# Build rule for target.
+md: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 md
+.PHONY : md
+
+# fast build rule for target.
+md/fast:
+	$(MAKE) $(MAKESILENT) -f src/backend/storage/smgr/CMakeFiles/md.dir/build.make src/backend/storage/smgr/CMakeFiles/md.dir/build
+.PHONY : md/fast
+
+#=============================================================================
 # Target rules for targets named fstack
 
 # Build rule for target.
@@ -285,6 +298,19 @@ fd_test/fast:
 	$(MAKE) $(MAKESILENT) -f test/storage/CMakeFiles/fd_test.dir/build.make test/storage/CMakeFiles/fd_test.dir/build
 .PHONY : fd_test/fast
 
+#=============================================================================
+# Target rules for targets named md_test
+
+# Build rule for target.
+md_test: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 md_test
+.PHONY : md_test
+
+# fast build rule for target.
+md_test/fast:
+	$(MAKE) $(MAKESILENT) -f test/storage/CMakeFiles/md_test.dir/build.make test/storage/CMakeFiles/md_test.dir/build
+.PHONY : md_test/fast
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -302,6 +328,8 @@ help:
 	@echo "... globals"
 	@echo "... ipc"
 	@echo "... ipc_test"
+	@echo "... md"
+	@echo "... md_test"
 	@echo "... miscinit"
 	@echo "... mmgr"
 	@echo "... pg"

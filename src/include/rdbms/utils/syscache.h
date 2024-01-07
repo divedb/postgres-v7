@@ -1,18 +1,17 @@
-// =========================================================================
+//===----------------------------------------------------------------------===//
 //
 // syscache.h
 //  System catalog cache definitions.
 //
 // See also lsyscache.h, which provides convenience routines for
-// common cache=lookup operations.
+// common cache-lookup operations.
 //
-// Portions Copyright (c) 1996=2000, PostgreSQL, Inc
+// Portions Copyright (c) 1996-2001, PostgreSQL Global Development Group
 // Portions Copyright (c) 1994, Regents of the University of California
 //
-// $Id: syscache.h,v 1.25 2000/04/12 17:16:55 momjian Exp $
+// $Id: syscache.h,v 1.29 2001/03/22 04:01:14 momjian Exp $
 //
-// =========================================================================
-
+//===----------------------------------------------------------------------===//
 #ifndef RDBMS_UTILS_SYS_CACHE_H_
 #define RDBMS_UTILS_SYS_CACHE_H_
 
@@ -54,15 +53,13 @@
 #define TYPENAME     26
 #define TYPEOID      27
 
-// Information needed for a call to InitSysCache().
-typedef struct cachedesc {
-  char* name;  // This is Name so that we can initialize it.
-  int nkeys;
-  int key[4];
-  int size;                        // sizeof(appropriate struct).
-  char* index_name;                // Index relation for this cache, if exists.
-  HeapTuple (*index_scan_func)();  // Function to handle index scans
+void init_catalog_cache();
+HeapTuple search_sys_cache(int cache_id, Datum key1, Datum key2, Datum key3,
+                           Datum key4);
+void release_sys_cache(HeapTuple tuple);
 
-} CacheDesc;
+// Convenience routines.
+HeapTuple search_sys_cache_copy(int cache_id, Datum key1, Datum key2,
+                                Datum key3, Datum key4);
 
 #endif  // RDBMS_UTILS_SYS_CACHE_H_

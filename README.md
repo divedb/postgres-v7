@@ -101,7 +101,8 @@ cost的计算方式
 
     md
     为什么要有md？
-    因为操作系统可能对文件大小有限制（2GB？）。通过md模块将文件分成一个个segment。
+    1、和fd的层次不同，fd关注更多的是文件，md关注的更多的是表。
+    2、因为操作系统可能对文件大小有限制（2GB？）。通过md模块将文件分成一个个segment。
     
     md_init
     创建了MdxCtx内存管理上下文
@@ -117,3 +118,7 @@ cost的计算方式
     md_fd_get_seg(Relation, int)
     根据block的id来找到对应的segment
     同时会更新md_chain字段
+
+
+catcache.c
+    CatCache和CatCTup结构

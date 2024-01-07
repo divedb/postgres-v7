@@ -15,6 +15,9 @@
 /Users/zlh/Documents/Git/postgres-v7/build/src/backend/storage/file/CMakeFiles/fd.dir
 /Users/zlh/Documents/Git/postgres-v7/build/src/backend/storage/file/CMakeFiles/edit_cache.dir
 /Users/zlh/Documents/Git/postgres-v7/build/src/backend/storage/file/CMakeFiles/rebuild_cache.dir
+/Users/zlh/Documents/Git/postgres-v7/build/src/backend/storage/smgr/CMakeFiles/md.dir
+/Users/zlh/Documents/Git/postgres-v7/build/src/backend/storage/smgr/CMakeFiles/edit_cache.dir
+/Users/zlh/Documents/Git/postgres-v7/build/src/backend/storage/smgr/CMakeFiles/rebuild_cache.dir
 /Users/zlh/Documents/Git/postgres-v7/build/src/backend/utils/CMakeFiles/edit_cache.dir
 /Users/zlh/Documents/Git/postgres-v7/build/src/backend/utils/CMakeFiles/rebuild_cache.dir
 /Users/zlh/Documents/Git/postgres-v7/build/src/backend/utils/misc/CMakeFiles/fstack.dir
@@ -39,5 +42,6 @@
 /Users/zlh/Documents/Git/postgres-v7/build/test/CMakeFiles/rebuild_cache.dir
 /Users/zlh/Documents/Git/postgres-v7/build/test/storage/CMakeFiles/ipc_test.dir
 /Users/zlh/Documents/Git/postgres-v7/build/test/storage/CMakeFiles/fd_test.dir
+/Users/zlh/Documents/Git/postgres-v7/build/test/storage/CMakeFiles/md_test.dir
 /Users/zlh/Documents/Git/postgres-v7/build/test/storage/CMakeFiles/edit_cache.dir
 /Users/zlh/Documents/Git/postgres-v7/build/test/storage/CMakeFiles/rebuild_cache.dir

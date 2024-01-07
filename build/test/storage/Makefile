@@ -144,6 +144,20 @@ fd_test/fast:
 	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f test/storage/CMakeFiles/fd_test.dir/build.make test/storage/CMakeFiles/fd_test.dir/build
 .PHONY : fd_test/fast
 
+# Convenience name for target.
+test/storage/CMakeFiles/md_test.dir/rule:
+	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test/storage/CMakeFiles/md_test.dir/rule
+.PHONY : test/storage/CMakeFiles/md_test.dir/rule
+
+# Convenience name for target.
+md_test: test/storage/CMakeFiles/md_test.dir/rule
+.PHONY : md_test
+
+# fast build rule for target.
+md_test/fast:
+	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f test/storage/CMakeFiles/md_test.dir/build.make test/storage/CMakeFiles/md_test.dir/build
+.PHONY : md_test/fast
+
 fd_test.o: fd_test.c.o
 .PHONY : fd_test.o
 
@@ -192,6 +206,30 @@ ipc_test.c.s:
 	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f test/storage/CMakeFiles/ipc_test.dir/build.make test/storage/CMakeFiles/ipc_test.dir/ipc_test.c.s
 .PHONY : ipc_test.c.s
 
+md_test.o: md_test.c.o
+.PHONY : md_test.o
+
+# target to build an object file
+md_test.c.o:
+	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f test/storage/CMakeFiles/md_test.dir/build.make test/storage/CMakeFiles/md_test.dir/md_test.c.o
+.PHONY : md_test.c.o
+
+md_test.i: md_test.c.i
+.PHONY : md_test.i
+
+# target to preprocess a source file
+md_test.c.i:
+	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f test/storage/CMakeFiles/md_test.dir/build.make test/storage/CMakeFiles/md_test.dir/md_test.c.i
+.PHONY : md_test.c.i
+
+md_test.s: md_test.c.s
+.PHONY : md_test.s
+
+# target to generate assembly for a file
+md_test.c.s:
+	cd /Users/zlh/Documents/Git/postgres-v7/build && $(MAKE) $(MAKESILENT) -f test/storage/CMakeFiles/md_test.dir/build.make test/storage/CMakeFiles/md_test.dir/md_test.c.s
+.PHONY : md_test.c.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -202,12 +240,16 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... fd_test"
 	@echo "... ipc_test"
+	@echo "... md_test"
 	@echo "... fd_test.o"
 	@echo "... fd_test.i"
 	@echo "... fd_test.s"
 	@echo "... ipc_test.o"
 	@echo "... ipc_test.i"
 	@echo "... ipc_test.s"
+	@echo "... md_test.o"
+	@echo "... md_test.i"
+	@echo "... md_test.s"
 .PHONY : help
 
 

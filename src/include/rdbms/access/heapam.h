@@ -167,22 +167,20 @@ void heap_undo(XLogRecPtr lsn, XLogRecord* rptr);
 void heap_desc(char* buf, uint8 xl_info, char* rec);
 
 // common/heaptuple.c
-extern Size compute_data_size(TupleDesc tuple_desc, Datum* value, char* nulls);
-extern void data_fill(char* data, TupleDesc tuple_desc, Datum* value,
-                      char* nulls, uint16* infomask, bits8* bit);
-extern int heap_att_is_null(HeapTuple tup, int attnum);
-extern Datum no_cache_get_attr(HeapTuple tup, int attnum, TupleDesc att,
-                               bool* isnull);
-extern HeapTuple heap_copy_tuple(HeapTuple tuple);
-extern void heap_copy_tuple_with_tuple(HeapTuple src, HeapTuple dest);
-extern HeapTuple heap_form_tuple(TupleDesc tup_desc, Datum* value, char* nulls);
-extern HeapTuple heap_modify_tuple(HeapTuple tuple, Relation relation,
-                                   Datum* repl_value, char* repl_null,
-                                   char* repl);
-extern void heap_free_tuple(HeapTuple tuple);
+Size compute_data_size(TupleDesc tuple_desc, Datum* value, char* nulls);
+void data_fill(char* data, TupleDesc tuple_desc, Datum* value, char* nulls,
+               uint16* infomask, bits8* bit);
+int heap_att_is_null(HeapTuple tup, int attnum);
+Datum no_cache_get_attr(HeapTuple tup, int attnum, TupleDesc att, bool* isnull);
+HeapTuple heap_copy_tuple(HeapTuple tuple);
+void heap_copy_tuple_with_tuple(HeapTuple src, HeapTuple dest);
+HeapTuple heap_form_tuple(TupleDesc tup_desc, Datum* value, char* nulls);
+HeapTuple heap_modify_tuple(HeapTuple tuple, Relation relation,
+                            Datum* repl_value, char* repl_null, char* repl);
+void heap_free_tuple(HeapTuple tuple);
 HeapTuple heap_add_header(uint32 natts, int struct_len, char* structure);
 
-// In common/heap/stats.c
+// common/heap/stats.c
 void print_heap_access_statistics(HeapAccessStatistics stats);
 void init_am(void);
 

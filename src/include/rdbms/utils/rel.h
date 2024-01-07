@@ -118,12 +118,13 @@ typedef Relation* RelationPtr;
 // If the rel is a temp rel, the temp name will be returned.  Therefore,
 // this name is not unique.  But it is the name to use in heap_openr(),
 // for example.
-#define RELATION_GET_RELATION_NAME(relation)                          \
-  (strncmp(RELATION_GET_PHYSICAL_RELATION_NAME(relation), "pg_temp.", \
-           strlen("pg_temp.")) != 0)                                  \
-      ? RELATION_GET_PHYSICAL_RELATION_NAME(relation)                 \
-      : get_temp_rel_by_physicalname(                                 \
-            RELATION_GET_PHYSICAL_RELATION_NAME(relation))
+#define RELATION_GET_RELATION_NAME(relation)                                 \
+  ((strncmp(RELATION_GET_PHYSICAL_RELATION_NAME(relation), "pg_temp.", 8) != \
+    0)                                                                       \
+       ? RELATION_GET_PHYSICAL_RELATION_NAME(relation)                       \
+       : get_temp_rel_by_physicalname(                                       \
+             RELATION_GET_PHYSICAL_RELATION_NAME(relation)))
+
 #define RELATION_GET_PHYSICAL_RELATION_NAME(relation) \
   (NAME_STR((relation)->rd_rel->relname))
 #define RELATION_GET_NUMBER_OF_ATTRIBUTES(relation) \

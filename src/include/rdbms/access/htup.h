@@ -56,7 +56,8 @@ typedef HeapTupleHeaderData* HeapTupleHeader;
 #define MIN_COMMAND_ID_ATTRIBUTE_NUMBER         (-4)
 #define MAX_TRANSACTION_ID_ATTRIBUTE_NUMBER     (-5)
 #define MAX_COMMAND_ID_ATTRIBUTE_NUMBER         (-6)
-#define FIRST_LOW_INVALID_HEAP_ATTRIBUTE_NUMBER (-7)
+#define TABLE_OID_ATTRIBUTE_NUMBER              (-7)
+#define FIRST_LOW_INVALID_HEAP_ATTRIBUTE_NUMBER (-8)
 
 // If you make any changes above, the order off offsets in this must change.
 extern long HeapSysOffset[];

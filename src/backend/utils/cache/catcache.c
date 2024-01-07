@@ -16,6 +16,7 @@
 #include "rdbms/utils/catcache.h"
 
 #include "rdbms/access/heapam.h"
+#include "rdbms/lib/dllist.h"
 #include "rdbms/utils/elog.h"
 
 static void cat_cache_remove_ctup(CatCache* cache, CatCTup* ct);
@@ -69,9 +70,78 @@ static void catalog_cache_initialize_cache(CatCache* cache);
 #define CATALOG_CACHE_INITIALIZE_CACHE_DEBUG2
 #endif
 
+// This allocates and initializes a cache for a system catalog relation.
+// Actually, the cache is only partially initialized to avoid opening the
+// relation. The relation will be opened and the rest of the cache
+// structure initialized on the first access.
+#ifdef CACHEDEBUG
+#define INIT_CAT_CACHE_DEBUG1                                    \
+  do {                                                           \
+    elog(DEBUG, "InitCatCache: rel=%s id=%d nkeys=%d size=%d\n", \
+         cp->cc_relname, cp->id, cp->cc_nkeys, cp->cc_size);     \
+  } while (0)
+
+#else
+#define INIT_CAT_CACHE_DEBUG1
+#endif
+
 static CatCache* Caches = NULL;  // Head of list of caches
 
 void create_cache_memory_context();
+
+CatCache* init_cat_cache(int id, char* rel_name, char* ind_name, int nkeys,
+                         int* key) {
+  CatCache* cp;
+  MemoryContext old_cxt;
+  int i;
+
+  // First switch to the cache context so our allocations do not vanish
+  // at the end of a transaction.
+  if (!CacheMemoryContext) {
+    create_cache_memory_context();
+  }
+
+  old_cxt = memory_context_switch_to(CacheMemoryContext);
+
+  // Allocate a new cache structure.
+  cp = (CatCache*)palloc(sizeof(CatCache));
+  MEMSET((char*)cp, 0, sizeof(CatCache));
+
+  // Initialize the cache buckets (each bucket is a list header) and the
+  // LRU tuple list.
+  DLInitList(&cp->cc_lru_list);
+  for (i = 0; i < NCC_BUCK; ++i) {
+    DLInitList(&cp->cc_cache[i]);
+  }
+
+  // Caches is the pointer to the head of the list of all the system
+  // caches. Here we add the new cache to the top of the list.
+  cp->cc_next = Caches;
+  Caches = cp;
+
+  // Initialize the cache's relation information for the relation
+  // corresponding to this cache, and initialize some of the new cache's
+  // other internal fields. But don't open the relation yet.
+  cp->cc_rel_name = rel_name;
+  cp->cc_ind_name = ind_name;
+  cp->cc_tup_desc = NULL;
+  cp->id = id;
+  cp->cc_max_tup = MAX_TUP;
+  cp->cc_size = NCC_BUCK;
+  cp->cc_nkeys = nkeys;
+
+  for (i = 0; i < nkeys; ++i) {
+    cp->cc_key[i] = key[i];
+  }
+
+  // All done. New cache is initialized. Print some debugging
+  // information, if appropriate.
+  INIT_CAT_CACHE_DEBUG1;
+
+  memory_context_switch_to(old_cxt);
+
+  return cp;
+}
 
 static void cat_cache_remove_ctup(CatCache* cache, CatCTup* ct) {
   ASSERT(ct->refcount == 0);

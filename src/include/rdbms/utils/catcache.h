@@ -70,5 +70,9 @@ typedef struct CatCache {
 extern MemoryContext CacheMemoryContext;
 
 void create_cache_memory_context();
+void at_eo_xact_cat_cache(bool is_commit);
+
+CatCache* init_cat_cache(int id, char* rel_name, char* ind_name, int nkeys,
+                         int* key);
 
 #endif  // RDBMS_UTILS_CATCACHE_H_

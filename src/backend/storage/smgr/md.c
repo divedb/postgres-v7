@@ -612,7 +612,7 @@ int md_truncate(Relation relation, int nblocks) {
 
   // NOTE: mdnblocks makes sure we have opened all existing segments, so
   // that truncate/delete loop will get them all!
-  cur_nblk = mdn_blocks(relation);
+  cur_nblk = md_nblocks(relation);
 
   // bogus request.
   if (nblocks < 0 || nblocks > cur_nblk) {
@@ -969,6 +969,7 @@ static int fdvec_free(int fdvec) {
   MdFree = fdvec;
 }
 
+// 一个文件有几个blocks
 static BlockNumber md_nblocks_aux(File file, Size blck_sz) {
   long len;
 
